@@ -29,8 +29,9 @@ A local pass-and-play multiplayer (1–6 players) trivia app for iOS and Android
 | II. Testing Standards | ✅ Pass | P1 journey (full game loop) must have happy-path test coverage. TriviaQuestionProvider interface enables a mock provider for deterministic tests. |
 | III. UX Consistency | ✅ Pass | No design library; custom components will share a single stylesheet module. Handoff screen pattern is consistent across all multiplayer turns. |
 | IV. Performance | ✅ Pass | All network I/O happens once at game start; no mid-game network calls. AsyncStorage writes are async and non-blocking. |
+| V. Live Verification via Maestro | ✅ Pass | All P1 user journeys (full game loop, solo mode, persistence, error handling) MUST be verified by launching the app on a simulator via `mcp__maestro__launch_app`, inspecting with `mcp__maestro__inspect_view_hierarchy` / `mcp__maestro__take_screenshot`, and running flows with `mcp__maestro__run_flow`. Screenshots/flow results saved to `specs/001-pass-and-play-trivia/verification/` before merge. |
 
-*Post-Phase 1 re-check*: No violations introduced by the design. The `src/providers/` module boundary enforces Principle I (single responsibility). Mock provider in tests satisfies Principle II. Consistent screen structure via Expo Router satisfies Principle III.
+*Post-Phase 1 re-check*: No violations introduced by the design. The `src/providers/` module boundary enforces Principle I (single responsibility). Mock provider in tests satisfies Principle II. Consistent screen structure via Expo Router satisfies Principle III. Principle V is satisfied by design — the Expo dev client runs on iOS Simulator, which is directly accessible via Maestro MCP.
 
 ## Project Structure
 
