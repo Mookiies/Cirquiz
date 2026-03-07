@@ -1,50 +1,50 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+SYNC IMPACT REPORT
+==================
+Version change: (unversioned template) → 1.0.0
+Added sections: I. Code Quality, II. Testing Standards, III. UX Consistency, IV. Performance, Governance
+Templates reviewed:
+  - .specify/templates/plan-template.md ✅ Constitution Check section present; no changes needed
+  - .specify/templates/spec-template.md ✅ Aligns with principles; no changes needed
+  - .specify/templates/tasks-template.md ✅ Aligns with principles; no changes needed
+Deferred TODOs: None
+-->
+
+# Cirquiz Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Code Quality
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+- Code MUST be readable and focused. Functions should do one thing.
+- Duplication MUST be removed before a feature is considered done.
+- Lint and formatting checks MUST pass. Suppressions require a comment.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### II. Testing Standards
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+- P1 user journeys MUST have at least one automated test covering the happy path.
+- Tests MUST be written before or alongside implementation, not after.
+- A failing test suite MUST block merge.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### III. UX Consistency
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+- UI patterns (navigation, errors, loading states) MUST be consistent across the app.
+- Error messages MUST be user-readable and actionable where possible.
+- New screens MUST follow the existing design language before shipping.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### IV. Performance Requirements
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
-
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+- Primary interactions MUST feel responsive (target <2s on a mid-range device).
+- New features MUST NOT introduce obvious regressions to existing flows.
+- N+1 data-fetching patterns are not allowed.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution guides technical and implementation decisions for the Cirquiz monorepo.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+- **Constitution Check**: Each feature plan (`plan.md`) MUST include a brief note on how the four principles apply or are intentionally excepted.
+- **Exceptions**: Deviations from a principle MUST be noted in `plan.md` with a one-line rationale.
+- **Amendments**: Use semantic versioning — MAJOR for removals/redefinitions, MINOR for additions, PATCH for wording. Update `LAST_AMENDED_DATE` on any change.
+- This is a personal project; governance is lightweight by design. Common sense prevails.
+
+**Version**: 1.0.0 | **Ratified**: 2026-03-07 | **Last Amended**: 2026-03-07
