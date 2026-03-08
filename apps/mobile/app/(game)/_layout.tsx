@@ -17,8 +17,7 @@ export default function GameLayout() {
   const showQuit = SHOW_QUIT_ON.includes(screenName);
 
   const currentRound = game ? game.rounds[game.currentRoundIndex] : null;
-  const currentPlayer =
-    game && currentRound ? game.players[currentRound.currentPlayerIndex] : null;
+  const currentPlayer = game && currentRound ? game.players[currentRound.currentPlayerIndex] : null;
 
   const handleQuit = () => {
     Alert.alert(t('game.quit.title'), t('game.quit.message'), [

@@ -1,11 +1,30 @@
 This file is purely for notes and tracking things I want to implement going forward.
 
 
-- Make the play buttons on the start screen green instead of red.
 - Add the ability to change the category or difficulty within the game on the standing screen
 - Correctly account for the safe area and stop making this header ugly and white
-- Fix the standings screen to not looks like crap
 - Add tests
-- Add eslint
 - Add a global error boundary so that if this does mess up there’s a button to fully reset the state
 - Github actions for running ts, eslint, and types
+- Store the list of categories from otdb and return that
+- When there's a fetch error it should be possible to retry the fetch instead of the only option being to quit the game on /error
+- Styles and colors should be centralized and tokenized. There should be no floating numbers.
+- There are many non-localized strings at the moment. Add the eslint rule to catch these and make sure all get added to translation files.
+
+
+Future Ideas:
+
+Animations
+    - Make the buttons more exciting and interactive than  just the current simple press.
+
+Music
+
+Questions:
+- Support different types of questions (not just multiple choice)
+    - Image questions
+    - Slider questions
+    - Audio questions (spotify integration like hitster)
+- Generate our own questions
+    - Web scraping NLP to generate a large bank that could be used offline
+    - Generating a backend that is able to handle it
+- AI generated question (maybe embedding models and working with it that way)?

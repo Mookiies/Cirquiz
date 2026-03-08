@@ -37,7 +37,7 @@ export interface Game {
 }
 
 export interface GameConfig {
-  players: Array<{ name: string; color: string }>;
+  players: { name: string; color: string }[];
   questionCount: number;
   category?: string;
   difficulty?: Difficulty;

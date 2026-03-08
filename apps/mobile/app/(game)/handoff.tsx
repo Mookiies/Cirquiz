@@ -15,9 +15,7 @@ export default function HandoffScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: currentPlayer.color }]}>
-      <Text style={styles.title}>
-        {t('game.handoff.title', { name: currentPlayer.name })}
-      </Text>
+      <Text style={styles.title}>{t('game.handoff.title', { name: currentPlayer.name })}</Text>
       <Text style={styles.subtitle}>
         Question {round.currentQuestionIndex + 1} of {round.questions.length}
       </Text>

@@ -1,21 +1,24 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Button } from '../src/components/Button';
+import { CategorySelector } from '../src/components/CategorySelector';
+import { DifficultySelector } from '../src/components/DifficultySelector';
 import { OpenTriviaDbProvider } from '../src/providers/opentdb/OpenTriviaDbProvider';
+import { Difficulty } from '../src/providers/types';
 import { useGameStore } from '../src/state/gameStore';
 
 const COLOR_PALETTE = [
-  '#E74C3C', '#3498DB', '#2ECC71', '#F39C12', '#9B59B6',
-  '#1ABC9C', '#E91E63', '#F1C40F', '#FF5722', '#00BCD4',
+  '#E74C3C',
+  '#3498DB',
+  '#2ECC71',
+  '#F39C12',
+  '#9B59B6',
+  '#1ABC9C',
+  '#E91E63',
+  '#F1C40F',
+  '#FF5722',
+  '#00BCD4',
 ];
 
 interface PlayerEntry {
@@ -32,14 +35,12 @@ export default function SetupScreen() {
   const startGame = useGameStore((s) => s.startGame);
   const isLoading = useGameStore((s) => s.isLoading);
 
-  const [players, setPlayers] = useState<PlayerEntry[]>([
-    { name: '', color: COLOR_PALETTE[0] },
-  ]);
+  const [players, setPlayers] = useState<PlayerEntry[]>([{ name: '', color: COLOR_PALETTE[0] }]);
   const [questionCount, setQuestionCount] = useState('10');
   const [quickPlay, setQuickPlay] = useState(true);
   const [category, setCategory] = useState<string | undefined>(undefined);
-  const [difficulty, setDifficulty] = useState<string | undefined>(undefined);
-  const [categories, setCategories] = useState<Array<{ id: string; name: string }>>([]);
+  const [difficulty, setDifficulty] = useState<Difficulty | undefined>(undefined);
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(false);
   const [nameErrors, setNameErrors] = useState<Record<number, string>>({});
 
@@ -111,7 +112,7 @@ export default function SetupScreen() {
       players: players.map((p) => ({ name: p.name || 'Player', color: p.color })),
       questionCount: count,
       category: quickPlay ? undefined : category,
-      difficulty: quickPlay ? undefined : (difficulty as any),
+      difficulty: quickPlay ? undefined : difficulty,
       mode: quickPlay ? 'quick' : 'configured',
     });
   };
@@ -140,7 +141,12 @@ export default function SetupScreen() {
             value={player.name}
             onChangeText={(text) => {
               updatePlayerName(index, text);
-              if (nameErrors[index]) setNameErrors((prev) => { const n = { ...prev }; delete n[index]; return n; });
+              if (nameErrors[index])
+                setNameErrors((prev) => {
+                  const n = { ...prev };
+                  delete n[index];
+                  return n;
+                });
             }}
             maxLength={20}
           />
@@ -199,50 +205,21 @@ export default function SetupScreen() {
       {!quickPlay && (
         <View>
           <Text style={styles.sectionLabel}>Difficulty</Text>
-          <View style={styles.difficultyRow}>
-            {[undefined, 'easy', 'medium', 'hard'].map((d) => {
-              const label = d ? d.charAt(0).toUpperCase() + d.slice(1) : 'Any';
-              const active = difficulty === d;
-              return (
-                <TouchableOpacity
-                  key={label}
-                  style={[styles.diffBtn, active && styles.diffActive]}
-                  onPress={() => setDifficulty(d)}
-                >
-                  <Text style={[styles.diffText, active && styles.diffTextActive]}>{label}</Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+          <DifficultySelector value={difficulty} onChange={setDifficulty} />
 
           <Text style={styles.sectionLabel}>Category</Text>
-          {loadingCategories ? (
-            <ActivityIndicator style={styles.categoryLoader} />
-          ) : (
-            <View>
-              {[{ id: undefined, name: 'Any Category' }, ...[...categories].sort((a, b) => a.name.localeCompare(b.name))].map((cat) => {
-                const active = category === cat.id;
-                return (
-                  <TouchableOpacity
-                    key={cat.id ?? '__any__'}
-                    style={[styles.categoryRow, active && styles.categoryRowActive]}
-                    onPress={() => setCategory(cat.id)}
-                  >
-                    <Text style={[styles.categoryRowText, active && styles.categoryRowTextActive]}>
-                      {cat.name}
-                    </Text>
-                    {active && <Text style={styles.categoryCheck}>✓</Text>}
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          )}
+          <CategorySelector
+            categories={categories}
+            value={category}
+            onChange={setCategory}
+            loading={loadingCategories}
+          />
         </View>
       )}
 
       <Button
         label={t('setup.start')}
-        color="#E74C3C"
+        color="#2ECC71"
         loading={isLoading}
         disabled={!canStart}
         onPress={handleStart}
@@ -278,37 +255,16 @@ const styles = StyleSheet.create({
   addButtonText: { color: '#3498DB', fontSize: 16 },
   toggleRow: { flexDirection: 'row', marginTop: 16, marginBottom: 8, gap: 8 },
   toggleBtn: {
-    flex: 1, padding: 10, borderRadius: 8,
-    borderWidth: 1, borderColor: '#ddd', alignItems: 'center',
+    flex: 1,
+    padding: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    alignItems: 'center',
   },
   toggleActive: { backgroundColor: '#3498DB', borderColor: '#3498DB' },
   toggleText: { color: '#555', fontSize: 14 },
   toggleTextActive: { color: '#fff' },
-  categoryLoader: { marginVertical: 12 },
-  categoryRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    marginBottom: 8,
-    backgroundColor: '#fafafa',
-  },
-  categoryRowActive: { backgroundColor: '#EBF5FB', borderColor: '#3498DB' },
-  categoryRowText: { fontSize: 15, color: '#333' },
-  categoryRowTextActive: { color: '#3498DB', fontWeight: '600' },
-  categoryCheck: { fontSize: 16, color: '#3498DB', fontWeight: '700' },
-  difficultyRow: { flexDirection: 'row', gap: 8, marginBottom: 8 },
-  diffBtn: {
-    flex: 1, padding: 10, borderRadius: 8,
-    borderWidth: 1, borderColor: '#ddd', alignItems: 'center',
-  },
-  diffActive: { backgroundColor: '#9B59B6', borderColor: '#9B59B6' },
-  diffText: { color: '#555', fontSize: 14 },
-  diffTextActive: { color: '#fff' },
   startButton: {
     marginTop: 24,
   },

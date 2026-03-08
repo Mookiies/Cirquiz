@@ -11,7 +11,10 @@ export function ScoreRow({ name, color, score, label }: Props) {
   return (
     <View style={[styles.row, { borderLeftColor: color }]}>
       <Text style={styles.name}>{name}</Text>
-      <Text style={styles.score}>{label ? `${label}: ` : ''}{score}</Text>
+      <Text style={styles.score}>
+        {label ? `${label}: ` : ''}
+        {score}
+      </Text>
     </View>
   );
 }

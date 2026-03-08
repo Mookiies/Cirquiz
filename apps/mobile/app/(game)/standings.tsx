@@ -1,7 +1,12 @@
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Difficulty } from '../../src/providers/types';
 import { Button } from '../../src/components/Button';
+import { CategorySelector } from '../../src/components/CategorySelector';
+import { DifficultySelector } from '../../src/components/DifficultySelector';
+import { OpenTriviaDbProvider } from '../../src/providers/opentdb/OpenTriviaDbProvider';
 import { useGameStore } from '../../src/state/gameStore';
 
 export default function StandingsScreen() {
@@ -21,8 +26,39 @@ export default function StandingsScreen() {
   const quitGame = useGameStore((s) => s.quitGame);
   const startNextRound = useGameStore((s) => s.startNextRound);
   const isLoading = useGameStore((s) => s.isLoading);
+  const updateRoundConfig = useGameStore((s) => s.updateRoundConfig);
+
+  const [showSettings, setShowSettings] = useState(false);
+  const [localCategory, setLocalCategory] = useState<string | undefined>(
+    game?.category ?? undefined
+  );
+  const [localDifficulty, setLocalDifficulty] = useState<Difficulty | undefined>(
+    game?.difficulty ?? undefined
+  );
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(false);
 
   if (!game) return null;
+
+  const loadCategories = async () => {
+    setLoadingCategories(true);
+    try {
+      setCategories(await new OpenTriviaDbProvider().fetchCategories());
+    } catch {
+    } finally {
+      setLoadingCategories(false);
+    }
+  };
+
+  const handleDifficultyChange = (d: Difficulty | undefined) => {
+    setLocalDifficulty(d);
+    updateRoundConfig({ difficulty: d ?? null, mode: d || localCategory ? 'configured' : 'quick' });
+  };
+
+  const handleCategoryChange = (c: string | undefined) => {
+    setLocalCategory(c);
+    updateRoundConfig({ category: c ?? null, mode: c || localDifficulty ? 'configured' : 'quick' });
+  };
 
   const sorted = [...game.players].sort((a, b) => b.cumulativeScore - a.cumulativeScore);
 
@@ -33,7 +69,7 @@ export default function StandingsScreen() {
       game.players.map((p) => [
         p.id,
         round.turns.filter((t) => t.playerId === p.id && t.isCorrect).length,
-      ]),
+      ])
     );
     const max = Math.max(...Object.values(scoreByPlayer));
     if (max > 0) {
@@ -54,8 +90,8 @@ export default function StandingsScreen() {
 
       {sorted.map((player, index) => {
         const place = index + 1;
-        const roundScores = game.rounds.map((round) =>
-          round.turns.filter((t) => t.playerId === player.id && t.isCorrect).length,
+        const roundScores = game.rounds.map(
+          (round) => round.turns.filter((t) => t.playerId === player.id && t.isCorrect).length
         );
         return (
           <View key={player.id} style={[styles.row, { borderLeftColor: player.color }]}>
@@ -89,6 +125,36 @@ export default function StandingsScreen() {
         );
       })}
 
+      <TouchableOpacity
+        style={styles.settingsToggle}
+        onPress={async () => {
+          if (!showSettings && categories.length === 0) await loadCategories();
+          setShowSettings((v) => !v);
+        }}
+      >
+        <Text style={styles.settingsToggleText}>
+          {showSettings ? 'Hide Settings' : 'Change Category / Difficulty'}
+        </Text>
+      </TouchableOpacity>
+
+      {showSettings && (
+        <View style={styles.settingsPanel}>
+          <Text style={styles.settingsLabel}>Difficulty</Text>
+          <DifficultySelector
+            value={localDifficulty}
+            onChange={handleDifficultyChange}
+            style={{ marginBottom: 8 }}
+          />
+          <Text style={styles.settingsLabel}>Category</Text>
+          <CategorySelector
+            categories={categories}
+            value={localCategory}
+            onChange={handleCategoryChange}
+            loading={loadingCategories}
+          />
+        </View>
+      )}
+
       <Button
         label={t('game.standings.playAnotherRound')}
         color="#2ECC71"
@@ -97,11 +163,7 @@ export default function StandingsScreen() {
         style={styles.roundButton}
       />
 
-      <Button
-        label={t('game.standings.endSession')}
-        color="#E74C3C"
-        onPress={handleEndSession}
-      />
+      <Button label={t('game.standings.endSession')} color="#E74C3C" onPress={handleEndSession} />
     </ScrollView>
   );
 }
@@ -134,4 +196,8 @@ const styles = StyleSheet.create({
     marginTop: 24,
     marginBottom: 12,
   },
+  settingsToggle: { marginTop: 20, marginBottom: 4, alignItems: 'center' },
+  settingsToggleText: { color: '#3498DB', fontSize: 15, fontWeight: '600' },
+  settingsPanel: { marginBottom: 4 },
+  settingsLabel: { fontSize: 14, fontWeight: '600', color: '#555', marginBottom: 6, marginTop: 12 },
 });

@@ -9,11 +9,7 @@ import {
   TriviaProviderError,
   TriviaProviderErrorCode,
 } from '../types';
-import {
-  OtdbCategoryResponse,
-  OtdbResponse,
-  OtdbTokenResponse,
-} from './otdbTypes';
+import { OtdbCategoryResponse, OtdbResponse, OtdbTokenResponse } from './otdbTypes';
 
 const BASE_URL = 'https://opentdb.com';
 
@@ -23,7 +19,11 @@ export class OpenTriviaDbProvider implements TriviaQuestionProvider {
   private async getToken(): Promise<string> {
     if (this.token) return this.token;
     const res = await fetch(`${BASE_URL}/api_token.php?command=request`);
-    if (!res.ok) throw new TriviaProviderError('Network error requesting token', TriviaProviderErrorCode.NetworkError);
+    if (!res.ok)
+      throw new TriviaProviderError(
+        'Network error requesting token',
+        TriviaProviderErrorCode.NetworkError
+      );
     const data: OtdbTokenResponse = await res.json();
     this.token = data.token;
     return this.token;
@@ -41,7 +41,8 @@ export class OpenTriviaDbProvider implements TriviaQuestionProvider {
     let data: OtdbResponse;
     try {
       const res = await fetch(url);
-      if (!res.ok) throw new TriviaProviderError('Network error', TriviaProviderErrorCode.NetworkError);
+      if (!res.ok)
+        throw new TriviaProviderError('Network error', TriviaProviderErrorCode.NetworkError);
       data = await res.json();
     } catch (e) {
       if (e instanceof TriviaProviderError) throw e;
@@ -51,7 +52,11 @@ export class OpenTriviaDbProvider implements TriviaQuestionProvider {
     if (data.response_code === 4) {
       await this.resetToken();
       const retryRes = await fetch(this.buildUrl(params, this.token!));
-      if (!retryRes.ok) throw new TriviaProviderError('Network error on retry', TriviaProviderErrorCode.NetworkError);
+      if (!retryRes.ok)
+        throw new TriviaProviderError(
+          'Network error on retry',
+          TriviaProviderErrorCode.NetworkError
+        );
       data = await retryRes.json();
     }
 

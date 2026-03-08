@@ -36,7 +36,7 @@ export enum TriviaProviderErrorCode {
 export class TriviaProviderError extends Error {
   constructor(
     message: string,
-    public readonly code: TriviaProviderErrorCode,
+    public readonly code: TriviaProviderErrorCode
   ) {
     super(message);
     this.name = 'TriviaProviderError';

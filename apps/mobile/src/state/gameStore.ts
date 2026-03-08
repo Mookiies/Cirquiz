@@ -35,6 +35,11 @@ interface GameStoreActions {
   advanceAfterReveal: () => void;
   startNextRound: () => Promise<void>;
   quitGame: () => void;
+  updateRoundConfig: (config: {
+    category?: GameConfig['category'] | null;
+    difficulty?: GameConfig['difficulty'] | null;
+    mode?: GameConfig['mode'];
+  }) => void;
 }
 
 type GameStore = GameStoreState & GameStoreActions;
@@ -105,7 +110,7 @@ export const useGameStore = create<GameStore>()(
             Alert.alert(
               'Fewer Questions Available',
               `Only ${questions.length} question${questions.length === 1 ? '' : 's'} available (instead of ${config.questionCount}). The game will use ${questions.length} question${questions.length === 1 ? '' : 's'}.`,
-              [{ text: 'OK', onPress: navigate }],
+              [{ text: 'OK', onPress: navigate }]
             );
           } else {
             navigate();
@@ -153,7 +158,7 @@ export const useGameStore = create<GameStore>()(
         };
 
         const updatedRounds = game.rounds.map((r, i) =>
-          i === game.currentRoundIndex ? updatedRound : r,
+          i === game.currentRoundIndex ? updatedRound : r
         );
 
         const updatedGame: Game = {
@@ -175,7 +180,7 @@ export const useGameStore = create<GameStore>()(
             currentPlayerIndex: round.currentPlayerIndex + 1,
           };
           const nextRounds = updatedGame.rounds.map((r, i) =>
-            i === updatedGame.currentRoundIndex ? nextRound : r,
+            i === updatedGame.currentRoundIndex ? nextRound : r
           );
           set({ game: { ...updatedGame, rounds: nextRounds }, savedAt: new Date().toISOString() });
 
@@ -197,7 +202,7 @@ export const useGameStore = create<GameStore>()(
         if (isLastQuestion) {
           const completedRound: Round = { ...round, state: 'completed' };
           const updatedRounds = game.rounds.map((r, i) =>
-            i === game.currentRoundIndex ? completedRound : r,
+            i === game.currentRoundIndex ? completedRound : r
           );
           const updatedGame: Game = {
             ...game,
@@ -213,7 +218,7 @@ export const useGameStore = create<GameStore>()(
             currentPlayerIndex: 0,
           };
           const updatedRounds = game.rounds.map((r, i) =>
-            i === game.currentRoundIndex ? nextRound : r,
+            i === game.currentRoundIndex ? nextRound : r
           );
           set({ game: { ...game, rounds: updatedRounds }, savedAt: new Date().toISOString() });
 
@@ -231,9 +236,7 @@ export const useGameStore = create<GameStore>()(
 
         set({ isLoading: true });
         try {
-          const previousQuestionIds = game.rounds.flatMap((r) =>
-            r.questions.map((q) => q.id),
-          );
+          const previousQuestionIds = game.rounds.flatMap((r) => r.questions.map((q) => q.id));
 
           const questions = await provider.fetchQuestions({
             count: game.questionCount,
@@ -284,6 +287,20 @@ export const useGameStore = create<GameStore>()(
       quitGame: () => {
         set({ game: null, savedAt: new Date().toISOString() });
       },
+
+      updateRoundConfig: ({ category, difficulty, mode }) => {
+        const { game } = get();
+        if (!game) return;
+        set({
+          game: {
+            ...game,
+            ...(category !== undefined && { category }),
+            ...(difficulty !== undefined && { difficulty }),
+            ...(mode !== undefined && { mode }),
+          },
+          savedAt: new Date().toISOString(),
+        });
+      },
     }),
     {
       name: STORAGE_KEY,
@@ -296,6 +313,6 @@ export const useGameStore = create<GameStore>()(
           state.isHydrated = true;
         }
       },
-    },
-  ),
+    }
+  )
 );

@@ -30,7 +30,9 @@ export default function QuestionScreen() {
           total: round.questions.length,
         })}
       </Text>
-      <Text style={styles.category}>{question.category} · {question.difficulty}</Text>
+      <Text style={styles.category}>
+        {question.category} · {question.difficulty}
+      </Text>
       <Text style={styles.questionText}>{question.text}</Text>
       <View style={styles.optionsContainer}>
         {question.options.map((option) => (
