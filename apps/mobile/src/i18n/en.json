@@ -9,7 +9,7 @@
     "start": "Start Game",
     "quickPlay": "Quick Play",
     "chooseCategories": "Choose Categories",
-    "playerName": "Player name",
+    "playerName": "Player",
     "questionCount": "Number of Questions"
   },
   "game": {

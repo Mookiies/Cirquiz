@@ -1,6 +1,15 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../src/components/Button';
 import { CategorySelector } from '../src/components/CategorySelector';
 import { DifficultySelector } from '../src/components/DifficultySelector';
@@ -32,10 +41,13 @@ function firstAvailableColor(used: string[]): string {
 
 export default function SetupScreen() {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const startGame = useGameStore((s) => s.startGame);
   const isLoading = useGameStore((s) => s.isLoading);
 
-  const [players, setPlayers] = useState<PlayerEntry[]>([{ name: '', color: COLOR_PALETTE[0] }]);
+  const [players, setPlayers] = useState<PlayerEntry[]>([
+    { name: `${t('setup.playerName')} 1`, color: COLOR_PALETTE[0] },
+  ]);
   const [questionCount, setQuestionCount] = useState('10');
   const [quickPlay, setQuickPlay] = useState(true);
   const [category, setCategory] = useState<string | undefined>(undefined);
@@ -49,7 +61,8 @@ export default function SetupScreen() {
   const addPlayer = () => {
     if (players.length >= 6) return;
     const color = firstAvailableColor(usedColors);
-    setPlayers((prev) => [...prev, { name: '', color }]);
+    const name = `${t('setup.playerName')} ${players.length + 1}`;
+    setPlayers((prev) => [...prev, { name, color }]);
   };
 
   const removePlayer = (index: number) => {
@@ -120,116 +133,128 @@ export default function SetupScreen() {
   const canStart = players.length > 0 && !isLoading;
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>New Game</Text>
+    <KeyboardAvoidingView style={styles.keyboardAvoid} behavior="padding">
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={[styles.content, { paddingTop: insets.top + 24 }]}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Text style={styles.title}>New Game</Text>
 
-      <Text style={styles.sectionLabel}>{t('setup.questionCount')}</Text>
-      <TextInput
-        style={styles.input}
-        value={questionCount}
-        onChangeText={setQuestionCount}
-        keyboardType="number-pad"
-        maxLength={2}
-      />
+        <Text style={styles.sectionLabel}>{t('setup.questionCount')}</Text>
+        <TextInput
+          style={styles.input}
+          value={questionCount}
+          onChangeText={setQuestionCount}
+          keyboardType="number-pad"
+          maxLength={2}
+        />
 
-      <Text style={styles.sectionLabel}>Players</Text>
-      {players.map((player, index) => (
-        <View key={index} style={styles.playerRow}>
-          <TextInput
-            style={[styles.input, styles.playerInput, nameErrors[index] ? styles.inputError : null]}
-            placeholder={`${t('setup.playerName')} ${index + 1}`}
-            value={player.name}
-            onChangeText={(text) => {
-              updatePlayerName(index, text);
-              if (nameErrors[index])
-                setNameErrors((prev) => {
-                  const n = { ...prev };
-                  delete n[index];
-                  return n;
-                });
-            }}
-            maxLength={20}
-          />
-          {nameErrors[index] ? <Text style={styles.errorText}>{nameErrors[index]}</Text> : null}
-          <View style={styles.colorRow}>
-            {COLOR_PALETTE.map((color) => {
-              const taken = usedColors.includes(color) && players[index].color !== color;
-              return (
-                <TouchableOpacity
-                  key={color}
-                  style={[
-                    styles.colorSwatch,
-                    { backgroundColor: color },
-                    player.color === color && styles.colorSelected,
-                    taken && styles.colorDisabled,
-                  ]}
-                  onPress={() => !taken && updatePlayerColor(index, color)}
-                  disabled={taken}
-                />
-              );
-            })}
+        <Text style={styles.sectionLabel}>Players</Text>
+        {players.map((player, index) => (
+          <View key={index} style={styles.playerRow}>
+            <TextInput
+              style={[
+                styles.input,
+                styles.playerInput,
+                nameErrors[index] ? styles.inputError : null,
+              ]}
+              selectTextOnFocus
+              placeholder={`${t('setup.playerName')} ${index + 1}`}
+              value={player.name}
+              onChangeText={(text) => {
+                updatePlayerName(index, text);
+                if (nameErrors[index])
+                  setNameErrors((prev) => {
+                    const n = { ...prev };
+                    delete n[index];
+                    return n;
+                  });
+              }}
+              maxLength={20}
+            />
+            {nameErrors[index] ? <Text style={styles.errorText}>{nameErrors[index]}</Text> : null}
+            <View style={styles.colorRow}>
+              {COLOR_PALETTE.map((color) => {
+                const taken = usedColors.includes(color) && players[index].color !== color;
+                return (
+                  <TouchableOpacity
+                    key={color}
+                    style={[
+                      styles.colorSwatch,
+                      { backgroundColor: color },
+                      player.color === color && styles.colorSelected,
+                      taken && styles.colorDisabled,
+                    ]}
+                    onPress={() => !taken && updatePlayerColor(index, color)}
+                    disabled={taken}
+                  />
+                );
+              })}
+            </View>
+            {players.length > 1 && (
+              <TouchableOpacity onPress={() => removePlayer(index)}>
+                <Text style={styles.removeText}>✕</Text>
+              </TouchableOpacity>
+            )}
           </View>
-          {players.length > 1 && (
-            <TouchableOpacity onPress={() => removePlayer(index)}>
-              <Text style={styles.removeText}>✕</Text>
-            </TouchableOpacity>
-          )}
+        ))}
+
+        {players.length < 6 && (
+          <TouchableOpacity style={styles.addButton} onPress={addPlayer}>
+            <Text style={styles.addButtonText}>+ {t('setup.addPlayer')}</Text>
+          </TouchableOpacity>
+        )}
+
+        <View style={styles.toggleRow}>
+          <TouchableOpacity
+            style={[styles.toggleBtn, quickPlay && styles.toggleActive]}
+            onPress={() => setQuickPlay(true)}
+          >
+            <Text style={[styles.toggleText, quickPlay && styles.toggleTextActive]}>
+              {t('setup.quickPlay')}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.toggleBtn, !quickPlay && styles.toggleActive]}
+            onPress={toggleQuickPlay}
+          >
+            <Text style={[styles.toggleText, !quickPlay && styles.toggleTextActive]}>
+              {t('setup.chooseCategories')}
+            </Text>
+          </TouchableOpacity>
         </View>
-      ))}
 
-      {players.length < 6 && (
-        <TouchableOpacity style={styles.addButton} onPress={addPlayer}>
-          <Text style={styles.addButtonText}>+ {t('setup.addPlayer')}</Text>
-        </TouchableOpacity>
-      )}
+        {!quickPlay && (
+          <View>
+            <Text style={styles.sectionLabel}>Difficulty</Text>
+            <DifficultySelector value={difficulty} onChange={setDifficulty} />
 
-      <View style={styles.toggleRow}>
-        <TouchableOpacity
-          style={[styles.toggleBtn, quickPlay && styles.toggleActive]}
-          onPress={() => setQuickPlay(true)}
-        >
-          <Text style={[styles.toggleText, quickPlay && styles.toggleTextActive]}>
-            {t('setup.quickPlay')}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.toggleBtn, !quickPlay && styles.toggleActive]}
-          onPress={toggleQuickPlay}
-        >
-          <Text style={[styles.toggleText, !quickPlay && styles.toggleTextActive]}>
-            {t('setup.chooseCategories')}
-          </Text>
-        </TouchableOpacity>
-      </View>
+            <Text style={styles.sectionLabel}>Category</Text>
+            <CategorySelector
+              categories={categories}
+              value={category}
+              onChange={setCategory}
+              loading={loadingCategories}
+            />
+          </View>
+        )}
 
-      {!quickPlay && (
-        <View>
-          <Text style={styles.sectionLabel}>Difficulty</Text>
-          <DifficultySelector value={difficulty} onChange={setDifficulty} />
-
-          <Text style={styles.sectionLabel}>Category</Text>
-          <CategorySelector
-            categories={categories}
-            value={category}
-            onChange={setCategory}
-            loading={loadingCategories}
-          />
-        </View>
-      )}
-
-      <Button
-        label={t('setup.start')}
-        color="#2ECC71"
-        loading={isLoading}
-        disabled={!canStart}
-        onPress={handleStart}
-        style={styles.startButton}
-      />
-    </ScrollView>
+        <Button
+          label={t('setup.start')}
+          color="#2ECC71"
+          loading={isLoading}
+          disabled={!canStart}
+          onPress={handleStart}
+          style={styles.startButton}
+        />
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  keyboardAvoid: { flex: 1, backgroundColor: '#fff' },
   container: { flex: 1, backgroundColor: '#fff' },
   content: { padding: 24, paddingBottom: 48 },
   title: { fontSize: 28, fontWeight: 'bold', marginBottom: 24 },

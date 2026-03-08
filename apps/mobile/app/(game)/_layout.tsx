@@ -2,22 +2,26 @@ import { router, Stack, usePathname } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useGameStore } from '../../src/state/gameStore';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const SHOW_BANNER_ON = ['handoff', 'question', 'reveal'];
+const SHOW_PLAYER_BANNER_ON = ['question'];
+const SHOW_PLAYER_COLOR = ['handoff', 'question'];
 const SHOW_QUIT_ON = ['handoff', 'question', 'reveal', 'error'];
 
 export default function GameLayout() {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const game = useGameStore((s) => s.game);
   const quitGame = useGameStore((s) => s.quitGame);
   const pathname = usePathname();
 
-  const screenName = pathname.split('/').pop() ?? '';
-  const showBanner = SHOW_BANNER_ON.includes(screenName);
-  const showQuit = SHOW_QUIT_ON.includes(screenName);
-
   const currentRound = game ? game.rounds[game.currentRoundIndex] : null;
   const currentPlayer = game && currentRound ? game.players[currentRound.currentPlayerIndex] : null;
+
+  const screenName = pathname.split('/').pop() ?? '';
+  const showPlayerName = SHOW_PLAYER_BANNER_ON.includes(screenName) && !!currentPlayer;
+  const showPlayerColor = SHOW_PLAYER_COLOR.includes(screenName) && !!currentPlayer;
+  const showQuit = SHOW_QUIT_ON.includes(screenName);
 
   const handleQuit = () => {
     Alert.alert(t('game.quit.title'), t('game.quit.message'), [
@@ -33,24 +37,45 @@ export default function GameLayout() {
     ]);
   };
 
+  const showHeader = showPlayerName || showQuit;
+
+  const header = () => {
+    if (!showHeader) return null;
+
+    const backgroundColor = showPlayerColor && currentPlayer.color ? currentPlayer.color : '#fff';
+    const quitColor = showPlayerColor && currentPlayer.color ? '#fff' : '#222';
+    return (
+      <View
+        style={[
+          styles.header,
+          {
+            paddingTop: insets.top,
+            backgroundColor,
+          },
+        ]}
+      >
+        {showPlayerName && currentPlayer && (
+          <View
+            style={[styles.banner, { backgroundColor: currentPlayer.color, alignSelf: 'center' }]}
+          >
+            <Text style={styles.bannerText}>{currentPlayer.name}</Text>
+          </View>
+        )}
+        {showQuit && (
+          <TouchableOpacity onPress={handleQuit} style={[styles.banner, styles.quitButton]}>
+            <Text style={[styles.quitText, { color: quitColor }]}>{t('game.quit.confirm')}</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
-      {showBanner && currentPlayer && (
-        <View style={[styles.banner, { backgroundColor: currentPlayer.color }]}>
-          <Text style={styles.bannerText}>{currentPlayer.name}</Text>
-        </View>
-      )}
       <Stack
         screenOptions={{
-          headerShown: showQuit,
-          headerTitle: '',
-          headerRight: showQuit
-            ? () => (
-                <TouchableOpacity onPress={handleQuit} style={styles.quitButton}>
-                  <Text style={styles.quitText}>{t('game.quit.confirm')}</Text>
-                </TouchableOpacity>
-              )
-            : undefined,
+          header,
+          animation: 'slide_from_right',
         }}
       />
     </View>
@@ -62,13 +87,15 @@ const styles = StyleSheet.create({
   banner: {
     paddingVertical: 10,
     paddingHorizontal: 16,
-    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
   },
   bannerText: {
     color: '#fff',
     fontWeight: '700',
     fontSize: 16,
   },
-  quitButton: { marginRight: 8 },
-  quitText: { color: '#E74C3C', fontSize: 15, fontWeight: '600' },
+  header: { alignItems: 'center', flexDirection: 'row' },
+  quitButton: { marginLeft: 'auto' },
+  quitText: { fontSize: 15, fontWeight: '600' },
 });

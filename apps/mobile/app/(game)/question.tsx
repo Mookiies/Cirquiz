@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { AnswerButton } from '../../src/components/AnswerButton';
 import { useGameStore } from '../../src/state/gameStore';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function QuestionScreen() {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const game = useGameStore((s) => s.game);
   const submitAnswer = useGameStore((s) => s.submitAnswer);
   const [selected, setSelected] = useState<string | null>(null);
@@ -23,7 +25,10 @@ export default function QuestionScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView
+      style={styles.scrollView}
+      contentContainerStyle={[styles.container, { paddingBottom: insets.bottom }]}
+    >
       <Text style={styles.progress}>
         {t('game.question.title', {
           current: round.currentQuestionIndex + 1,
@@ -46,12 +51,13 @@ export default function QuestionScreen() {
           />
         ))}
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff', padding: 24 },
+  scrollView: { flex: 1 },
+  container: { backgroundColor: '#fff', padding: 24, flexGrow: 1 },
   progress: { fontSize: 14, color: '#888', marginBottom: 4 },
   category: { fontSize: 12, color: '#aaa', marginBottom: 20 },
   questionText: {

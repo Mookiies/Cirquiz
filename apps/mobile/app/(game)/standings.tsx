@@ -8,9 +8,11 @@ import { CategorySelector } from '../../src/components/CategorySelector';
 import { DifficultySelector } from '../../src/components/DifficultySelector';
 import { OpenTriviaDbProvider } from '../../src/providers/opentdb/OpenTriviaDbProvider';
 import { useGameStore } from '../../src/state/gameStore';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function StandingsScreen() {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const ordinal = (n: number) => {
     const mod10 = n % 10;
     const mod100 = n % 100;
@@ -85,7 +87,13 @@ export default function StandingsScreen() {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={[
+        styles.content,
+        { paddingTop: insets.top + BASE_PADDING, paddingBottom: insets.bottom + BASE_PADDING },
+      ]}
+    >
       <Text style={styles.title}>{t('game.standings.title')}</Text>
 
       {sorted.map((player, index) => {
@@ -168,9 +176,10 @@ export default function StandingsScreen() {
   );
 }
 
+const BASE_PADDING = 24;
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
-  content: { padding: 24, paddingBottom: 48 },
+  content: { paddingHorizontal: BASE_PADDING },
   title: { fontSize: 28, fontWeight: 'bold', marginBottom: 24, textAlign: 'center' },
   row: {
     flexDirection: 'row',
