@@ -104,9 +104,9 @@ export default function SetupScreen() {
     players.forEach((p, i) => {
       const name = p.name.trim();
       if (!name) {
-        errors[i] = 'Name cannot be empty';
+        errors[i] = t('setup.nameEmpty');
       } else if (seen.has(name.toLowerCase())) {
-        errors[i] = 'Name must be unique';
+        errors[i] = t('setup.nameUnique');
       } else {
         seen.add(name.toLowerCase());
       }
@@ -139,7 +139,7 @@ export default function SetupScreen() {
         contentContainerStyle={[styles.content, { paddingTop: insets.top + 24 }]}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={styles.title}>New Game</Text>
+        <Text style={styles.title}>{t('setup.title')}</Text>
 
         <Text style={styles.sectionLabel}>{t('setup.questionCount')}</Text>
         <TextInput
@@ -150,7 +150,7 @@ export default function SetupScreen() {
           maxLength={2}
         />
 
-        <Text style={styles.sectionLabel}>Players</Text>
+        <Text style={styles.sectionLabel}>{t('setup.players')}</Text>
         {players.map((player, index) => (
           <View key={index} style={styles.playerRow}>
             <TextInput
@@ -227,10 +227,10 @@ export default function SetupScreen() {
 
         {!quickPlay && (
           <View>
-            <Text style={styles.sectionLabel}>Difficulty</Text>
+            <Text style={styles.sectionLabel}>{t('common.difficulty')}</Text>
             <DifficultySelector value={difficulty} onChange={setDifficulty} />
 
-            <Text style={styles.sectionLabel}>Category</Text>
+            <Text style={styles.sectionLabel}>{t('common.category')}</Text>
             <CategorySelector
               categories={categories}
               value={category}

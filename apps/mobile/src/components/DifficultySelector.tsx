@@ -1,5 +1,6 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import type { ViewStyle } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 type Difficulty = 'easy' | 'medium' | 'hard';
 
@@ -9,17 +10,19 @@ interface Props {
   style?: ViewStyle;
 }
 
-const OPTIONS: { label: string; value: Difficulty | undefined }[] = [
-  { label: 'Any', value: undefined },
-  { label: 'Easy', value: 'easy' },
-  { label: 'Medium', value: 'medium' },
-  { label: 'Hard', value: 'hard' },
-];
-
 export function DifficultySelector({ value, onChange, style }: Props) {
+  const { t } = useTranslation();
+
+  const options: { label: string; value: Difficulty | undefined }[] = [
+    { label: t('common.any'), value: undefined },
+    { label: t('common.easy'), value: 'easy' },
+    { label: t('common.medium'), value: 'medium' },
+    { label: t('common.hard'), value: 'hard' },
+  ];
+
   return (
     <View style={[styles.row, style]}>
-      {OPTIONS.map(({ label, value: optVal }) => {
+      {options.map(({ label, value: optVal }) => {
         const active = value === optVal;
         return (
           <TouchableOpacity

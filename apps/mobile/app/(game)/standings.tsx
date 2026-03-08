@@ -109,12 +109,12 @@ export default function StandingsScreen() {
               <View style={styles.statsRow}>
                 <View style={styles.stat}>
                   <Text style={styles.statValue}>{player.cumulativeScore}</Text>
-                  <Text style={styles.statLabel}>Correct</Text>
+                  <Text style={styles.statLabel}>{t('game.standings.correct')}</Text>
                 </View>
                 {game.rounds.length > 1 && (
                   <View style={styles.stat}>
                     <Text style={styles.statValue}>{roundsWon[player.id]}</Text>
-                    <Text style={styles.statLabel}>Rounds Won</Text>
+                    <Text style={styles.statLabel}>{t('game.standings.roundsWon')}</Text>
                   </View>
                 )}
               </View>
@@ -122,7 +122,9 @@ export default function StandingsScreen() {
                 <View style={styles.roundGrid}>
                   {roundScores.map((s, i) => (
                     <View key={i} style={styles.roundCell}>
-                      <Text style={styles.roundCellLabel}>R{i + 1}</Text>
+                      <Text style={styles.roundCellLabel}>
+                        {t('game.standings.roundLabel', { n: i + 1 })}
+                      </Text>
                       <Text style={styles.roundCellValue}>{s}</Text>
                     </View>
                   ))}
@@ -141,19 +143,19 @@ export default function StandingsScreen() {
         }}
       >
         <Text style={styles.settingsToggleText}>
-          {showSettings ? 'Hide Settings' : 'Change Category / Difficulty'}
+          {showSettings ? t('game.standings.hideSettings') : t('game.standings.changeSettings')}
         </Text>
       </TouchableOpacity>
 
       {showSettings && (
         <View style={styles.settingsPanel}>
-          <Text style={styles.settingsLabel}>Difficulty</Text>
+          <Text style={styles.settingsLabel}>{t('common.difficulty')}</Text>
           <DifficultySelector
             value={localDifficulty}
             onChange={handleDifficultyChange}
             style={{ marginBottom: 8 }}
           />
-          <Text style={styles.settingsLabel}>Category</Text>
+          <Text style={styles.settingsLabel}>{t('common.category')}</Text>
           <CategorySelector
             categories={categories}
             value={localCategory}

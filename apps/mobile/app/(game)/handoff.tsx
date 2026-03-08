@@ -17,7 +17,10 @@ export default function HandoffScreen() {
     <View style={[styles.container, { backgroundColor: currentPlayer.color }]}>
       <Text style={styles.title}>{t('game.handoff.title', { name: currentPlayer.name })}</Text>
       <Text style={styles.subtitle}>
-        Question {round.currentQuestionIndex + 1} of {round.questions.length}
+        {t('game.question.title', {
+          current: round.currentQuestionIndex + 1,
+          total: round.questions.length,
+        })}
       </Text>
       <Button
         label={t('game.handoff.ready')}

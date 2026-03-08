@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface Category {
@@ -12,12 +13,13 @@ interface Props {
   loading?: boolean;
 }
 
-const ANY_OPTION = { id: undefined as unknown as string, name: 'Any Category' };
-
 export function CategorySelector({ categories, value, onChange, loading }: Props) {
+  const { t } = useTranslation();
+
   if (loading) return <ActivityIndicator style={{ marginVertical: 12 }} />;
 
-  const sorted = [ANY_OPTION, ...[...categories].sort((a, b) => a.name.localeCompare(b.name))];
+  const anyOption = { id: undefined as unknown as string, name: t('common.anyCategory') };
+  const sorted = [anyOption, ...[...categories].sort((a, b) => a.name.localeCompare(b.name))];
   return (
     <View>
       {sorted.map((cat) => {

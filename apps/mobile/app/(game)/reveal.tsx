@@ -38,7 +38,10 @@ export default function RevealScreen() {
                   {turn.isCorrect ? t('game.reveal.correct') : t('game.reveal.wrong')}
                 </Text>
                 <Text style={styles.score}>
-                  Round: {player.roundScore} | Total: {player.cumulativeScore}
+                  {t('game.reveal.score', {
+                    round: player.roundScore,
+                    total: player.cumulativeScore,
+                  })}
                 </Text>
               </View>
             </View>

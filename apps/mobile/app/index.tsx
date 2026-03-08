@@ -33,7 +33,7 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Cirquiz</Text>
+      <Text style={styles.title}>{t('home.appName')}</Text>
       <Button
         label={t('home.newGame')}
         onPress={() => router.push('/setup')}
