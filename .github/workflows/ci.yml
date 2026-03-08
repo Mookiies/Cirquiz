@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  ci:
+    name: Lint, Format, Typecheck, Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Lint
+        run: yarn workspace mobile lint
+
+      - name: Format check
+        run: yarn workspace mobile format:check
+
+      - name: Typecheck
+        run: yarn workspace mobile typecheck
+
+      - name: Test
+        run: yarn workspace mobile test --ci
