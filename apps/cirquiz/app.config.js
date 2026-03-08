@@ -40,4 +40,11 @@ module.exports = {
   extra: {
     appEnv: env,
   },
+  expo: {
+    extra: {
+      eas: {
+        projectId: 'a2892fd8-8cdd-4acd-b703-3c8e0be93327',
+      },
+    },
+  },
 };

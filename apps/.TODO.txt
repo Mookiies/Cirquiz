@@ -1,6 +1,5 @@
 This file is purely for notes and tracking things I want to implement going forward.
 
-- Github actions for running ts, eslint, and types
 - When there's a fetch error it should be possible to retry the fetch instead of the only option being to quit the game on /error
 - Styles and colors should be centralized and tokenized. There should be no floating numbers.
 - There are many non-localized strings at the moment. Add the eslint rule to catch these and make sure all get added to translation files.

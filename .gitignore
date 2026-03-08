@@ -37,12 +37,12 @@ expo-env.d.ts
 
 # ─── React Native ────────────────────────────────────────────────────────────
 # Android
-apps/mobile/android/
+apps/cirquiz/android/
 *.keystore
 !debug.keystore
 
 # iOS
-apps/mobile/ios/
+apps/cirquiz/ios/
 *.ipa
 *.dSYM.zip
 *.dSYM
