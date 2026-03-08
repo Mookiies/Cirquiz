@@ -1,16 +1,14 @@
 This file is purely for notes and tracking things I want to implement going forward.
 
-
-- Add the ability to change the category or difficulty within the game on the standing screen
-- Correctly account for the safe area and stop making this header ugly and white
-- Add tests
-- Add a global error boundary so that if this does mess up there’s a button to fully reset the state
 - Github actions for running ts, eslint, and types
-- Store the list of categories from otdb and return that
 - When there's a fetch error it should be possible to retry the fetch instead of the only option being to quit the game on /error
 - Styles and colors should be centralized and tokenized. There should be no floating numbers.
 - There are many non-localized strings at the moment. Add the eslint rule to catch these and make sure all get added to translation files.
+- bigger tap targets
 
+TBD enhancements
+- Store the list of categories from otdb and return that
+- Adding avatars in combo with the colors. i.e. Green monkey, purple demon, etc. This would be a fun way to add some personality to the game and make it more engaging.
 
 Future Ideas:
 
