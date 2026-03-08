@@ -32,6 +32,14 @@ interface TriviaQuestionProvider {
    * Returns true if this provider supports difficulty filtering.
    */
   supportsDifficulty(): boolean;
+
+  /**
+   * Resets the provider session so the next fetchQuestions call starts a fresh
+   * question pool. Called by the store at the start of every new game.
+   * Must NOT be called between rounds — the session persists across rounds
+   * within the same game so question deduplication (FR-020) works correctly.
+   */
+  resetSession(): void;
 }
 ```
 
@@ -106,11 +114,16 @@ Game logic catches `TriviaProviderError` and maps it to FR-017 (user-readable er
 | `supportsCategories`  | `true`                                                             |
 | `supportsDifficulty`  | `true`                                                             |
 
-**Session token lifecycle** (supports FR-020 nice-to-have; fully internal to `OpenTriviaDbProvider`):
-1. On first `fetchQuestions` call, request a token: `GET /api_token.php?command=request` and store it as private instance state.
-2. Pass token with every subsequent `fetchQuestions` call in the same provider instance lifetime.
-3. If OTDB returns response code `4` (token empty — all questions exhausted), reset the token: `GET /api_token.php?command=reset&token=TOKEN` and retry once.
+**Session token lifecycle** (supports FR-020 nice-to-have):
+1. On first `fetchQuestions` call after construction or `resetSession()`, request a new token: `GET /api_token.php?command=request` and store it as private instance state.
+2. Pass token with every subsequent `fetchQuestions` call.
+3. If OTDB returns response code `4` (token empty — all questions exhausted), reset the token via `GET /api_token.php?command=reset&token=TOKEN` and retry once.
 4. Token is **not** exposed to the store or game state. If the app is force-closed, a new token is obtained on next launch (acceptable: OTDB tokens expire after 6 hours regardless).
+
+**Session lifecycle ownership**:
+- `resetSession()` is called by the **store** at the start of every new game (`startGame`), ensuring a fresh question pool.
+- `resetSession()` is **not** called between rounds (`startNextRound`) — the token persists so OTDB tracks which questions have already been seen across all rounds in the session (enabling FR-020 deduplication).
+- `resetSession()` sets the internal token to `null`; the new token is acquired lazily on the next `fetchQuestions` call.
 
 **HTML decoding**: All `question`, `correct_answer`, and `incorrect_answers` fields from OTDB are HTML-encoded and MUST be decoded before populating `Question.text` and `Question.options`.
 
@@ -130,3 +143,4 @@ Game logic catches `TriviaProviderError` and maps it to FR-017 (user-readable er
 4. If the provider cannot return any questions, it MUST throw `TriviaProviderError` (not return an empty array silently).
 5. `fetchCategories` MUST return an empty array (not throw) if categories are unsupported.
 6. All returned `Question.id` values MUST be unique within a single `fetchQuestions` call.
+7. `resetSession()` MUST be synchronous and MUST cause the next `fetchQuestions` call to begin a fresh session (new question pool). It MUST NOT throw.

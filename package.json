@@ -1,0 +1,5 @@
+{
+  "name": "cirquiz",
+  "private": true,
+  "workspaces": ["apps/*"]
+}

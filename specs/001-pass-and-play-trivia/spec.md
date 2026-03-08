@@ -110,6 +110,7 @@ At the end of a round, players can immediately start another round retaining cur
 - **FR-018**: All user-facing strings MUST be externalized into a localization resource file to support future language additions; the initial shipped language is English only.
 - **FR-019**: The app MUST be delivered on both iOS and Android; feature parity between platforms is required.
 - **FR-020** *(nice-to-have)*: Within a continuous play session, the app SHOULD avoid repeating questions from previous rounds; this is a best-effort enhancement, not a hard requirement.
+- **FR-021**: The question provider session MUST reset when a new game starts, ensuring each new game draws from a fresh question pool. The session MUST persist across rounds within the same game to enable FR-020 question deduplication.
 
 ### Key Entities
 

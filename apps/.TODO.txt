@@ -1,0 +1,11 @@
+This file is purely for notes and tracking things I want to implement going forward.
+
+
+- Make the play buttons on the start screen green instead of red.
+- Add the ability to change the category or difficulty within the game on the standing screen
+- Correctly account for the safe area and stop making this header ugly and white
+- Fix the standings screen to not looks like crap
+- Add tests
+- Add eslint
+- Add a global error boundary so that if this does mess up there’s a button to fully reset the state
+- Github actions for running ts, eslint, and types
