@@ -1,12 +1,14 @@
+import { ConfigContext, ExpoConfig } from 'expo/config';
+
 const env = process.env.APP_ENV ?? 'development';
 const suffixes = {
   development: { name: ' (Dev)', bundleId: '.dev' },
-  staging: { name: ' (Staging)', bundleId: '.staging' },
+  preview: { name: ' (preview)', bundleId: '.preview' },
   production: { name: '', bundleId: '' },
 };
-const s = suffixes[env] ?? suffixes.development;
+const s = suffixes[env as keyof typeof suffixes] ?? suffixes.development;
 
-module.exports = {
+export default ({ config }: ConfigContext): ExpoConfig => ({
   name: `Cirquiz${s.name}`,
   slug: 'cirquiz',
   version: '1.0.0',
@@ -22,6 +24,9 @@ module.exports = {
   ios: {
     supportsTablet: true,
     bundleIdentifier: `com.cirquiz.app${s.bundleId}`,
+    infoPlist: {
+      ITSAppUsesNonExemptEncryption: false,
+    },
   },
   android: {
     package: `com.cirquiz.app${s.bundleId}`,
@@ -39,12 +44,8 @@ module.exports = {
   plugins: ['expo-router', 'expo-localization'],
   extra: {
     appEnv: env,
-  },
-  expo: {
-    extra: {
-      eas: {
-        projectId: 'a2892fd8-8cdd-4acd-b703-3c8e0be93327',
-      },
+    eas: {
+      projectId: 'a2892fd8-8cdd-4acd-b703-3c8e0be93327',
     },
   },
-};
+});
