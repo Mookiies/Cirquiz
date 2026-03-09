@@ -57,7 +57,7 @@ export default function SetupScreen() {
   const usedAvatars = players.map((p) => p.avatar);
 
   const addPlayer = () => {
-    if (players.length >= 6) return;
+    if (players.length >= AVATAR_LIST.length) return;
     const avatar = firstAvailableAvatar(usedAvatars);
     setPlayers((prev) => [...prev, { name: avatarName(avatar), avatar, nameCustomized: false }]);
   };
@@ -191,7 +191,7 @@ export default function SetupScreen() {
           </View>
         ))}
 
-        {players.length < 6 && (
+        {players.length < AVATAR_LIST.length && (
           <TextButton
             label={`+ ${t('setup.addPlayer')}`}
             onPress={addPlayer}
