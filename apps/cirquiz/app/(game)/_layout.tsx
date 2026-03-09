@@ -98,6 +98,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.lg,
     justifyContent: 'center',
+    alignItems: 'center',
     flexDirection: 'row',
     gap: spacing.sm,
   },

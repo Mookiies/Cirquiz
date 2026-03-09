@@ -24,6 +24,7 @@ specs/          # Feature specs and plans
 - **Runtime**: React Native 0.83.2, React 19.2.0
 - **Framework**: Expo SDK ~55, Expo Router ~55
 - **State**: Zustand ^5 + @react-native-async-storage/async-storage
+- **Animations**: react-native-reanimated (use this for all animations)
 - **i18n**: i18next + react-i18next
 - **Language**: TypeScript ~5.9
 
