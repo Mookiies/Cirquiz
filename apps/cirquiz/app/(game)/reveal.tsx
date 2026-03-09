@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Button } from '../../src/components/Button';
 import { useGameStore } from '../../src/state/gameStore';
+import { colors, spacing, fontSize, fontWeight, radius } from '../../src/theme';
 
 export default function RevealScreen() {
   const { t } = useTranslation();
@@ -58,31 +59,31 @@ export default function RevealScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  content: { padding: 24, paddingBottom: 48 },
+  container: { flex: 1, backgroundColor: colors.background },
+  content: { padding: spacing.xl, paddingBottom: spacing['4xl'] },
   correctAnswer: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#2ECC71',
-    marginBottom: 24,
+    fontSize: fontSize.lg,
+    fontWeight: fontWeight.bold,
+    color: colors.success,
+    marginBottom: spacing.xl,
     textAlign: 'center',
   },
-  resultsContainer: { gap: 12, marginBottom: 32 },
+  resultsContainer: { gap: spacing.md, marginBottom: spacing['2xl'] },
   resultRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
-    borderRadius: 8,
+    padding: spacing.lg,
+    borderRadius: radius.md,
     borderLeftWidth: 4,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: colors.surface,
   },
   resultInfo: { flex: 1 },
-  playerName: { fontSize: 16, fontWeight: '600', color: '#222' },
-  playerAnswer: { fontSize: 14, color: '#555', marginTop: 2 },
+  playerName: { fontSize: fontSize.base, fontWeight: fontWeight.semibold, color: colors.text },
+  playerAnswer: { fontSize: fontSize.md, color: colors.textSecondary, marginTop: spacing[2] },
   resultRight: { alignItems: 'flex-end' },
-  resultIcon: { fontSize: 14, fontWeight: '700', marginBottom: 4 },
-  correct: { color: '#2ECC71' },
-  wrong: { color: '#E74C3C' },
-  score: { fontSize: 12, color: '#888' },
+  resultIcon: { fontSize: fontSize.md, fontWeight: fontWeight.bold, marginBottom: spacing.xs },
+  correct: { color: colors.success },
+  wrong: { color: colors.error },
+  score: { fontSize: fontSize.sm, color: colors.textTertiary },
 });

@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
+import { colors, spacing, fontSize, fontWeight, radius } from '../theme';
 
 interface Props {
   name: string;
@@ -17,13 +18,13 @@ const styles = StyleSheet.create({
   badge: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing[6],
+    borderRadius: radius.pill,
   },
   name: {
-    color: '#fff',
-    fontWeight: '700',
-    fontSize: 14,
+    color: colors.white,
+    fontWeight: fontWeight.bold,
+    fontSize: fontSize.md,
   },
 });

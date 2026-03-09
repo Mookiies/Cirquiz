@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { Button } from '../src/components/Button';
 import { useGameStore } from '../src/state/gameStore';
+import { colors, spacing, fontSize, fontWeight } from '../src/theme';
 
 export default function HomeScreen() {
   const { t } = useTranslation();
@@ -42,7 +43,7 @@ export default function HomeScreen() {
       {canResume && (
         <Button
           label={t('home.resumeGame')}
-          color="#2ECC71"
+          color={colors.success}
           onPress={handleResume}
           style={styles.button}
         />
@@ -56,21 +57,21 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 24,
-    backgroundColor: '#fff',
+    padding: spacing.xl,
+    backgroundColor: colors.background,
   },
   title: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    marginBottom: 48,
+    fontSize: fontSize['4xl'],
+    fontWeight: fontWeight.bold,
+    marginBottom: spacing['4xl'],
   },
   loadingText: {
-    marginTop: 12,
-    fontSize: 16,
-    color: '#666',
+    marginTop: spacing.md,
+    fontSize: fontSize.base,
+    color: colors.textSecondary,
   },
   button: {
     width: '100%',
-    marginBottom: 16,
+    marginBottom: spacing.lg,
   },
 });

@@ -1,5 +1,6 @@
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import type { ViewStyle } from 'react-native';
+import { colors, spacing, fontSize, fontWeight, radius, opacity } from '../theme';
 
 interface Props {
   label: string;
@@ -16,7 +17,7 @@ interface Props {
 export function Button({
   label,
   onPress,
-  color = '#3498DB',
+  color = colors.primary,
   textColor,
   outlined = false,
   selected = false,
@@ -38,13 +39,13 @@ export function Button({
       disabled={disabled || loading}
     >
       {loading ? (
-        <ActivityIndicator color={textColor ?? '#fff'} />
+        <ActivityIndicator color={textColor ?? colors.white} />
       ) : (
         <Text
           style={[
             styles.text,
             outlined ? styles.textOutlined : styles.textSolid,
-            { color: textColor ?? (outlined && !selected ? '#333' : '#fff') },
+            { color: textColor ?? (outlined && !selected ? colors.text : colors.white) },
           ]}
         >
           {label}
@@ -56,17 +57,17 @@ export function Button({
 
 const styles = StyleSheet.create({
   base: {
-    borderRadius: 12,
+    borderRadius: radius.lg,
     alignItems: 'center',
-    paddingVertical: 18,
-    paddingHorizontal: 16,
+    paddingVertical: spacing[18],
+    paddingHorizontal: spacing.lg,
   },
   outlined: {
     borderWidth: 2,
-    paddingVertical: 16,
+    paddingVertical: spacing.lg,
   },
-  inactive: { opacity: 0.5 },
+  inactive: { opacity: opacity.inactive },
   text: {},
-  textSolid: { fontSize: 18, fontWeight: '700' },
-  textOutlined: { fontSize: 16, fontWeight: '600' },
+  textSolid: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
+  textOutlined: { fontSize: fontSize.base, fontWeight: fontWeight.semibold },
 });

@@ -16,19 +16,7 @@ import { DifficultySelector } from '../src/components/DifficultySelector';
 import { OpenTriviaDbProvider } from '../src/providers/opentdb/OpenTriviaDbProvider';
 import { Difficulty } from '../src/providers/types';
 import { useGameStore } from '../src/state/gameStore';
-
-const COLOR_PALETTE = [
-  '#E74C3C',
-  '#3498DB',
-  '#2ECC71',
-  '#F39C12',
-  '#9B59B6',
-  '#1ABC9C',
-  '#E91E63',
-  '#F1C40F',
-  '#FF5722',
-  '#00BCD4',
-];
+import { colors, spacing, fontSize, fontWeight, radius, opacity } from '../src/theme';
 
 interface PlayerEntry {
   name: string;
@@ -36,7 +24,7 @@ interface PlayerEntry {
 }
 
 function firstAvailableColor(used: string[]): string {
-  return COLOR_PALETTE.find((c) => !used.includes(c)) ?? COLOR_PALETTE[0];
+  return colors.playerPalette.find((c) => !used.includes(c)) ?? colors.playerPalette[0];
 }
 
 export default function SetupScreen() {
@@ -46,7 +34,7 @@ export default function SetupScreen() {
   const isLoading = useGameStore((s) => s.isLoading);
 
   const [players, setPlayers] = useState<PlayerEntry[]>([
-    { name: `${t('setup.playerName')} 1`, color: COLOR_PALETTE[0] },
+    { name: `${t('setup.playerName')} 1`, color: colors.playerPalette[0] },
   ]);
   const [questionCount, setQuestionCount] = useState('10');
   const [quickPlay, setQuickPlay] = useState(true);
@@ -136,7 +124,7 @@ export default function SetupScreen() {
     <KeyboardAvoidingView style={styles.keyboardAvoid} behavior="padding">
       <ScrollView
         style={styles.container}
-        contentContainerStyle={[styles.content, { paddingTop: insets.top + 24 }]}
+        contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.xl }]}
         keyboardShouldPersistTaps="handled"
       >
         <Text style={styles.title}>{t('setup.title')}</Text>
@@ -175,7 +163,7 @@ export default function SetupScreen() {
             />
             {nameErrors[index] ? <Text style={styles.errorText}>{nameErrors[index]}</Text> : null}
             <View style={styles.colorRow}>
-              {COLOR_PALETTE.map((color) => {
+              {colors.playerPalette.map((color) => {
                 const taken = usedColors.includes(color) && players[index].color !== color;
                 return (
                   <TouchableOpacity
@@ -242,7 +230,7 @@ export default function SetupScreen() {
 
         <Button
           label={t('setup.start')}
-          color="#2ECC71"
+          color={colors.success}
           loading={isLoading}
           disabled={!canStart}
           onPress={handleStart}
@@ -254,43 +242,54 @@ export default function SetupScreen() {
 }
 
 const styles = StyleSheet.create({
-  keyboardAvoid: { flex: 1, backgroundColor: '#fff' },
-  container: { flex: 1, backgroundColor: '#fff' },
-  content: { padding: 24, paddingBottom: 48 },
-  title: { fontSize: 28, fontWeight: 'bold', marginBottom: 24 },
-  sectionLabel: { fontSize: 14, fontWeight: '600', color: '#555', marginBottom: 6, marginTop: 16 },
+  keyboardAvoid: { flex: 1, backgroundColor: colors.background },
+  container: { flex: 1, backgroundColor: colors.background },
+  content: { padding: spacing.xl, paddingBottom: spacing['4xl'] },
+  title: { fontSize: fontSize['3xl'], fontWeight: fontWeight.bold, marginBottom: spacing.xl },
+  sectionLabel: {
+    fontSize: fontSize.md,
+    fontWeight: fontWeight.semibold,
+    color: colors.textSecondary,
+    marginBottom: 6,
+    marginTop: spacing.lg,
+  },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    marginBottom: 8,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    fontSize: fontSize.base,
+    marginBottom: spacing.sm,
   },
-  playerRow: { marginBottom: 12 },
-  playerInput: { marginBottom: 6 },
-  colorRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 4 },
+  playerRow: { marginBottom: spacing.md },
+  playerInput: { marginBottom: spacing[6] },
+  colorRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[6], marginBottom: spacing.xs },
   colorSwatch: { width: 28, height: 28, borderRadius: 14 },
-  colorSelected: { borderWidth: 3, borderColor: '#000' },
-  colorDisabled: { opacity: 0.3 },
-  removeText: { color: '#E74C3C', fontSize: 16, marginTop: 4 },
-  inputError: { borderColor: '#E74C3C' },
-  errorText: { color: '#E74C3C', fontSize: 12, marginBottom: 4 },
-  addButton: { marginVertical: 8 },
-  addButtonText: { color: '#3498DB', fontSize: 16 },
-  toggleRow: { flexDirection: 'row', marginTop: 16, marginBottom: 8, gap: 8 },
+  colorSelected: { borderWidth: 3, borderColor: colors.selectionRing },
+  colorDisabled: { opacity: opacity.disabled },
+  removeText: { color: colors.error, fontSize: fontSize.base, marginTop: 4 },
+  inputError: { borderColor: colors.error },
+  errorText: { color: colors.error, fontSize: fontSize.sm, marginBottom: 4 },
+  addButton: { marginVertical: spacing.sm },
+  addButtonText: { color: colors.primary, fontSize: fontSize.base },
+  toggleRow: {
+    flexDirection: 'row',
+    marginTop: spacing.lg,
+    marginBottom: spacing.sm,
+    gap: spacing.sm,
+  },
   toggleBtn: {
     flex: 1,
-    padding: 10,
-    borderRadius: 8,
+    padding: spacing[10],
+    borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: colors.border,
     alignItems: 'center',
   },
-  toggleActive: { backgroundColor: '#3498DB', borderColor: '#3498DB' },
-  toggleText: { color: '#555', fontSize: 14 },
-  toggleTextActive: { color: '#fff' },
+  toggleActive: { backgroundColor: colors.primary, borderColor: colors.primary },
+  toggleText: { color: colors.textSecondary, fontSize: fontSize.md },
+  toggleTextActive: { color: colors.white },
   startButton: {
-    marginTop: 24,
+    marginTop: spacing.xl,
   },
 });

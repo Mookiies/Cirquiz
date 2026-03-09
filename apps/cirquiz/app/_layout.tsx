@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useGameStore } from '../src/state/gameStore';
 import '../src/i18n';
+import { colors, spacing, fontSize, fontWeight, radius } from '../src/theme';
 
 export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
   const { t } = useTranslation();
@@ -51,37 +52,43 @@ export default function RootLayout() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 32,
+    padding: spacing['2xl'],
   },
-  icon: { fontSize: 56, marginBottom: 16 },
-  title: { fontSize: 24, fontWeight: 'bold', color: '#222', marginBottom: 12, textAlign: 'center' },
-  message: {
-    fontSize: 14,
-    color: '#888',
+  icon: { fontSize: 56, marginBottom: spacing.lg },
+  title: {
+    fontSize: fontSize['2xl'],
+    fontWeight: fontWeight.bold,
+    color: colors.text,
+    marginBottom: spacing.md,
     textAlign: 'center',
-    marginBottom: 40,
+  },
+  message: {
+    fontSize: fontSize.md,
+    color: colors.textTertiary,
+    textAlign: 'center',
+    marginBottom: spacing['3xl'],
     lineHeight: 20,
     fontFamily: 'monospace',
   },
   retryButton: {
-    backgroundColor: '#3498DB',
-    paddingVertical: 16,
-    paddingHorizontal: 40,
-    borderRadius: 12,
-    marginBottom: 12,
+    backgroundColor: colors.primary,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing['3xl'],
+    borderRadius: radius.lg,
+    marginBottom: spacing.md,
     width: '100%',
     alignItems: 'center',
   },
   resetButton: {
-    backgroundColor: '#E74C3C',
-    paddingVertical: 16,
-    paddingHorizontal: 40,
-    borderRadius: 12,
+    backgroundColor: colors.error,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing['3xl'],
+    borderRadius: radius.lg,
     width: '100%',
     alignItems: 'center',
   },
-  buttonText: { color: '#fff', fontSize: 17, fontWeight: '600' },
+  buttonText: { color: colors.white, fontSize: fontSize.lg, fontWeight: fontWeight.semibold },
 });

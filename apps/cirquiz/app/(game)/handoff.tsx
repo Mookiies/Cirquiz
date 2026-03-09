@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 import { Button } from '../../src/components/Button';
 import { useGameStore } from '../../src/state/gameStore';
+import { colors, spacing, fontSize, fontWeight } from '../../src/theme';
 
 export default function HandoffScreen() {
   const { t } = useTranslation();
@@ -24,8 +25,8 @@ export default function HandoffScreen() {
       </Text>
       <Button
         label={t('game.handoff.ready')}
-        color="#fff"
-        textColor="#333"
+        color={colors.white}
+        textColor={colors.text}
         onPress={() => router.replace('/(game)/question')}
         style={styles.readyButton}
       />
@@ -38,21 +39,21 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 32,
+    padding: spacing['2xl'],
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontSize: fontSize['3xl'],
+    fontWeight: fontWeight.bold,
+    color: colors.white,
     textAlign: 'center',
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: fontSize.base,
     color: 'rgba(255,255,255,0.8)',
-    marginBottom: 48,
+    marginBottom: spacing['4xl'],
   },
   readyButton: {
-    paddingHorizontal: 48,
+    paddingHorizontal: spacing['4xl'],
   },
 });

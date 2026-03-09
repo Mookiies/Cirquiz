@@ -65,6 +65,7 @@
     "error": {
       "title": "Something went wrong",
       "message": "Could not load questions. Please try again.",
+      "retry": "Try Again",
       "backHome": "Back to Home"
     },
     "quit": {

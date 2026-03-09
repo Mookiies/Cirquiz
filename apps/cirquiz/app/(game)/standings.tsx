@@ -9,6 +9,7 @@ import { DifficultySelector } from '../../src/components/DifficultySelector';
 import { OpenTriviaDbProvider } from '../../src/providers/opentdb/OpenTriviaDbProvider';
 import { useGameStore } from '../../src/state/gameStore';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { colors, spacing, fontSize, fontWeight, radius } from '../../src/theme';
 
 export default function StandingsScreen() {
   const { t } = useTranslation();
@@ -91,7 +92,10 @@ export default function StandingsScreen() {
       style={styles.container}
       contentContainerStyle={[
         styles.content,
-        { paddingTop: insets.top + BASE_PADDING, paddingBottom: insets.bottom + BASE_PADDING },
+        {
+          paddingTop: insets.top + spacing.xl,
+          paddingBottom: insets.bottom + spacing.xl,
+        },
       ]}
     >
       <Text style={styles.title}>{t('game.standings.title')}</Text>
@@ -153,7 +157,7 @@ export default function StandingsScreen() {
           <DifficultySelector
             value={localDifficulty}
             onChange={handleDifficultyChange}
-            style={{ marginBottom: 8 }}
+            style={{ marginBottom: spacing.sm }}
           />
           <Text style={styles.settingsLabel}>{t('common.category')}</Text>
           <CategorySelector
@@ -167,48 +171,81 @@ export default function StandingsScreen() {
 
       <Button
         label={t('game.standings.playAnotherRound')}
-        color="#2ECC71"
+        color={colors.success}
         loading={isLoading}
         onPress={startNextRound}
         style={styles.roundButton}
       />
 
-      <Button label={t('game.standings.endSession')} color="#E74C3C" onPress={handleEndSession} />
+      <Button
+        label={t('game.standings.endSession')}
+        color={colors.error}
+        onPress={handleEndSession}
+      />
     </ScrollView>
   );
 }
 
-const BASE_PADDING = 24;
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  content: { paddingHorizontal: BASE_PADDING },
-  title: { fontSize: 28, fontWeight: 'bold', marginBottom: 24, textAlign: 'center' },
+  container: { flex: 1, backgroundColor: colors.background },
+  content: { paddingHorizontal: spacing.xl },
+  title: {
+    fontSize: fontSize['3xl'],
+    fontWeight: fontWeight.bold,
+    marginBottom: spacing.xl,
+    textAlign: 'center',
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    padding: 16,
-    borderRadius: 8,
+    padding: spacing.lg,
+    borderRadius: radius.md,
     borderLeftWidth: 4,
-    backgroundColor: '#f8f8f8',
-    marginBottom: 10,
+    backgroundColor: colors.surface,
+    marginBottom: spacing[10],
   },
-  place: { fontSize: 18, fontWeight: '700', width: 52, color: '#555', paddingTop: 1 },
+  place: {
+    fontSize: fontSize.lg,
+    fontWeight: fontWeight.bold,
+    width: 52,
+    color: colors.textSecondary,
+    paddingTop: spacing[2],
+  },
   playerInfo: { flex: 1 },
-  playerName: { fontSize: 18, fontWeight: '600', color: '#222', marginBottom: 8 },
-  statsRow: { flexDirection: 'row', gap: 20, marginBottom: 4 },
-  stat: { alignItems: 'center' },
-  statValue: { fontSize: 20, fontWeight: '700', color: '#3498DB' },
-  statLabel: { fontSize: 11, color: '#888', marginTop: 1 },
-  roundGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 8 },
-  roundCell: { alignItems: 'center', width: 40 },
-  roundCellLabel: { fontSize: 10, color: '#aaa', marginBottom: 1 },
-  roundCellValue: { fontSize: 14, fontWeight: '600', color: '#555' },
-  roundButton: {
-    marginTop: 24,
-    marginBottom: 12,
+  playerName: {
+    fontSize: fontSize.lg,
+    fontWeight: fontWeight.semibold,
+    color: colors.text,
+    marginBottom: spacing.sm,
   },
-  settingsToggle: { marginTop: 20, marginBottom: 4, alignItems: 'center' },
-  settingsToggleText: { color: '#3498DB', fontSize: 15, fontWeight: '600' },
-  settingsPanel: { marginBottom: 4 },
-  settingsLabel: { fontSize: 14, fontWeight: '600', color: '#555', marginBottom: 6, marginTop: 12 },
+  statsRow: { flexDirection: 'row', gap: spacing[20], marginBottom: spacing.xs },
+  stat: { alignItems: 'center' },
+  statValue: { fontSize: fontSize.xl, fontWeight: fontWeight.bold, color: colors.primary },
+  statLabel: { fontSize: fontSize.xs, color: colors.textTertiary, marginTop: spacing[2] },
+  roundGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.sm },
+  roundCell: { alignItems: 'center', width: 40 },
+  roundCellLabel: { fontSize: fontSize.xs, color: colors.textMuted, marginBottom: spacing[2] },
+  roundCellValue: {
+    fontSize: fontSize.md,
+    fontWeight: fontWeight.semibold,
+    color: colors.textSecondary,
+  },
+  roundButton: {
+    marginTop: spacing.xl,
+    marginBottom: spacing.md,
+  },
+  settingsToggle: { marginTop: spacing[20], marginBottom: spacing.xs, alignItems: 'center' },
+  settingsToggleText: {
+    color: colors.primary,
+    fontSize: fontSize.base,
+    fontWeight: fontWeight.semibold,
+  },
+  settingsPanel: { marginBottom: spacing.xs },
+  settingsLabel: {
+    fontSize: fontSize.md,
+    fontWeight: fontWeight.semibold,
+    color: colors.textSecondary,
+    marginBottom: spacing[6],
+    marginTop: spacing.md,
+  },
 });

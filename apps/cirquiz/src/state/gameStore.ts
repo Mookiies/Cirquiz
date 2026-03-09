@@ -25,12 +25,14 @@ interface GameStoreState {
   game: Game | null;
   isHydrated: boolean;
   isLoading: boolean;
+  pendingConfig: GameConfig | null;
   version: number;
   savedAt: string | null;
 }
 
 interface GameStoreActions {
   startGame: (config: GameConfig) => Promise<void>;
+  retryFetch: () => Promise<void>;
   submitAnswer: (selectedAnswer: string) => void;
   advanceAfterReveal: () => void;
   startNextRound: () => Promise<void>;
@@ -54,11 +56,12 @@ export const useGameStore = create<GameStore>()(
       game: null,
       isHydrated: false,
       isLoading: false,
+      pendingConfig: null,
       version: CURRENT_SCHEMA_VERSION,
       savedAt: null,
 
       startGame: async (config: GameConfig) => {
-        set({ isLoading: true });
+        set({ isLoading: true, pendingConfig: config });
         provider.resetSession();
         try {
           const questions = await provider.fetchQuestions({
@@ -96,7 +99,7 @@ export const useGameStore = create<GameStore>()(
             currentRoundIndex: 0,
           };
 
-          set({ game, isLoading: false, savedAt: new Date().toISOString() });
+          set({ game, isLoading: false, pendingConfig: null, savedAt: new Date().toISOString() });
 
           const navigate = () => {
             if (players.length > 1) {
@@ -122,6 +125,15 @@ export const useGameStore = create<GameStore>()(
           } else {
             router.replace('/(game)/error');
           }
+        }
+      },
+
+      retryFetch: async () => {
+        const { game, pendingConfig } = get();
+        if (!game && pendingConfig) {
+          return get().startGame(pendingConfig);
+        } else if (game) {
+          return get().startNextRound();
         }
       },
 

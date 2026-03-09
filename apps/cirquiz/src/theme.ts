@@ -4,6 +4,7 @@ export const colors = {
   success: '#2ECC71',
   error: '#E74C3C',
   difficulty: '#9B59B6',
+  white: '#fff',
 
   // Surfaces
   background: '#fff',
@@ -19,6 +20,7 @@ export const colors = {
   // UI
   border: '#ddd',
   selectionRing: '#000',
+  primaryFaint: '#EBF5FB',
 
   // Player palette
   playerPalette: [
@@ -44,15 +46,22 @@ export const spacing = {
   '2xl': 32,
   '3xl': 40,
   '4xl': 48,
+  // Intermediate values
+  2: 2,
+  6: 6,
+  10: 10,
+  14: 14,
+  18: 18,
+  20: 20,
 } as const;
 
 export const fontSize = {
-  xs: 11,
+  xs: 10,
   sm: 12,
   md: 14,
   base: 16,
   lg: 18,
-  xl: 22,
+  xl: 20,
   '2xl': 24,
   '3xl': 28,
   '4xl': 36,

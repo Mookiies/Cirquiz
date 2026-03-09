@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
+import { colors, spacing, fontSize, fontWeight, radius } from '../theme';
 
 interface Props {
   name: string;
@@ -24,13 +25,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 12,
+    paddingVertical: spacing[10],
+    paddingHorizontal: spacing.md,
     borderLeftWidth: 4,
-    backgroundColor: '#f8f8f8',
-    borderRadius: 6,
-    marginBottom: 6,
+    backgroundColor: colors.surface,
+    borderRadius: radius.sm,
+    marginBottom: spacing[6],
   },
-  name: { fontSize: 16, fontWeight: '600', color: '#222' },
-  score: { fontSize: 16, fontWeight: '700', color: '#3498DB' },
+  name: { fontSize: fontSize.base, fontWeight: fontWeight.semibold, color: colors.text },
+  score: { fontSize: fontSize.base, fontWeight: fontWeight.bold, color: colors.primary },
 });

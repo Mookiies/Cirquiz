@@ -4,6 +4,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { AnswerButton } from '../../src/components/AnswerButton';
 import { useGameStore } from '../../src/state/gameStore';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { colors, spacing, fontSize, fontWeight } from '../../src/theme';
 
 export default function QuestionScreen() {
   const { t } = useTranslation();
@@ -57,15 +58,15 @@ export default function QuestionScreen() {
 
 const styles = StyleSheet.create({
   scrollView: { flex: 1 },
-  container: { backgroundColor: '#fff', padding: 24, flexGrow: 1 },
-  progress: { fontSize: 14, color: '#888', marginBottom: 4 },
-  category: { fontSize: 12, color: '#aaa', marginBottom: 20 },
+  container: { backgroundColor: colors.background, padding: spacing.xl, flexGrow: 1 },
+  progress: { fontSize: fontSize.md, color: colors.textTertiary, marginBottom: spacing.xs },
+  category: { fontSize: fontSize.sm, color: colors.textMuted, marginBottom: spacing.xl },
   questionText: {
-    fontSize: 22,
-    fontWeight: '600',
-    color: '#222',
-    marginBottom: 32,
+    fontSize: fontSize.xl,
+    fontWeight: fontWeight.semibold,
+    color: colors.text,
+    marginBottom: spacing['2xl'],
     lineHeight: 30,
   },
-  optionsContainer: { gap: 12 },
+  optionsContainer: { gap: spacing.md },
 });

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useGameStore } from '../../src/state/gameStore';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { colors, spacing, fontSize, fontWeight } from '../../src/theme';
 
 const SHOW_PLAYER_BANNER_ON = ['question'];
 const SHOW_PLAYER_COLOR = ['handoff', 'question'];
@@ -42,8 +43,9 @@ export default function GameLayout() {
   const header = () => {
     if (!showHeader) return null;
 
-    const backgroundColor = showPlayerColor && currentPlayer.color ? currentPlayer.color : '#fff';
-    const quitColor = showPlayerColor && currentPlayer.color ? '#fff' : '#222';
+    const backgroundColor =
+      showPlayerColor && currentPlayer.color ? currentPlayer.color : colors.background;
+    const quitColor = showPlayerColor && currentPlayer.color ? colors.white : colors.text;
     return (
       <View
         style={[
@@ -85,17 +87,17 @@ export default function GameLayout() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   banner: {
-    paddingVertical: 10,
-    paddingHorizontal: 16,
+    paddingVertical: spacing[10],
+    paddingHorizontal: spacing.lg,
     justifyContent: 'center',
     flexDirection: 'row',
   },
   bannerText: {
-    color: '#fff',
-    fontWeight: '700',
-    fontSize: 16,
+    color: colors.white,
+    fontWeight: fontWeight.bold,
+    fontSize: fontSize.base,
   },
   header: { alignItems: 'center', flexDirection: 'row' },
   quitButton: { marginLeft: 'auto' },
-  quitText: { fontSize: 15, fontWeight: '600' },
+  quitText: { fontSize: fontSize.base, fontWeight: fontWeight.semibold },
 });
