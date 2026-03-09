@@ -1,11 +1,7 @@
 {
-  "name": "cirquiz",
+  "name": "cirquiz-root",
   "private": true,
   "workspaces": [
     "apps/*"
-  ],
-  "dependencies": {},
-  "scripts": {
-    "postinstall": "sed -i.bak 's|https://appfolio-ecr-195334327833.d.codeartifact.us-west-2.amazonaws.com/npm/appfolio-repo/|https://registry.npmjs.org/|g' yarn.lock && rm -f yarn.lock.bak"
-  }
+  ]
 }
