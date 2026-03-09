@@ -10,8 +10,6 @@ export default function HomeScreen() {
   const isHydrated = useGameStore((s) => s.isHydrated);
   const game = useGameStore((s) => s.game);
 
-  console.log('HomeScreen render', { isHydrated, game });
-
   if (!isHydrated) {
     return (
       <View style={styles.container}>
