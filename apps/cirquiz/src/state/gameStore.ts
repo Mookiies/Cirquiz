@@ -325,6 +325,7 @@ export const useGameStore = create<GameStore>()(
           if (!state.version || state.version < CURRENT_SCHEMA_VERSION) {
             state.game = null;
           }
+          state.version = CURRENT_SCHEMA_VERSION;
           state.isHydrated = true;
           state.isLoading = false;
         }
