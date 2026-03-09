@@ -30,6 +30,7 @@ export default function SetupScreen() {
 
   const [players, setPlayers] = useState<PlayerEntry[]>([
     { name: `${t('setup.playerName')} 1`, color: colors.playerPalette[0] },
+    { name: `${t('setup.playerName')} 2`, color: colors.playerPalette[1] },
   ]);
   const [questionCount, setQuestionCount] = useState('10');
   const [quickPlay, setQuickPlay] = useState(true);
