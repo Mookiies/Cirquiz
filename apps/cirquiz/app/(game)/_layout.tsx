@@ -5,6 +5,7 @@ import { useGameStore } from '../../src/state/gameStore';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, spacing, fontSize, fontWeight } from '../../src/theme';
 import { TextButton } from '../../src/components/TextButton';
+import { AvatarIcon } from '../../src/components/AvatarIcon';
 
 const SHOW_PLAYER_BANNER_ON = ['question'];
 const SHOW_PLAYER_COLOR = ['handoff', 'question'];
@@ -61,7 +62,10 @@ export default function GameLayout() {
           <View
             style={[styles.banner, { backgroundColor: currentPlayer.color, alignSelf: 'center' }]}
           >
-            <Text style={styles.bannerText}>{currentPlayer.name}</Text>
+            <AvatarIcon avatarKey={currentPlayer.avatar} size={32} />
+            <Text style={styles.bannerText} numberOfLines={1}>
+              {currentPlayer.name}
+            </Text>
           </View>
         )}
         {showQuit && (
@@ -95,6 +99,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     justifyContent: 'center',
     flexDirection: 'row',
+    gap: spacing.sm,
   },
   bannerText: {
     color: colors.white,

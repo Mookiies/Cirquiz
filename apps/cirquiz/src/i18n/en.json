@@ -26,6 +26,18 @@
     "quickPlay": "Quick Play",
     "chooseCategories": "Choose Categories",
     "playerName": "Player",
+    "avatarName": {
+      "chili": "Red Chili",
+      "whale": "Blue Whale",
+      "alien": "Green Alien",
+      "jackolantern": "Jack-o-Lantern",
+      "gremlin": "Purple Gremlin",
+      "robot": "Teal Robot",
+      "brain": "Pink Brain",
+      "rubberduck": "Rubber Duck",
+      "hotsauce": "Hot Sauce Bottle",
+      "yeti": "Cyan Yeti"
+    },
     "questionCount": "Number of Questions",
     "players": "Players",
     "nameEmpty": "Name cannot be empty",

@@ -1,6 +1,6 @@
 # Contract: TriviaQuestionProvider
 
-**Location**: `apps/mobile/src/providers/`
+**Location**: `apps/cirquiz/src/providers/`
 **Purpose**: Defines the interface all question source implementations must satisfy. Game logic depends only on this contract — never on a concrete provider.
 
 ---
@@ -103,7 +103,7 @@ Game logic catches `TriviaProviderError` and maps it to FR-017 (user-readable er
 
 ## Implementation: OpenTriviaDbProvider
 
-**Location**: `apps/mobile/src/providers/opentdb/OpenTriviaDbProvider.ts`
+**Location**: `apps/cirquiz/src/providers/opentdb/OpenTriviaDbProvider.ts`
 
 **OTDB-specific behavior**:
 

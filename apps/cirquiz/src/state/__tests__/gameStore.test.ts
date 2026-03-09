@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { setProviderForTesting, useGameStore } from '../gameStore';
 import { Question, TriviaProviderError, TriviaProviderErrorCode } from '../../providers/types';
@@ -31,7 +32,8 @@ const makeQuestion = (id: string, correctAnswer = 'A'): Question => ({
 const makePlayer = (overrides: Partial<Player> = {}): Player => ({
   id: 'p1',
   name: 'Alice',
-  color: '#ff0000',
+  avatar: 'chili',
+  color: '#E74C3C',
   roundScore: 0,
   cumulativeScore: 0,
   ...overrides,
@@ -413,5 +415,65 @@ describe('happy path: 2-player 2-question game', () => {
     expect(turns[1]).toMatchObject({ playerId: 'bob', questionId: 'q1', isCorrect: false });
     expect(turns[2]).toMatchObject({ playerId: 'alice', questionId: 'q2', isCorrect: false });
     expect(turns[3]).toMatchObject({ playerId: 'bob', questionId: 'q2', isCorrect: true });
+  });
+});
+
+// ─── Hydrate ─────────────────────────────────────────────────────────────────
+
+describe('Hydrate', () => {
+  beforeEach(async () => {
+    await AsyncStorage.clear();
+  });
+
+  it('current schema version: restores game and sets isHydrated', async () => {
+    const game = makeGame();
+    await AsyncStorage.setItem(
+      '@cirquiz/active_game',
+      JSON.stringify({
+        state: { game, version: 2, pendingConfig: null, savedAt: null },
+        version: 0,
+      })
+    );
+    await useGameStore.persist.rehydrate();
+    const state = useGameStore.getState();
+    expect(state.isHydrated).toBe(true);
+    expect(state.isLoading).toBe(false);
+    expect(state.game).not.toBeNull();
+    expect(state.game!.id).toBe(game.id);
+  });
+
+  it('outdated schema version: wipes game', async () => {
+    await AsyncStorage.setItem(
+      '@cirquiz/active_game',
+      JSON.stringify({
+        state: { game: makeGame(), version: 1, pendingConfig: null, savedAt: null },
+        version: 0,
+      })
+    );
+    await useGameStore.persist.rehydrate();
+    const state = useGameStore.getState();
+    expect(state.isHydrated).toBe(true);
+    expect(state.game).toBeNull();
+  });
+
+  it('missing version field: wipes game', async () => {
+    await AsyncStorage.setItem(
+      '@cirquiz/active_game',
+      JSON.stringify({
+        state: { game: makeGame(), pendingConfig: null, savedAt: null },
+        version: 0,
+      })
+    );
+    await useGameStore.persist.rehydrate();
+    const state = useGameStore.getState();
+    expect(state.isHydrated).toBe(true);
+    expect(state.game).toBeNull();
+  });
+
+  it('no stored state (fresh install): preserves null game', async () => {
+    await useGameStore.persist.rehydrate();
+    const state = useGameStore.getState();
+    expect(state.isHydrated).toBe(true);
+    expect(state.game).toBeNull();
   });
 });

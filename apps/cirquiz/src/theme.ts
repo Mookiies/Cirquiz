@@ -19,7 +19,6 @@ export const colors = {
 
   // UI
   border: '#ddd',
-  selectionRing: '#000',
   primaryFaint: '#EBF5FB',
 
   // Player palette

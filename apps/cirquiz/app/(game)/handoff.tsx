@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
+import { AvatarIcon } from '../../src/components/AvatarIcon';
 import { Button } from '../../src/components/Button';
 import { useGameStore } from '../../src/state/gameStore';
 import { colors, spacing, fontSize, fontWeight } from '../../src/theme';
@@ -16,6 +17,7 @@ export default function HandoffScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: currentPlayer.color }]}>
+      <AvatarIcon avatarKey={currentPlayer.avatar} size={120} style={styles.avatar} />
       <Text style={styles.title}>{t('game.handoff.title', { name: currentPlayer.name })}</Text>
       <Text style={styles.subtitle}>
         {t('game.question.title', {
@@ -52,6 +54,9 @@ const styles = StyleSheet.create({
     fontSize: fontSize.base,
     color: 'rgba(255,255,255,0.8)',
     marginBottom: spacing['4xl'],
+  },
+  avatar: {
+    marginBottom: spacing.xl,
   },
   readyButton: {
     paddingHorizontal: spacing['4xl'],

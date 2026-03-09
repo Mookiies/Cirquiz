@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { AnswerButton } from '../../src/components/AnswerButton';
+import { AvatarIcon } from '../../src/components/AvatarIcon';
 import { useGameStore } from '../../src/state/gameStore';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, spacing, fontSize, fontWeight } from '../../src/theme';
+import { colors, spacing, fontSize, fontWeight, radius } from '../../src/theme';
 
 export default function QuestionScreen() {
   const { t } = useTranslation();
@@ -58,9 +59,14 @@ export default function QuestionScreen() {
 
 const styles = StyleSheet.create({
   scrollView: { flex: 1 },
-  container: { backgroundColor: colors.background, padding: spacing.xl, flexGrow: 1 },
+  container: {
+    backgroundColor: colors.background,
+    padding: spacing.xl,
+    paddingTop: spacing.lg,
+    flexGrow: 1,
+  },
   progress: { fontSize: fontSize.md, color: colors.textTertiary, marginBottom: spacing.xs },
-  category: { fontSize: fontSize.sm, color: colors.textMuted, marginBottom: spacing.xl },
+  category: { fontSize: fontSize.sm, color: colors.textMuted, marginBottom: spacing.lg },
   questionText: {
     fontSize: fontSize.xl,
     fontWeight: fontWeight.semibold,
@@ -69,4 +75,19 @@ const styles = StyleSheet.create({
     lineHeight: 30,
   },
   optionsContainer: { gap: spacing.md },
+  playerBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    borderRadius: radius.pill,
+    paddingRight: spacing.md,
+    marginBottom: spacing.lg,
+    gap: spacing.xs,
+    overflow: 'hidden',
+  },
+  playerBadgeName: {
+    color: colors.white,
+    fontWeight: fontWeight.semibold,
+    fontSize: fontSize.md,
+  },
 });

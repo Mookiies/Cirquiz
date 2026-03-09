@@ -3,13 +3,14 @@ import { router } from 'expo-router';
 import { Alert } from 'react-native';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import { getAvatar } from '../avatars';
 import { TriviaQuestionProvider } from '../providers/interface';
 import { OpenTriviaDbProvider } from '../providers/opentdb/OpenTriviaDbProvider';
 import { TriviaProviderError } from '../providers/types';
 import { Game, GameConfig, Player, Round, Turn } from './types';
 
 const STORAGE_KEY = '@cirquiz/active_game';
-const CURRENT_SCHEMA_VERSION = 1;
+const CURRENT_SCHEMA_VERSION = 2;
 
 let provider: TriviaQuestionProvider = new OpenTriviaDbProvider();
 
@@ -73,7 +74,8 @@ export const useGameStore = create<GameStore>()(
           const players: Player[] = config.players.map((p) => ({
             id: generateId(),
             name: p.name,
-            color: p.color,
+            avatar: p.avatar,
+            color: getAvatar(p.avatar).color,
             roundScore: 0,
             cumulativeScore: 0,
           }));
@@ -321,7 +323,7 @@ export const useGameStore = create<GameStore>()(
       onRehydrateStorage: () => (state) => {
         if (state) {
           if (!state.version || state.version < CURRENT_SCHEMA_VERSION) {
-            state.quitGame();
+            state.game = null;
           }
           state.isHydrated = true;
           state.isLoading = false;

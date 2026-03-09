@@ -15,7 +15,7 @@
 ```bash
 git clone <repo-url> cirquiz
 cd cirquiz
-yarn install          # installs all workspace packages (apps/mobile)
+yarn install          # installs all workspace packages (apps/cirquiz)
 ```
 
 Root `package.json` structure:
@@ -32,7 +32,7 @@ Root `package.json` structure:
 ## 2. Run the App Locally
 
 ```bash
-cd apps/mobile
+cd apps/cirquiz
 yarn expo start
 ```
 
@@ -45,7 +45,7 @@ yarn expo start
 ## 3. Run Tests
 
 ```bash
-cd apps/mobile
+cd apps/cirquiz
 yarn test
 ```
 
@@ -54,7 +54,7 @@ yarn test
 ## 4. Local Environment Setup
 
 ```bash
-cd apps/mobile
+cd apps/cirquiz
 cp .env.local.example .env.local
 # Edit .env.local if you have any local overrides (none required for OTDB)
 ```
@@ -65,10 +65,10 @@ cp .env.local.example .env.local
 
 ## 5. Build with EAS
 
-Always run EAS commands from `apps/mobile/` — EAS looks for `app.config.js` in the current directory.
+Always run EAS commands from `apps/cirquiz/` — EAS looks for `app.config.js` in the current directory.
 
 ```bash
-cd apps/mobile
+cd apps/cirquiz
 eas login   # authenticate (first time only)
 
 # Development build — dev client, internal distribution
@@ -100,7 +100,7 @@ Secrets are injected as `process.env.MY_SECRET` into `app.config.js` at build ti
 To verify the OTDB provider is working against the live API:
 
 ```bash
-cd apps/mobile
+cd apps/cirquiz
 yarn validate   # runs a live smoke-test against opentdb.com
 ```
 

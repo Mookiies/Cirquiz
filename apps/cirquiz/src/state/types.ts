@@ -3,6 +3,7 @@ import { Difficulty, GameMode, GameState, Question, RoundState } from '../provid
 export interface Player {
   id: string;
   name: string;
+  avatar: string;
   color: string;
   roundScore: number;
   cumulativeScore: number;
@@ -37,7 +38,7 @@ export interface Game {
 }
 
 export interface GameConfig {
-  players: { name: string; color: string }[];
+  players: { name: string; avatar: string }[];
   questionCount: number;
   category?: string;
   difficulty?: Difficulty;

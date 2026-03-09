@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { AvatarIcon } from '../../src/components/AvatarIcon';
 import { Button } from '../../src/components/Button';
 import { useGameStore } from '../../src/state/gameStore';
 import { colors, spacing, fontSize, fontWeight, radius } from '../../src/theme';
@@ -30,6 +31,7 @@ export default function RevealScreen() {
           if (!player) return null;
           return (
             <View key={turn.playerId} style={[styles.resultRow, { borderLeftColor: player.color }]}>
+              <AvatarIcon avatarKey={player.avatar} size={32} style={styles.resultAvatar} />
               <View style={styles.resultInfo}>
                 <Text style={styles.playerName}>{player.name}</Text>
                 <Text style={styles.playerAnswer}>{turn.selectedAnswer}</Text>
@@ -78,6 +80,7 @@ const styles = StyleSheet.create({
     borderLeftWidth: 4,
     backgroundColor: colors.surface,
   },
+  resultAvatar: { marginRight: spacing.sm, flexShrink: 0 },
   resultInfo: { flex: 1 },
   playerName: { fontSize: fontSize.base, fontWeight: fontWeight.semibold, color: colors.text },
   playerAnswer: { fontSize: fontSize.md, color: colors.textSecondary, marginTop: spacing.xs },

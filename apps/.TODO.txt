@@ -1,10 +1,10 @@
 This file is purely for notes and tracking things I want to implement going forward.
 
-- bigger tap targets
-
 TBD enhancements
 - Store the list of categories from otdb and return that
-- Adding avatars in combo with the colors. i.e. Green monkey, purple demon, etc. This would be a fun way to add some personality to the game and make it more engaging.
+- Animation and a fun start screen and background for the selection screen
+- Haptics on key buttons
+- increase the player limit to the number of avatars, replace the number of question input with something better like buttons or a slider. Make the remove player not look like crap. UI AI to draft claude is sick
 
 Future Ideas:
 
@@ -21,4 +21,5 @@ Questions:
 - Generate our own questions
     - Web scraping NLP to generate a large bank that could be used offline
     - Generating a backend that is able to handle it
+    - embedding for offline
 - AI generated question (maybe embedding models and working with it that way)?

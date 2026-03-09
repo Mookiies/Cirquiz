@@ -1,13 +1,23 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { KeyboardAvoidingView, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { AvatarIcon } from '../src/components/AvatarIcon';
 import { Button } from '../src/components/Button';
 import { CategorySelector } from '../src/components/CategorySelector';
-import { ColorSwatch } from '../src/components/ColorSwatch';
 import { DifficultySelector } from '../src/components/DifficultySelector';
 import { IconButton } from '../src/components/IconButton';
 import { TextButton } from '../src/components/TextButton';
+import { AVATAR_LIST, AvatarKey } from '../src/avatars';
 import { OpenTriviaDbProvider } from '../src/providers/opentdb/OpenTriviaDbProvider';
 import { Difficulty } from '../src/providers/types';
 import { useGameStore } from '../src/state/gameStore';
@@ -15,11 +25,12 @@ import { colors, spacing, fontSize, fontWeight, radius } from '../src/theme';
 
 interface PlayerEntry {
   name: string;
-  color: string;
+  avatar: AvatarKey;
+  nameCustomized: boolean;
 }
 
-function firstAvailableColor(used: string[]): string {
-  return colors.playerPalette.find((c) => !used.includes(c)) ?? colors.playerPalette[0];
+function firstAvailableAvatar(used: AvatarKey[]): AvatarKey {
+  return AVATAR_LIST.find((a) => !used.includes(a.key))?.key ?? AVATAR_LIST[0].key;
 }
 
 export default function SetupScreen() {
@@ -28,9 +39,11 @@ export default function SetupScreen() {
   const startGame = useGameStore((s) => s.startGame);
   const isLoading = useGameStore((s) => s.isLoading);
 
+  const avatarName = (key: AvatarKey) => t(`setup.avatarName.${key}`);
+
   const [players, setPlayers] = useState<PlayerEntry[]>([
-    { name: `${t('setup.playerName')} 1`, color: colors.playerPalette[0] },
-    { name: `${t('setup.playerName')} 2`, color: colors.playerPalette[1] },
+    { name: avatarName(AVATAR_LIST[0].key), avatar: AVATAR_LIST[0].key, nameCustomized: false },
+    { name: avatarName(AVATAR_LIST[1].key), avatar: AVATAR_LIST[1].key, nameCustomized: false },
   ]);
   const [questionCount, setQuestionCount] = useState('10');
   const [quickPlay, setQuickPlay] = useState(true);
@@ -39,14 +52,14 @@ export default function SetupScreen() {
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(false);
   const [nameErrors, setNameErrors] = useState<Record<number, string>>({});
+  const [pickerIndex, setPickerIndex] = useState<number | null>(null);
 
-  const usedColors = players.map((p) => p.color);
+  const usedAvatars = players.map((p) => p.avatar);
 
   const addPlayer = () => {
     if (players.length >= 6) return;
-    const color = firstAvailableColor(usedColors);
-    const name = `${t('setup.playerName')} ${players.length + 1}`;
-    setPlayers((prev) => [...prev, { name, color }]);
+    const avatar = firstAvailableAvatar(usedAvatars);
+    setPlayers((prev) => [...prev, { name: avatarName(avatar), avatar, nameCustomized: false }]);
   };
 
   const removePlayer = (index: number) => {
@@ -54,11 +67,20 @@ export default function SetupScreen() {
   };
 
   const updatePlayerName = (index: number, name: string) => {
-    setPlayers((prev) => prev.map((p, i) => (i === index ? { ...p, name } : p)));
+    setPlayers((prev) =>
+      prev.map((p, i) => (i === index ? { ...p, name, nameCustomized: true } : p))
+    );
   };
 
-  const updatePlayerColor = (index: number, color: string) => {
-    setPlayers((prev) => prev.map((p, i) => (i === index ? { ...p, color } : p)));
+  const updatePlayerAvatar = (index: number, avatar: AvatarKey) => {
+    setPlayers((prev) =>
+      prev.map((p, i) => {
+        if (i !== index) return p;
+        const name = p.nameCustomized ? p.name : avatarName(avatar);
+        return { ...p, avatar, name };
+      })
+    );
+    setPickerIndex(null);
   };
 
   const loadCategories = async () => {
@@ -106,7 +128,7 @@ export default function SetupScreen() {
     if (!validateNames()) return;
 
     startGame({
-      players: players.map((p) => ({ name: p.name || 'Player', color: p.color })),
+      players: players.map((p) => ({ name: p.name || 'Player', avatar: p.avatar })),
       questionCount: count,
       category: quickPlay ? undefined : category,
       difficulty: quickPlay ? undefined : difficulty,
@@ -115,6 +137,8 @@ export default function SetupScreen() {
   };
 
   const canStart = players.length > 0 && !isLoading;
+
+  const pickerPlayer = pickerIndex !== null ? players[pickerIndex] : null;
 
   return (
     <KeyboardAvoidingView style={styles.keyboardAvoid} behavior="padding">
@@ -138,6 +162,9 @@ export default function SetupScreen() {
         {players.map((player, index) => (
           <View key={index} style={styles.playerRow}>
             <View style={styles.inputRow}>
+              <Pressable onPress={() => setPickerIndex(index)} style={styles.avatarButton}>
+                <AvatarIcon avatarKey={player.avatar} size={48} />
+              </Pressable>
               <TextInput
                 style={[
                   styles.input,
@@ -161,20 +188,6 @@ export default function SetupScreen() {
               {players.length > 1 && <IconButton icon="✕" onPress={() => removePlayer(index)} />}
             </View>
             {nameErrors[index] ? <Text style={styles.errorText}>{nameErrors[index]}</Text> : null}
-            <View style={styles.colorRow}>
-              {colors.playerPalette.map((color) => {
-                const taken = usedColors.includes(color) && players[index].color !== color;
-                return (
-                  <ColorSwatch
-                    key={color}
-                    color={color}
-                    selected={player.color === color}
-                    disabled={taken}
-                    onPress={() => updatePlayerColor(index, color)}
-                  />
-                );
-              })}
-            </View>
           </View>
         ))}
 
@@ -229,6 +242,53 @@ export default function SetupScreen() {
           style={styles.startButton}
         />
       </ScrollView>
+
+      <Modal
+        visible={pickerIndex !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setPickerIndex(null)}
+      >
+        <Pressable style={styles.modalOverlay} onPress={() => setPickerIndex(null)}>
+          <Pressable style={styles.modalContent} onPress={() => {}}>
+            <View style={styles.avatarGrid}>
+              {AVATAR_LIST.map((avatarDef) => {
+                const taken =
+                  usedAvatars.includes(avatarDef.key) && pickerPlayer?.avatar !== avatarDef.key;
+                const selected = pickerPlayer?.avatar === avatarDef.key;
+                return (
+                  <Pressable
+                    key={avatarDef.key}
+                    onPress={() => {
+                      if (!taken && pickerIndex !== null) {
+                        updatePlayerAvatar(pickerIndex, avatarDef.key);
+                      }
+                    }}
+                    style={[
+                      styles.avatarCell,
+                      selected && {
+                        shadowColor: avatarDef.color,
+                        shadowOffset: { width: 0, height: 0 },
+                        shadowOpacity: 1,
+                        shadowRadius: 8,
+                        elevation: 8,
+                      },
+                      taken && styles.avatarCellDisabled,
+                    ]}
+                    disabled={taken}
+                  >
+                    <AvatarIcon
+                      avatarKey={avatarDef.key}
+                      size={64}
+                      style={taken ? styles.avatarIconDisabled : undefined}
+                    />
+                  </Pressable>
+                );
+              })}
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </KeyboardAvoidingView>
   );
 }
@@ -254,11 +314,11 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   playerRow: { marginBottom: spacing.md },
-  inputRow: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.sm },
+  inputRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   playerInput: { flex: 1, marginBottom: 0 },
-  colorRow: { flexDirection: 'row', flexWrap: 'nowrap', gap: spacing.xs, marginBottom: spacing.xs },
+  avatarButton: { flexShrink: 0 },
   inputError: { borderColor: colors.error },
-  errorText: { color: colors.error, fontSize: fontSize.sm, marginBottom: 4 },
+  errorText: { color: colors.error, fontSize: fontSize.sm, marginBottom: 4, marginTop: spacing.xs },
   toggleRow: {
     flexDirection: 'row',
     marginTop: spacing.lg,
@@ -268,4 +328,28 @@ const styles = StyleSheet.create({
   startButton: {
     marginTop: spacing.xl,
   },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalContent: {
+    backgroundColor: colors.background,
+    borderRadius: radius.lg,
+    padding: spacing.xl,
+  },
+  avatarGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    width: 64 * 5 + spacing.sm * 4,
+    gap: spacing.sm,
+  },
+  avatarCell: {
+    borderRadius: radius.lg,
+  },
+  avatarCellDisabled: {
+    opacity: 0.3,
+  },
+  avatarIconDisabled: {},
 });

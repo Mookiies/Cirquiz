@@ -5,14 +5,16 @@
 Yarn monorepo with a single mobile app:
 
 ```text
-apps/mobile/
+apps/cirquiz/
   app/          # Expo Router file-based routing
   src/
+    avatars.ts
     components/
     hooks/
     i18n/
     providers/
     state/      # Zustand stores
+    theme.ts
     utils/
 specs/          # Feature specs and plans
 ```
@@ -30,33 +32,33 @@ specs/          # Feature specs and plans
 Run from the monorepo root (uses Yarn workspaces):
 
 ```sh
-yarn workspace mobile start          # Start Expo dev server
-yarn workspace mobile ios            # Run on iOS
-yarn workspace mobile android        # Run on Android
-yarn workspace mobile lint           # Lint with ESLint
-yarn workspace mobile lint:fix       # Lint and auto-fix
-yarn workspace mobile format         # Format with Prettier
-yarn workspace mobile format:check   # Check formatting
-yarn workspace mobile typecheck      # TypeScript type checking
+yarn workspace cirquiz start          # Start Expo dev server
+yarn workspace cirquiz ios            # Run on iOS
+yarn workspace cirquiz android        # Run on Android
+yarn workspace cirquiz lint           # Lint with ESLint
+yarn workspace cirquiz lint:fix       # Lint and auto-fix
+yarn workspace cirquiz format         # Format with Prettier
+yarn workspace cirquiz format:check   # Check formatting
+yarn workspace cirquiz typecheck      # TypeScript type checking
 ```
 
-> **`npx expo` commands** (e.g. `expo lint`, `expo install`, `expo doctor`) must be run from `apps/mobile/`, not the monorepo root.
+> **`npx expo` commands** (e.g. `expo lint`, `expo install`, `expo doctor`) must be run from `apps/cirquiz/`, not the monorepo root.
 
 ## Quality Gates
 
 All changes must pass before committing:
 
 ```sh
-yarn workspace mobile lint
-yarn workspace mobile format:check
-yarn workspace mobile typecheck
+yarn workspace cirquiz lint
+yarn workspace cirquiz format:check
+yarn workspace cirquiz typecheck
 ```
 
 ## Code Style
 
 - TypeScript strict mode; follow existing file conventions
-- Expo Router for navigation (file-based, under `apps/mobile/app/`)
-- Zustand for global state (stores in `apps/mobile/src/state/`)
+- Expo Router for navigation (file-based, under `apps/cirquiz/app/`)
+- Zustand for global state (stores in `apps/cirquiz/src/state/`)
 
 ## Recent Changes
 

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Difficulty } from '../../src/providers/types';
+import { AvatarIcon } from '../../src/components/AvatarIcon';
 import { Button } from '../../src/components/Button';
 import { CategorySelector } from '../../src/components/CategorySelector';
 import { DifficultySelector } from '../../src/components/DifficultySelector';
@@ -108,6 +109,7 @@ export default function StandingsScreen() {
         );
         return (
           <View key={player.id} style={[styles.row, { borderLeftColor: player.color }]}>
+            <AvatarIcon avatarKey={player.avatar} size={40} style={styles.rowAvatar} />
             <Text style={styles.place}>{ordinal(place)}</Text>
             <View style={styles.playerInfo}>
               <Text style={styles.playerName}>{player.name}</Text>
@@ -202,6 +204,10 @@ const styles = StyleSheet.create({
     borderLeftWidth: 4,
     backgroundColor: colors.surface,
     marginBottom: spacing.md,
+  },
+  rowAvatar: {
+    marginRight: spacing.sm,
+    flexShrink: 0,
   },
   place: {
     fontSize: fontSize.lg,
