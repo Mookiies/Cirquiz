@@ -1,11 +1,12 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Difficulty } from '../../src/providers/types';
 import { Button } from '../../src/components/Button';
 import { CategorySelector } from '../../src/components/CategorySelector';
 import { DifficultySelector } from '../../src/components/DifficultySelector';
+import { TextButton } from '../../src/components/TextButton';
 import { OpenTriviaDbProvider } from '../../src/providers/opentdb/OpenTriviaDbProvider';
 import { useGameStore } from '../../src/state/gameStore';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -139,17 +140,15 @@ export default function StandingsScreen() {
         );
       })}
 
-      <TouchableOpacity
-        style={styles.settingsToggle}
+      <TextButton
+        label={showSettings ? t('game.standings.hideSettings') : t('game.standings.changeSettings')}
         onPress={async () => {
           if (!showSettings && categories.length === 0) await loadCategories();
           setShowSettings((v) => !v);
         }}
-      >
-        <Text style={styles.settingsToggleText}>
-          {showSettings ? t('game.standings.hideSettings') : t('game.standings.changeSettings')}
-        </Text>
-      </TouchableOpacity>
+        color={colors.primary}
+        style={{ alignSelf: 'center', marginTop: spacing.xl, marginBottom: spacing.xs }}
+      />
 
       {showSettings && (
         <View style={styles.settingsPanel}>
@@ -202,14 +201,14 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     borderLeftWidth: 4,
     backgroundColor: colors.surface,
-    marginBottom: spacing[10],
+    marginBottom: spacing.md,
   },
   place: {
     fontSize: fontSize.lg,
     fontWeight: fontWeight.bold,
     width: 52,
     color: colors.textSecondary,
-    paddingTop: spacing[2],
+    paddingTop: spacing.xs,
   },
   playerInfo: { flex: 1 },
   playerName: {
@@ -218,13 +217,13 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginBottom: spacing.sm,
   },
-  statsRow: { flexDirection: 'row', gap: spacing[20], marginBottom: spacing.xs },
+  statsRow: { flexDirection: 'row', gap: spacing.xl, marginBottom: spacing.xs },
   stat: { alignItems: 'center' },
   statValue: { fontSize: fontSize.xl, fontWeight: fontWeight.bold, color: colors.primary },
-  statLabel: { fontSize: fontSize.xs, color: colors.textTertiary, marginTop: spacing[2] },
+  statLabel: { fontSize: fontSize.xs, color: colors.textTertiary, marginTop: spacing.xs },
   roundGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.sm },
   roundCell: { alignItems: 'center', width: 40 },
-  roundCellLabel: { fontSize: fontSize.xs, color: colors.textMuted, marginBottom: spacing[2] },
+  roundCellLabel: { fontSize: fontSize.xs, color: colors.textMuted, marginBottom: spacing.xs },
   roundCellValue: {
     fontSize: fontSize.md,
     fontWeight: fontWeight.semibold,
@@ -234,18 +233,12 @@ const styles = StyleSheet.create({
     marginTop: spacing.xl,
     marginBottom: spacing.md,
   },
-  settingsToggle: { marginTop: spacing[20], marginBottom: spacing.xs, alignItems: 'center' },
-  settingsToggleText: {
-    color: colors.primary,
-    fontSize: fontSize.base,
-    fontWeight: fontWeight.semibold,
-  },
   settingsPanel: { marginBottom: spacing.xs },
   settingsLabel: {
     fontSize: fontSize.md,
     fontWeight: fontWeight.semibold,
     color: colors.textSecondary,
-    marginBottom: spacing[6],
+    marginBottom: spacing.sm,
     marginTop: spacing.md,
   },
 });

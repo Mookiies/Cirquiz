@@ -1,6 +1,5 @@
 This file is purely for notes and tracking things I want to implement going forward.
 
-- When there's a fetch error it should be possible to retry the fetch instead of the only option being to quit the game on /error
 - bigger tap targets
 
 TBD enhancements

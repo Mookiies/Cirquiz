@@ -11,6 +11,7 @@ interface Props {
   selected?: boolean;
   loading?: boolean;
   disabled?: boolean;
+  compact?: boolean;
   style?: ViewStyle;
 }
 
@@ -23,6 +24,7 @@ export function Button({
   selected = false,
   loading = false,
   disabled = false,
+  compact = false,
   style,
 }: Props) {
   return (
@@ -32,6 +34,7 @@ export function Button({
         outlined
           ? [styles.outlined, { borderColor: color }, selected && { backgroundColor: color }]
           : { backgroundColor: color },
+        compact && styles.compactBase,
         (disabled || loading) && styles.inactive,
         style,
       ]}
@@ -45,6 +48,7 @@ export function Button({
           style={[
             styles.text,
             outlined ? styles.textOutlined : styles.textSolid,
+            compact && styles.compactText,
             { color: textColor ?? (outlined && !selected ? colors.text : colors.white) },
           ]}
         >
@@ -59,15 +63,18 @@ const styles = StyleSheet.create({
   base: {
     borderRadius: radius.lg,
     alignItems: 'center',
-    paddingVertical: spacing[18],
+    justifyContent: 'center',
+    paddingVertical: spacing.lg,
     paddingHorizontal: spacing.lg,
   },
   outlined: {
     borderWidth: 2,
     paddingVertical: spacing.lg,
   },
+  compactBase: { paddingVertical: spacing.sm, paddingHorizontal: spacing.sm },
   inactive: { opacity: opacity.inactive },
   text: {},
   textSolid: { fontSize: fontSize.lg, fontWeight: fontWeight.bold },
   textOutlined: { fontSize: fontSize.base, fontWeight: fontWeight.semibold },
+  compactText: { fontSize: fontSize.sm },
 });

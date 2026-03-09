@@ -1,7 +1,8 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import type { ViewStyle } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { colors, spacing, fontSize, fontWeight, radius } from '../theme';
+import { colors, spacing } from '../theme';
+import { Button } from './Button';
 
 type Difficulty = 'easy' | 'medium' | 'hard';
 
@@ -26,13 +27,16 @@ export function DifficultySelector({ value, onChange, style }: Props) {
       {options.map(({ label, value: optVal }) => {
         const active = value === optVal;
         return (
-          <TouchableOpacity
+          <Button
             key={label}
-            style={[styles.btn, active && styles.btnActive]}
+            outlined
+            compact
+            selected={active}
+            color={colors.difficulty}
+            label={label}
             onPress={() => onChange(optVal)}
-          >
-            <Text style={[styles.text, active && styles.textActive]}>{label}</Text>
-          </TouchableOpacity>
+            style={{ flex: 1 }}
+          />
         );
       })}
     </View>
@@ -41,15 +45,4 @@ export function DifficultySelector({ value, onChange, style }: Props) {
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: spacing.sm },
-  btn: {
-    flex: 1,
-    padding: spacing[10],
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    alignItems: 'center',
-  },
-  btnActive: { backgroundColor: colors.difficulty, borderColor: colors.difficulty },
-  text: { color: colors.textSecondary, fontSize: fontSize.md },
-  textActive: { color: colors.white, fontWeight: fontWeight.semibold },
 });

@@ -317,12 +317,14 @@ export const useGameStore = create<GameStore>()(
     {
       name: STORAGE_KEY,
       storage: createJSONStorage(() => AsyncStorage),
+      partialize: ({ isLoading, isHydrated, ...rest }) => rest,
       onRehydrateStorage: () => (state) => {
         if (state) {
           if (!state.version || state.version < CURRENT_SCHEMA_VERSION) {
             state.quitGame();
           }
           state.isHydrated = true;
+          state.isLoading = false;
         }
       },
     }

@@ -31,7 +31,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   android: {
     package: `com.cirquiz.app${s.bundleId}`,
     adaptiveIcon: {
-      backgroundColor: '#E6F4FE',
+      backgroundColor: '#EBF5FB',
       foregroundImage: './assets/android-icon-foreground.png',
       backgroundImage: './assets/android-icon-background.png',
       monochromeImage: './assets/android-icon-monochrome.png',

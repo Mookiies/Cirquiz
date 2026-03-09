@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
   },
   resultInfo: { flex: 1 },
   playerName: { fontSize: fontSize.base, fontWeight: fontWeight.semibold, color: colors.text },
-  playerAnswer: { fontSize: fontSize.md, color: colors.textSecondary, marginTop: spacing[2] },
+  playerAnswer: { fontSize: fontSize.md, color: colors.textSecondary, marginTop: spacing.xs },
   resultRight: { alignItems: 'flex-end' },
   resultIcon: { fontSize: fontSize.md, fontWeight: fontWeight.bold, marginBottom: spacing.xs },
   correct: { color: colors.success },

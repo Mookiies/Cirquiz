@@ -1,10 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ErrorBoundaryProps, Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { Button } from '../src/components/Button';
 import { useGameStore } from '../src/state/gameStore';
 import '../src/i18n';
-import { colors, spacing, fontSize, fontWeight, radius } from '../src/theme';
+import { colors, spacing, fontSize, fontWeight } from '../src/theme';
 
 export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
   const { t } = useTranslation();
@@ -35,12 +36,17 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
       <Text style={styles.message} numberOfLines={5}>
         {error.message}
       </Text>
-      <TouchableOpacity style={styles.retryButton} onPress={retry}>
-        <Text style={styles.buttonText}>{t('error.tryAgain')}</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.resetButton} onPress={handleResetGame}>
-        <Text style={styles.buttonText}>{t('error.resetGame')}</Text>
-      </TouchableOpacity>
+      <Button
+        label={t('error.tryAgain')}
+        onPress={retry}
+        style={{ width: '100%', marginBottom: spacing.md }}
+      />
+      <Button
+        label={t('error.resetGame')}
+        color={colors.error}
+        onPress={handleResetGame}
+        style={{ width: '100%' }}
+      />
     </View>
   );
 }
@@ -73,22 +79,4 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     fontFamily: 'monospace',
   },
-  retryButton: {
-    backgroundColor: colors.primary,
-    paddingVertical: spacing.lg,
-    paddingHorizontal: spacing['3xl'],
-    borderRadius: radius.lg,
-    marginBottom: spacing.md,
-    width: '100%',
-    alignItems: 'center',
-  },
-  resetButton: {
-    backgroundColor: colors.error,
-    paddingVertical: spacing.lg,
-    paddingHorizontal: spacing['3xl'],
-    borderRadius: radius.lg,
-    width: '100%',
-    alignItems: 'center',
-  },
-  buttonText: { color: colors.white, fontSize: fontSize.lg, fontWeight: fontWeight.semibold },
 });

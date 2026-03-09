@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing[6],
+    paddingVertical: spacing.sm,
     borderRadius: radius.pill,
   },
   name: {

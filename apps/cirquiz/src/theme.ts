@@ -46,13 +46,6 @@ export const spacing = {
   '2xl': 32,
   '3xl': 40,
   '4xl': 48,
-  // Intermediate values
-  2: 2,
-  6: 6,
-  10: 10,
-  14: 14,
-  18: 18,
-  20: 20,
 } as const;
 
 export const fontSize = {

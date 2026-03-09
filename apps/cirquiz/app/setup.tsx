@@ -1,22 +1,17 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  KeyboardAvoidingView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { KeyboardAvoidingView, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../src/components/Button';
 import { CategorySelector } from '../src/components/CategorySelector';
+import { ColorSwatch } from '../src/components/ColorSwatch';
 import { DifficultySelector } from '../src/components/DifficultySelector';
+import { IconButton } from '../src/components/IconButton';
+import { TextButton } from '../src/components/TextButton';
 import { OpenTriviaDbProvider } from '../src/providers/opentdb/OpenTriviaDbProvider';
 import { Difficulty } from '../src/providers/types';
 import { useGameStore } from '../src/state/gameStore';
-import { colors, spacing, fontSize, fontWeight, radius, opacity } from '../src/theme';
+import { colors, spacing, fontSize, fontWeight, radius } from '../src/theme';
 
 interface PlayerEntry {
   name: string;
@@ -141,76 +136,72 @@ export default function SetupScreen() {
         <Text style={styles.sectionLabel}>{t('setup.players')}</Text>
         {players.map((player, index) => (
           <View key={index} style={styles.playerRow}>
-            <TextInput
-              style={[
-                styles.input,
-                styles.playerInput,
-                nameErrors[index] ? styles.inputError : null,
-              ]}
-              selectTextOnFocus
-              placeholder={`${t('setup.playerName')} ${index + 1}`}
-              value={player.name}
-              onChangeText={(text) => {
-                updatePlayerName(index, text);
-                if (nameErrors[index])
-                  setNameErrors((prev) => {
-                    const n = { ...prev };
-                    delete n[index];
-                    return n;
-                  });
-              }}
-              maxLength={20}
-            />
+            <View style={styles.inputRow}>
+              <TextInput
+                style={[
+                  styles.input,
+                  styles.playerInput,
+                  nameErrors[index] ? styles.inputError : null,
+                ]}
+                selectTextOnFocus
+                placeholder={`${t('setup.playerName')} ${index + 1}`}
+                value={player.name}
+                onChangeText={(text) => {
+                  updatePlayerName(index, text);
+                  if (nameErrors[index])
+                    setNameErrors((prev) => {
+                      const n = { ...prev };
+                      delete n[index];
+                      return n;
+                    });
+                }}
+                maxLength={20}
+              />
+              {players.length > 1 && <IconButton icon="✕" onPress={() => removePlayer(index)} />}
+            </View>
             {nameErrors[index] ? <Text style={styles.errorText}>{nameErrors[index]}</Text> : null}
             <View style={styles.colorRow}>
               {colors.playerPalette.map((color) => {
                 const taken = usedColors.includes(color) && players[index].color !== color;
                 return (
-                  <TouchableOpacity
+                  <ColorSwatch
                     key={color}
-                    style={[
-                      styles.colorSwatch,
-                      { backgroundColor: color },
-                      player.color === color && styles.colorSelected,
-                      taken && styles.colorDisabled,
-                    ]}
-                    onPress={() => !taken && updatePlayerColor(index, color)}
+                    color={color}
+                    selected={player.color === color}
                     disabled={taken}
+                    onPress={() => updatePlayerColor(index, color)}
                   />
                 );
               })}
             </View>
-            {players.length > 1 && (
-              <TouchableOpacity onPress={() => removePlayer(index)}>
-                <Text style={styles.removeText}>✕</Text>
-              </TouchableOpacity>
-            )}
           </View>
         ))}
 
         {players.length < 6 && (
-          <TouchableOpacity style={styles.addButton} onPress={addPlayer}>
-            <Text style={styles.addButtonText}>+ {t('setup.addPlayer')}</Text>
-          </TouchableOpacity>
+          <TextButton
+            label={`+ ${t('setup.addPlayer')}`}
+            onPress={addPlayer}
+            color={colors.primary}
+          />
         )}
 
         <View style={styles.toggleRow}>
-          <TouchableOpacity
-            style={[styles.toggleBtn, quickPlay && styles.toggleActive]}
+          <Button
+            outlined
+            selected={quickPlay}
+            color={colors.primary}
+            label={t('setup.quickPlay')}
             onPress={() => setQuickPlay(true)}
-          >
-            <Text style={[styles.toggleText, quickPlay && styles.toggleTextActive]}>
-              {t('setup.quickPlay')}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.toggleBtn, !quickPlay && styles.toggleActive]}
+            style={{ flex: 1 }}
+          />
+          <Button
+            outlined
+            selected={!quickPlay}
+            color={colors.primary}
+            label={t('setup.chooseCategories')}
             onPress={toggleQuickPlay}
-          >
-            <Text style={[styles.toggleText, !quickPlay && styles.toggleTextActive]}>
-              {t('setup.chooseCategories')}
-            </Text>
-          </TouchableOpacity>
+            style={{ flex: 1 }}
+          />
         </View>
 
         {!quickPlay && (
@@ -250,7 +241,7 @@ const styles = StyleSheet.create({
     fontSize: fontSize.md,
     fontWeight: fontWeight.semibold,
     color: colors.textSecondary,
-    marginBottom: 6,
+    marginBottom: spacing.sm,
     marginTop: spacing.lg,
   },
   input: {
@@ -262,33 +253,17 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   playerRow: { marginBottom: spacing.md },
-  playerInput: { marginBottom: spacing[6] },
-  colorRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[6], marginBottom: spacing.xs },
-  colorSwatch: { width: 28, height: 28, borderRadius: 14 },
-  colorSelected: { borderWidth: 3, borderColor: colors.selectionRing },
-  colorDisabled: { opacity: opacity.disabled },
-  removeText: { color: colors.error, fontSize: fontSize.base, marginTop: 4 },
+  inputRow: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.sm },
+  playerInput: { flex: 1, marginBottom: 0 },
+  colorRow: { flexDirection: 'row', flexWrap: 'nowrap', gap: spacing.xs, marginBottom: spacing.xs },
   inputError: { borderColor: colors.error },
   errorText: { color: colors.error, fontSize: fontSize.sm, marginBottom: 4 },
-  addButton: { marginVertical: spacing.sm },
-  addButtonText: { color: colors.primary, fontSize: fontSize.base },
   toggleRow: {
     flexDirection: 'row',
     marginTop: spacing.lg,
     marginBottom: spacing.sm,
     gap: spacing.sm,
   },
-  toggleBtn: {
-    flex: 1,
-    padding: spacing[10],
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    alignItems: 'center',
-  },
-  toggleActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  toggleText: { color: colors.textSecondary, fontSize: fontSize.md },
-  toggleTextActive: { color: colors.white },
   startButton: {
     marginTop: spacing.xl,
   },
