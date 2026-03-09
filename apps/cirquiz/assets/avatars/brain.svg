@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+
+  <!-- brain body - wrinkly blob -->
+  <path d="M50 16 C60 14 70 18 74 28 C80 26 86 32 84 40 C88 44 88 52 84 56 C86 62 82 70 76 72 C74 80 66 84 58 82 C54 86 46 86 42 82 C34 84 26 80 24 72 C18 70 14 62 16 56 C12 52 12 44 16 40 C14 32 20 26 26 28 C30 18 40 14 50 16Z" fill="#E91E63" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- wrinkle lines -->
+  <path d="M50 16 C50 24 46 30 46 38" fill="none" stroke="#c0392b" stroke-width="2" opacity="0.5" stroke-linecap="round"/>
+  <path d="M54 16 C56 24 58 30 56 40" fill="none" stroke="#c0392b" stroke-width="2" opacity="0.5" stroke-linecap="round"/>
+  <path d="M50 40 C48 48 50 56 48 64" fill="none" stroke="#c0392b" stroke-width="2" opacity="0.5" stroke-linecap="round"/>
+  <path d="M50 40 C52 50 52 58 54 64" fill="none" stroke="#c0392b" stroke-width="2" opacity="0.5" stroke-linecap="round"/>
+  <path d="M26 36 C32 38 34 44 32 50" fill="none" stroke="#c0392b" stroke-width="2" opacity="0.5" stroke-linecap="round"/>
+  <path d="M74 36 C68 38 66 44 68 50" fill="none" stroke="#c0392b" stroke-width="2" opacity="0.5" stroke-linecap="round"/>
+  <!-- center divide -->
+  <path d="M50 18 C50 36 50 54 50 74" fill="none" stroke="#c0392b" stroke-width="2.5" opacity="0.4" stroke-linecap="round"/>
+  <!-- highlight -->
+  <ellipse cx="36" cy="28" rx="8" ry="10" fill="white" opacity="0.2" transform="rotate(-20 36 28)"/>
+  <!-- cute face -->
+  <circle cx="40" cy="56" r="5" fill="white" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="60" cy="56" r="5" fill="white" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="41" cy="57" r="2.5" fill="#1a1a1a"/>
+  <circle cx="61" cy="57" r="2.5" fill="#1a1a1a"/>
+  <circle cx="41.8" cy="56.2" r="0.9" fill="white"/>
+  <circle cx="61.8" cy="56.2" r="0.9" fill="white"/>
+  <!-- little legs -->
+  <path d="M38 82 C36 88 34 92 32 94" fill="none" stroke="#E91E63" stroke-width="5" stroke-linecap="round"/>
+  <path d="M50 84 C50 90 50 94 50 96" fill="none" stroke="#E91E63" stroke-width="5" stroke-linecap="round"/>
+  <path d="M62 82 C64 88 66 92 68 94" fill="none" stroke="#E91E63" stroke-width="5" stroke-linecap="round"/>
+
+</svg>

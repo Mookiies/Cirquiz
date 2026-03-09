@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+
+  <!-- ears -->
+  <path d="M20 36 C14 24 10 16 18 12 C24 10 28 20 26 32Z" fill="#9B59B6" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M80 36 C86 24 90 16 82 12 C76 10 72 20 74 32Z" fill="#9B59B6" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M20 34 C16 26 14 20 19 16 C22 14 25 22 23 32Z" fill="#c39bd3" opacity="0.5"/>
+  <path d="M80 34 C84 26 86 20 81 16 C78 14 75 22 77 32Z" fill="#c39bd3" opacity="0.5"/>
+  <!-- head -->
+  <ellipse cx="50" cy="50" rx="30" ry="32" fill="#9B59B6" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- head highlight -->
+  <ellipse cx="38" cy="34" rx="10" ry="12" fill="white" opacity="0.18" transform="rotate(-15 38 34)"/>
+  <!-- horns -->
+  <path d="M34 22 C30 14 26 10 28 6 C30 4 34 8 36 16Z" fill="#7d3c98" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M66 22 C70 14 74 10 72 6 C70 4 66 8 64 16Z" fill="#7d3c98" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- eyes -->
+  <circle cx="38" cy="46" r="7" fill="#f9e04b" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="62" cy="46" r="7" fill="#f9e04b" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="39" cy="46" r="3.5" fill="#1a1a1a"/>
+  <circle cx="63" cy="46" r="3.5" fill="#1a1a1a"/>
+  <circle cx="40" cy="44.8" r="1.2" fill="white"/>
+  <circle cx="64" cy="44.8" r="1.2" fill="white"/>
+  <!-- grin with teeth -->
+  <path d="M28 62 Q50 74 72 62" fill="#7d3c98" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round"/>
+  <rect x="38" y="62" width="6" height="7" rx="1" fill="white" stroke="#1a1a1a" stroke-width="1.5"/>
+  <rect x="46" y="62" width="6" height="8" rx="1" fill="white" stroke="#1a1a1a" stroke-width="1.5"/>
+  <rect x="54" y="62" width="6" height="7" rx="1" fill="white" stroke="#1a1a1a" stroke-width="1.5"/>
+  <!-- tiny arms -->
+  <path d="M20 62 Q12 66 10 74 Q14 76 18 72" fill="#9B59B6" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M80 62 Q88 66 90 74 Q86 76 82 72" fill="#9B59B6" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+</svg>
