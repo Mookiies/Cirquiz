@@ -25,8 +25,8 @@ export function QuestionHeader({ question, questionIndex, questionCount }: Props
 }
 
 const styles = StyleSheet.create({
-  progress: { fontSize: fontSize.md, color: colors.textTertiary, marginBottom: spacing.xs },
-  category: { fontSize: fontSize.sm, color: colors.textMuted, marginBottom: spacing.lg },
+  progress: { fontSize: fontSize.base, color: colors.textSecondary, marginBottom: spacing.xs },
+  category: { fontSize: fontSize.md, color: colors.textTertiary, marginBottom: spacing.lg },
   questionText: {
     fontSize: fontSize.xl,
     fontWeight: fontWeight.semibold,

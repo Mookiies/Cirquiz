@@ -9,14 +9,16 @@ interface GameHeaderProps {
   variant: 'player' | 'transparent';
   player?: { avatar: string; name: string; color: string };
   onQuit?: () => void;
+  quitTextColor?: string;
 }
 
-export function GameHeader({ variant, player, onQuit }: GameHeaderProps) {
+export function GameHeader({ variant, player, onQuit, quitTextColor }: GameHeaderProps) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
 
   const backgroundColor = variant === 'player' && player ? player.color : 'transparent';
-  const quitColor = variant === 'player' ? colors.white : colors.text;
+  const defaultQuitColor = variant === 'player' ? colors.white : colors.text;
+  const quitColor = quitTextColor || defaultQuitColor;
 
   return (
     <View style={[styles.header, { paddingTop: insets.top, backgroundColor }]}>
@@ -42,7 +44,7 @@ export function GameHeader({ variant, player, onQuit }: GameHeaderProps) {
 }
 
 const styles = StyleSheet.create({
-  header: { alignItems: 'center', flexDirection: 'row' },
+  header: { alignItems: 'center', flexDirection: 'row', backgroundColor: 'transparent' },
   banner: {
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.lg,

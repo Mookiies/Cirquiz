@@ -8,7 +8,7 @@ export const colors = {
 
   // Surfaces
   background: '#fff',
-  surface: '#f8f8f8',
+  surface: '#fafafa',
   surfaceFaint: '#fafafa',
 
   // Text

@@ -110,7 +110,7 @@ export default function RevealScreen() {
         </Animated.ScrollView>
         <Animated.View style={[styles.fadeOverlay, overlayStyle]} pointerEvents="none">
           <LinearGradient
-            colors={[lightenHex(colors.primaryFaint, 0.05), 'rgba(255,255,255,0)']}
+            colors={[lightenHex(colors.primaryFaint, 0.02), 'rgba(255,255,255,0)']}
             style={StyleSheet.absoluteFill}
           />
         </Animated.View>

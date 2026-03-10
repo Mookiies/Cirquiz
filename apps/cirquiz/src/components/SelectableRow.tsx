@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     marginBottom: spacing.sm,
-    backgroundColor: colors.surfaceFaint,
+    backgroundColor: colors.white,
   },
   rowActive: { backgroundColor: colors.primaryFaint, borderColor: colors.primary },
   text: { fontSize: fontSize.base, color: colors.text },
