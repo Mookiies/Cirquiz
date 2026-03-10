@@ -3,13 +3,16 @@ import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 import { AvatarIcon } from '../../src/components/AvatarIcon';
 import { Button } from '../../src/components/Button';
+import { GameHeader } from '../../src/components/GameHeader';
 import { useGameStore } from '../../src/state/gameStore';
+import { useQuitGame } from '../../src/hooks/useQuitGame';
 import { colors, spacing, fontSize, fontWeight } from '../../src/theme';
 import { darkenHex } from '../../src/utils/color';
 
 export default function HandoffScreen() {
   const { t } = useTranslation();
   const game = useGameStore((s) => s.game);
+  const handleQuit = useQuitGame();
 
   if (!game) return null;
 
@@ -18,30 +21,36 @@ export default function HandoffScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: currentPlayer.color }]}>
-      <AvatarIcon avatarKey={currentPlayer.avatar} size={120} style={styles.avatar} />
-      <Text style={styles.title}>{t('game.handoff.title', { name: currentPlayer.name })}</Text>
-      <Text style={styles.subtitle}>
-        {t('game.question.title', {
-          current: round.currentQuestionIndex + 1,
-          total: round.questions.length,
-        })}
-      </Text>
-      <Button
-        variant="raised"
-        label={t('game.handoff.ready')}
-        color={colors.white}
-        textColor={colors.text}
-        accentColor={darkenHex(currentPlayer.color)}
-        onPress={() => router.replace('/(game)/question')}
-        haptic="light"
-        style={styles.readyButton}
-      />
+      <GameHeader variant="player" player={currentPlayer} onQuit={handleQuit} />
+      <View style={styles.content}>
+        <AvatarIcon avatarKey={currentPlayer.avatar} size={120} style={styles.avatar} />
+        <Text style={styles.title}>{t('game.handoff.title', { name: currentPlayer.name })}</Text>
+        <Text style={styles.subtitle}>
+          {t('game.question.title', {
+            current: round.currentQuestionIndex + 1,
+            total: round.questions.length,
+          })}
+        </Text>
+        <Button
+          variant="raised"
+          label={t('game.handoff.ready')}
+          color={colors.white}
+          textColor={colors.text}
+          accentColor={darkenHex(currentPlayer.color)}
+          onPress={() => router.replace('/(game)/question')}
+          haptic="light"
+          style={styles.readyButton}
+        />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  content: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',

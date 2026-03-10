@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Difficulty } from '../../src/providers/types';
 import { AvatarIcon } from '../../src/components/AvatarIcon';
+import { BackgroundBlobs } from '../../src/components/BackgroundBlobs';
 import { Button } from '../../src/components/Button';
 import { CategorySelector } from '../../src/components/CategorySelector';
 import { DifficultySelector } from '../../src/components/DifficultySelector';
@@ -78,127 +79,133 @@ export default function StandingsScreen() {
   };
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={[
-        styles.content,
-        {
-          paddingTop: insets.top + spacing.xl,
-          paddingBottom: insets.bottom + spacing.xl,
-        },
-      ]}
-    >
-      <Text style={styles.title}>{t('game.standings.title')}</Text>
+    <View style={styles.outerContainer}>
+      <BackgroundBlobs />
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={[
+          styles.content,
+          {
+            paddingTop: insets.top + spacing.xl,
+            paddingBottom: insets.bottom + spacing.xl,
+          },
+        ]}
+      >
+        <Text style={styles.title}>{t('game.standings.title')}</Text>
 
-      {sorted.map((player, index) => {
-        const place = index + 1;
-        const roundScores = game.rounds.map(
-          (round) => round.turns.filter((t) => t.playerId === player.id && t.isCorrect).length
-        );
-        return (
-          <View key={player.id} style={[styles.row, { borderLeftColor: player.color }]}>
-            <View style={styles.topRow}>
-              <AvatarIcon avatarKey={player.avatar} size={40} style={styles.rowAvatar} />
-              <Text style={styles.place} maxFontSizeMultiplier={1.5}>
-                {ordinal(place)}
-              </Text>
-              <Text
-                style={styles.playerName}
-                numberOfLines={1}
-                maxFontSizeMultiplier={1.5}
-                ellipsizeMode="tail"
-              >
-                {player.name}
-              </Text>
-              <View style={styles.statsRow}>
-                <View style={styles.stat}>
-                  <Text style={styles.statValue} maxFontSizeMultiplier={1}>
-                    {player.cumulativeScore}
-                  </Text>
-                  <Text style={styles.statLabel} maxFontSizeMultiplier={1}>
-                    {t('game.standings.correct')}
-                  </Text>
-                </View>
-                {game.rounds.length > 1 && (
+        {sorted.map((player, index) => {
+          const place = index + 1;
+          const roundScores = game.rounds.map(
+            (round) => round.turns.filter((t) => t.playerId === player.id && t.isCorrect).length
+          );
+          return (
+            <View key={player.id} style={[styles.row, { borderLeftColor: player.color }]}>
+              <View style={styles.topRow}>
+                <AvatarIcon avatarKey={player.avatar} size={40} style={styles.rowAvatar} />
+                <Text style={styles.place} maxFontSizeMultiplier={1.5}>
+                  {ordinal(place)}
+                </Text>
+                <Text
+                  style={styles.playerName}
+                  numberOfLines={1}
+                  maxFontSizeMultiplier={1.5}
+                  ellipsizeMode="tail"
+                >
+                  {player.name}
+                </Text>
+                <View style={styles.statsRow}>
                   <View style={styles.stat}>
                     <Text style={styles.statValue} maxFontSizeMultiplier={1}>
-                      {roundsWon[player.id]}
+                      {player.cumulativeScore}
                     </Text>
                     <Text style={styles.statLabel} maxFontSizeMultiplier={1}>
-                      {t('game.standings.roundsWon')}
+                      {t('game.standings.correct')}
                     </Text>
                   </View>
-                )}
+                  {game.rounds.length > 1 && (
+                    <View style={styles.stat}>
+                      <Text style={styles.statValue} maxFontSizeMultiplier={1}>
+                        {roundsWon[player.id]}
+                      </Text>
+                      <Text style={styles.statLabel} maxFontSizeMultiplier={1}>
+                        {t('game.standings.roundsWon')}
+                      </Text>
+                    </View>
+                  )}
+                </View>
               </View>
+              {game.rounds.length > 1 && (
+                <View style={styles.roundGrid}>
+                  {roundScores.map((s, i) => (
+                    <View key={i} style={styles.roundCell}>
+                      <Text style={styles.roundCellLabel}>
+                        {t('game.standings.roundLabel', { n: i + 1 })}
+                      </Text>
+                      <Text style={styles.roundCellValue}>{s}</Text>
+                    </View>
+                  ))}
+                </View>
+              )}
             </View>
-            {game.rounds.length > 1 && (
-              <View style={styles.roundGrid}>
-                {roundScores.map((s, i) => (
-                  <View key={i} style={styles.roundCell}>
-                    <Text style={styles.roundCellLabel}>
-                      {t('game.standings.roundLabel', { n: i + 1 })}
-                    </Text>
-                    <Text style={styles.roundCellValue}>{s}</Text>
-                  </View>
-                ))}
-              </View>
-            )}
+          );
+        })}
+
+        <Button
+          variant="text"
+          label={
+            showSettings ? t('game.standings.hideSettings') : t('game.standings.changeSettings')
+          }
+          onPress={async () => {
+            if (!showSettings && categories.length === 0) await loadCategories();
+            setShowSettings((v) => !v);
+          }}
+          color={colors.primary}
+          style={{ alignSelf: 'center', marginTop: spacing.xl, marginBottom: spacing.xs }}
+        />
+
+        {showSettings && (
+          <View style={styles.settingsPanel}>
+            <Text style={styles.settingsLabel}>{t('common.difficulty')}</Text>
+            <DifficultySelector
+              value={localDifficulty}
+              onChange={handleDifficultyChange}
+              style={{ marginBottom: spacing.sm }}
+            />
+            <Text style={styles.settingsLabel}>{t('common.category')}</Text>
+            <CategorySelector
+              categories={categories}
+              value={localCategory}
+              onChange={handleCategoryChange}
+              loading={loadingCategories}
+            />
           </View>
-        );
-      })}
+        )}
 
-      <Button
-        variant="text"
-        label={showSettings ? t('game.standings.hideSettings') : t('game.standings.changeSettings')}
-        onPress={async () => {
-          if (!showSettings && categories.length === 0) await loadCategories();
-          setShowSettings((v) => !v);
-        }}
-        color={colors.primary}
-        style={{ alignSelf: 'center', marginTop: spacing.xl, marginBottom: spacing.xs }}
-      />
+        <Button
+          variant="raised"
+          label={t('game.standings.playAnotherRound')}
+          color={colors.success}
+          loading={isLoading}
+          onPress={startNextRound}
+          haptic="strong"
+          style={styles.roundButton}
+        />
 
-      {showSettings && (
-        <View style={styles.settingsPanel}>
-          <Text style={styles.settingsLabel}>{t('common.difficulty')}</Text>
-          <DifficultySelector
-            value={localDifficulty}
-            onChange={handleDifficultyChange}
-            style={{ marginBottom: spacing.sm }}
-          />
-          <Text style={styles.settingsLabel}>{t('common.category')}</Text>
-          <CategorySelector
-            categories={categories}
-            value={localCategory}
-            onChange={handleCategoryChange}
-            loading={loadingCategories}
-          />
-        </View>
-      )}
-
-      <Button
-        variant="raised"
-        label={t('game.standings.playAnotherRound')}
-        color={colors.success}
-        loading={isLoading}
-        onPress={startNextRound}
-        haptic="strong"
-        style={styles.roundButton}
-      />
-
-      <Button
-        variant="text"
-        label={t('game.standings.endSession')}
-        color={colors.error}
-        onPress={handleEndSession}
-        haptic="light"
-      />
-    </ScrollView>
+        <Button
+          variant="text"
+          label={t('game.standings.endSession')}
+          color={colors.error}
+          onPress={handleEndSession}
+          haptic="light"
+        />
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
+  outerContainer: { flex: 1, backgroundColor: colors.background },
+  scrollView: { flex: 1 },
   content: { paddingHorizontal: spacing.xl },
   title: {
     fontSize: fontSize['3xl'],

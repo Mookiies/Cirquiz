@@ -2,15 +2,19 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { AvatarIcon } from '../../src/components/AvatarIcon';
+import { BackgroundBlobs } from '../../src/components/BackgroundBlobs';
 import { Button } from '../../src/components/Button';
+import { GameHeader } from '../../src/components/GameHeader';
 import { QuestionHeader } from '../../src/components/QuestionHeader';
 import { useGameStore } from '../../src/state/gameStore';
+import { useQuitGame } from '../../src/hooks/useQuitGame';
 import { colors, spacing, fontSize, fontWeight, radius } from '../../src/theme';
 
 export default function RevealScreen() {
   const { t } = useTranslation();
   const game = useGameStore((s) => s.game);
   const advanceAfterReveal = useGameStore((s) => s.advanceAfterReveal);
+  const handleQuit = useQuitGame();
 
   if (!game) return null;
 
@@ -22,58 +26,66 @@ export default function RevealScreen() {
   const questionTurns = round.turns.filter((turn) => turn.questionId === question.id);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <QuestionHeader
-        question={question}
-        questionIndex={round.currentQuestionIndex}
-        questionCount={round.questions.length}
-      />
-      <Text style={styles.correctAnswer}>
-        {t('game.reveal.correctAnswer', { answer: question.correctAnswer })}
-      </Text>
+    <View style={styles.outerContainer}>
+      <BackgroundBlobs />
+      <GameHeader variant="transparent" onQuit={handleQuit} />
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
+        <QuestionHeader
+          question={question}
+          questionIndex={round.currentQuestionIndex}
+          questionCount={round.questions.length}
+        />
+        <Text style={styles.correctAnswer}>
+          {t('game.reveal.correctAnswer', { answer: question.correctAnswer })}
+        </Text>
 
-      <View style={styles.resultsContainer}>
-        {questionTurns.map((turn) => {
-          const player = game.players.find((p) => p.id === turn.playerId);
-          if (!player) return null;
-          return (
-            <View key={turn.playerId} style={[styles.resultRow, { borderLeftColor: player.color }]}>
-              <AvatarIcon avatarKey={player.avatar} size={32} style={styles.resultAvatar} />
-              <View style={styles.resultInfo}>
-                <Text style={styles.playerName}>{player.name}</Text>
-                <Text style={styles.playerAnswer}>{turn.selectedAnswer}</Text>
+        <View style={styles.resultsContainer}>
+          {questionTurns.map((turn) => {
+            const player = game.players.find((p) => p.id === turn.playerId);
+            if (!player) return null;
+            return (
+              <View
+                key={turn.playerId}
+                style={[styles.resultRow, { borderLeftColor: player.color }]}
+              >
+                <AvatarIcon avatarKey={player.avatar} size={32} style={styles.resultAvatar} />
+                <View style={styles.resultInfo}>
+                  <Text style={styles.playerName}>{player.name}</Text>
+                  <Text style={styles.playerAnswer}>{turn.selectedAnswer}</Text>
+                </View>
+                <View style={styles.resultRight}>
+                  <Ionicons
+                    name={turn.isCorrect ? 'checkmark-circle' : 'close-circle'}
+                    size={24}
+                    color={turn.isCorrect ? colors.success : colors.error}
+                    style={styles.resultIcon}
+                  />
+                  <Text style={styles.score} maxFontSizeMultiplier={1}>
+                    {t('game.reveal.score', {
+                      round: player.roundScore,
+                      total: player.cumulativeScore,
+                    })}
+                  </Text>
+                </View>
               </View>
-              <View style={styles.resultRight}>
-                <Ionicons
-                  name={turn.isCorrect ? 'checkmark-circle' : 'close-circle'}
-                  size={24}
-                  color={turn.isCorrect ? colors.success : colors.error}
-                  style={styles.resultIcon}
-                />
-                <Text style={styles.score} maxFontSizeMultiplier={1}>
-                  {t('game.reveal.score', {
-                    round: player.roundScore,
-                    total: player.cumulativeScore,
-                  })}
-                </Text>
-              </View>
-            </View>
-          );
-        })}
-      </View>
+            );
+          })}
+        </View>
 
-      <Button
-        variant="raised"
-        label={isLastQuestion ? t('game.reveal.viewStandings') : t('game.reveal.nextQuestion')}
-        onPress={advanceAfterReveal}
-        haptic="strong"
-      />
-    </ScrollView>
+        <Button
+          variant="raised"
+          label={isLastQuestion ? t('game.reveal.viewStandings') : t('game.reveal.nextQuestion')}
+          onPress={advanceAfterReveal}
+          haptic="strong"
+        />
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
+  outerContainer: { flex: 1, backgroundColor: colors.background },
+  scrollView: { flex: 1 },
   content: { padding: spacing.xl, paddingBottom: spacing['4xl'] },
   correctAnswer: {
     fontSize: fontSize.base,
