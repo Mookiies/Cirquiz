@@ -8,7 +8,7 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
-import { type AvatarKey } from '../avatars';
+import { AVATAR_LIST, AVATAR_MAP, type AvatarKey } from '../avatars';
 import { AvatarIcon } from './AvatarIcon';
 import { IconButton } from './IconButton';
 import { colors, fontSize, radius, spacing } from '../theme';
@@ -48,7 +48,7 @@ export function AnimatedPlayerRow({
     opacity: opacity.value,
   }));
 
-  const borderColor = colors.playerPalette[index % 10];
+  const borderColor = AVATAR_MAP[player.avatar].color;
 
   return (
     <Animated.View style={[styles.playerCard, { borderLeftColor: borderColor }, animStyle]}>

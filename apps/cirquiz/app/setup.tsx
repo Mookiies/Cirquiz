@@ -268,7 +268,7 @@ export default function SetupScreen() {
         onRequestClose={() => setPickerIndex(null)}
       >
         <Pressable style={styles.modalOverlay} onPress={() => setPickerIndex(null)}>
-          <Pressable style={styles.modalContent} onPress={() => {}}>
+          <View style={styles.modalContent}>
             <View style={styles.avatarGrid}>
               {AVATAR_LIST.map((avatarDef) => {
                 const taken =
@@ -304,7 +304,7 @@ export default function SetupScreen() {
                 );
               })}
             </View>
-          </Pressable>
+          </View>
         </Pressable>
       </Modal>
     </GradientScreen>

@@ -21,9 +21,13 @@ import { useGameStore } from '../src/state/gameStore';
 import { colors, fontSize, spacing } from '../src/theme';
 import CirclequizLogo from '../assets/circlequiz.svg';
 
-const TOP_AVATARS: AvatarKey[] = ['chili', 'whale', 'alien', 'jackolantern', 'gremlin', 'robot'];
-const BOTTOM_AVATARS: AvatarKey[] = ['brain', 'rubberduck', 'hotsauce', 'yeti'];
-const DOT_COLORS = ['#3498DB', '#9B59B6', '#2ECC71', '#F39C12', '#E74C3C'];
+const DOT_COLORS = [
+  colors.playerPalette.blue,
+  colors.playerPalette.purple,
+  colors.playerPalette.green,
+  colors.playerPalette.orange,
+  colors.playerPalette.red,
+];
 
 function LoadingDot({ color, index }: { color: string; index: number }) {
   const scale = useSharedValue(1);
@@ -126,14 +130,6 @@ export default function HomeScreen() {
   const heroStyle = useAnimatedStyle(() => ({
     opacity: heroOpacity.value,
   }));
-  const topRowStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: topRowTranslateY.value }],
-    opacity: topRowOpacity.value,
-  }));
-  const bottomRowStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: bottomRowTranslateY.value }],
-    opacity: bottomRowOpacity.value,
-  }));
   const ctaStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: ctaTranslateY.value }],
     opacity: ctaOpacity.value,
@@ -178,25 +174,12 @@ export default function HomeScreen() {
   return (
     <GradientScreen>
       <View style={[styles.screen, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
-        <Animated.View style={[styles.avatarRow, topRowStyle]}>
-          {TOP_AVATARS.map((key, i) => (
-            <BobAvatar key={key} avatarKey={key} size={48} index={i} />
-          ))}
-        </Animated.View>
-
         <Animated.View style={[styles.hero, heroStyle]}>
           <View style={styles.logoWrapper}>
             <CirclequizLogo width={340} height={95} />
           </View>
           <Text style={styles.subtitle}>{t('home.subtitle', 'Challenge your friends!')}</Text>
         </Animated.View>
-
-        <Animated.View style={[styles.avatarRow, styles.avatarRowBottom, bottomRowStyle]}>
-          {BOTTOM_AVATARS.map((key, i) => (
-            <BobAvatar key={key} avatarKey={key} size={56} index={i + TOP_AVATARS.length} />
-          ))}
-        </Animated.View>
-
         <Animated.View style={[styles.cta, ctaStyle]}>
           <ShineButton
             label={t('home.newGame')}

@@ -1,6 +1,8 @@
 import { SvgProps } from 'react-native-svg';
 import React from 'react';
 
+import { colors } from './theme';
+
 import ChiliSvg from '../assets/avatars/chili.svg';
 import WhaleSvg from '../assets/avatars/whale.svg';
 import AlienSvg from '../assets/avatars/alien.svg';
@@ -31,16 +33,16 @@ export interface AvatarDef {
 }
 
 export const AVATAR_LIST: AvatarDef[] = [
-  { key: 'chili', color: '#E74C3C', Component: ChiliSvg },
-  { key: 'whale', color: '#3498DB', Component: WhaleSvg },
-  { key: 'alien', color: '#2ECC71', Component: AlienSvg },
-  { key: 'jackolantern', color: '#F39C12', Component: JackolanternSvg },
-  { key: 'gremlin', color: '#9B59B6', Component: GremlinSvg },
-  { key: 'robot', color: '#1ABC9C', Component: RobotSvg },
-  { key: 'brain', color: '#E91E63', Component: BrainSvg },
-  { key: 'rubberduck', color: '#F1C40F', Component: RubberduckSvg },
-  { key: 'hotsauce', color: '#FF5722', Component: HotsauceSvg },
-  { key: 'yeti', color: '#00BCD4', Component: YetiSvg },
+  { key: 'chili', color: colors.playerPalette.red, Component: ChiliSvg },
+  { key: 'whale', color: colors.playerPalette.blue, Component: WhaleSvg },
+  { key: 'alien', color: colors.playerPalette.green, Component: AlienSvg },
+  { key: 'jackolantern', color: colors.playerPalette.orange, Component: JackolanternSvg },
+  { key: 'gremlin', color: colors.playerPalette.purple, Component: GremlinSvg },
+  { key: 'robot', color: colors.playerPalette.teal, Component: RobotSvg },
+  { key: 'brain', color: colors.playerPalette.pink, Component: BrainSvg },
+  { key: 'rubberduck', color: colors.playerPalette.yellow, Component: RubberduckSvg },
+  { key: 'hotsauce', color: colors.playerPalette.coral, Component: HotsauceSvg },
+  { key: 'yeti', color: colors.playerPalette.cyan, Component: YetiSvg },
 ];
 
 export const AVATAR_MAP: Record<AvatarKey, AvatarDef> = Object.fromEntries(

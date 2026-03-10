@@ -3,7 +3,8 @@ This file is purely for notes and tracking things I want to implement going forw
 TBD enhancements
 - Store the list of categories from otdb and return that
 - Haptics on key buttons
-- increase the player limit to the number of avatars, replace the number of question input with something better like buttons or a slider. Make the remove player not look like crap. UI AI to draft claude is sick
+- The back and close icons are janky just letters we need to make an iconButton component for them and use actual icons from expo/vector-icons or roll our own
+- When you click on your answer the color changes is immediate, it shouldn't change while your still seeing the slide away animation
 
 Future Ideas:
 

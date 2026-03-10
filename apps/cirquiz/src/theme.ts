@@ -22,18 +22,18 @@ export const colors = {
   primaryFaint: '#EBF5FB',
 
   // Player palette
-  playerPalette: [
-    '#E74C3C',
-    '#3498DB',
-    '#2ECC71',
-    '#F39C12',
-    '#9B59B6',
-    '#1ABC9C',
-    '#E91E63',
-    '#F1C40F',
-    '#FF5722',
-    '#00BCD4',
-  ] as const,
+  playerPalette: {
+    red: '#E74C3C',
+    blue: '#3498DB',
+    green: '#2ECC71',
+    orange: '#F39C12',
+    purple: '#9B59B6',
+    teal: '#1ABC9C',
+    pink: '#E91E63',
+    yellow: '#F1C40F',
+    coral: '#FF5722',
+    cyan: '#00BCD4',
+  } as const,
 } as const;
 
 export const spacing = {
