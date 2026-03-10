@@ -7,7 +7,6 @@ import { AvatarIcon } from '../../src/components/AvatarIcon';
 import { Button } from '../../src/components/Button';
 import { CategorySelector } from '../../src/components/CategorySelector';
 import { DifficultySelector } from '../../src/components/DifficultySelector';
-import { TextButton } from '../../src/components/TextButton';
 import { useCategoryLoader } from '../../src/hooks/useCategoryLoader';
 import { useGameStore } from '../../src/state/gameStore';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
