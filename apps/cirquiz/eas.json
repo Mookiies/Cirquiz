@@ -6,9 +6,6 @@
     "development": {
       "developmentClient": true,
       "environment": "development",
-      "ios": {
-        "simulator": true
-      },
       "env": { "APP_ENV": "development" }
     },
     "preview": {
