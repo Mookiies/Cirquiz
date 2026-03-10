@@ -1,20 +1,44 @@
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import Animated, {
+  Extrapolation,
+  interpolate,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+} from 'react-native-reanimated';
 import { AvatarIcon } from '../../src/components/AvatarIcon';
-import { BackgroundBlobs } from '../../src/components/BackgroundBlobs';
 import { Button } from '../../src/components/Button';
 import { GameHeader } from '../../src/components/GameHeader';
 import { QuestionHeader } from '../../src/components/QuestionHeader';
 import { useGameStore } from '../../src/state/gameStore';
 import { useQuitGame } from '../../src/hooks/useQuitGame';
 import { colors, spacing, fontSize, fontWeight, radius } from '../../src/theme';
+import { GradientScreen } from '../../src/components/GradientScreen';
+import { lightenHex } from '../../src/utils/color';
 
 export default function RevealScreen() {
   const { t } = useTranslation();
   const game = useGameStore((s) => s.game);
   const advanceAfterReveal = useGameStore((s) => s.advanceAfterReveal);
   const handleQuit = useQuitGame();
+
+  const scrollY = useSharedValue(0);
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollY.value = event.contentOffset.y;
+    },
+  });
+  const overlayStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(
+      scrollY.value,
+      [0, CONTENT_PADDING_TOP + spacing.sm],
+      [0, 1],
+      Extrapolation.CLAMP
+    ),
+  }));
 
   if (!game) return null;
 
@@ -26,67 +50,91 @@ export default function RevealScreen() {
   const questionTurns = round.turns.filter((turn) => turn.questionId === question.id);
 
   return (
-    <View style={styles.outerContainer}>
-      <BackgroundBlobs />
+    <GradientScreen showBlobs={false} lighter>
       <GameHeader variant="transparent" onQuit={handleQuit} />
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
-        <QuestionHeader
-          question={question}
-          questionIndex={round.currentQuestionIndex}
-          questionCount={round.questions.length}
-        />
-        <Text style={styles.correctAnswer}>
-          {t('game.reveal.correctAnswer', { answer: question.correctAnswer })}
-        </Text>
+      <View style={styles.scrollContainer}>
+        <Animated.ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.content}
+          onScroll={scrollHandler}
+          scrollEventThrottle={16}
+        >
+          <QuestionHeader
+            question={question}
+            questionIndex={round.currentQuestionIndex}
+            questionCount={round.questions.length}
+          />
+          <Text style={styles.correctAnswer}>
+            {t('game.reveal.correctAnswer', { answer: question.correctAnswer })}
+          </Text>
 
-        <View style={styles.resultsContainer}>
-          {questionTurns.map((turn) => {
-            const player = game.players.find((p) => p.id === turn.playerId);
-            if (!player) return null;
-            return (
-              <View
-                key={turn.playerId}
-                style={[styles.resultRow, { borderLeftColor: player.color }]}
-              >
-                <AvatarIcon avatarKey={player.avatar} size={32} style={styles.resultAvatar} />
-                <View style={styles.resultInfo}>
-                  <Text style={styles.playerName}>{player.name}</Text>
-                  <Text style={styles.playerAnswer}>{turn.selectedAnswer}</Text>
+          <View style={styles.resultsContainer}>
+            {questionTurns.map((turn) => {
+              const player = game.players.find((p) => p.id === turn.playerId);
+              if (!player) return null;
+              return (
+                <View
+                  key={turn.playerId}
+                  style={[styles.resultRow, { borderLeftColor: player.color }]}
+                >
+                  <AvatarIcon avatarKey={player.avatar} size={32} style={styles.resultAvatar} />
+                  <View style={styles.resultInfo}>
+                    <Text style={styles.playerName}>{player.name}</Text>
+                    <Text style={styles.playerAnswer}>{turn.selectedAnswer}</Text>
+                  </View>
+                  <View style={styles.resultRight}>
+                    <Ionicons
+                      name={turn.isCorrect ? 'checkmark-circle' : 'close-circle'}
+                      size={24}
+                      color={turn.isCorrect ? colors.success : colors.error}
+                      style={styles.resultIcon}
+                    />
+                    <Text style={styles.score} maxFontSizeMultiplier={1}>
+                      {t('game.reveal.score', {
+                        round: player.roundScore,
+                        total: player.cumulativeScore,
+                      })}
+                    </Text>
+                  </View>
                 </View>
-                <View style={styles.resultRight}>
-                  <Ionicons
-                    name={turn.isCorrect ? 'checkmark-circle' : 'close-circle'}
-                    size={24}
-                    color={turn.isCorrect ? colors.success : colors.error}
-                    style={styles.resultIcon}
-                  />
-                  <Text style={styles.score} maxFontSizeMultiplier={1}>
-                    {t('game.reveal.score', {
-                      round: player.roundScore,
-                      total: player.cumulativeScore,
-                    })}
-                  </Text>
-                </View>
-              </View>
-            );
-          })}
-        </View>
+              );
+            })}
+          </View>
 
-        <Button
-          variant="raised"
-          label={isLastQuestion ? t('game.reveal.viewStandings') : t('game.reveal.nextQuestion')}
-          onPress={advanceAfterReveal}
-          haptic="strong"
-        />
-      </ScrollView>
-    </View>
+          <Button
+            variant="raised"
+            label={isLastQuestion ? t('game.reveal.viewStandings') : t('game.reveal.nextQuestion')}
+            onPress={advanceAfterReveal}
+            haptic="strong"
+          />
+        </Animated.ScrollView>
+        <Animated.View style={[styles.fadeOverlay, overlayStyle]} pointerEvents="none">
+          <LinearGradient
+            colors={[lightenHex(colors.primaryFaint, 0.05), 'rgba(255,255,255,0)']}
+            style={StyleSheet.absoluteFill}
+          />
+        </Animated.View>
+      </View>
+    </GradientScreen>
   );
 }
 
+const CONTENT_PADDING_TOP = spacing.xl;
+
 const styles = StyleSheet.create({
-  outerContainer: { flex: 1, backgroundColor: colors.background },
+  scrollContainer: { flex: 1 },
   scrollView: { flex: 1 },
-  content: { padding: spacing.xl, paddingBottom: spacing['4xl'] },
+  fadeOverlay: {
+    position: 'absolute',
+    top: 0,
+    alignSelf: 'center',
+    width: '100%',
+    height: 40,
+    overflow: 'hidden',
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+  },
+  content: { padding: CONTENT_PADDING_TOP, paddingBottom: spacing['4xl'] },
   correctAnswer: {
     fontSize: fontSize.base,
     fontWeight: fontWeight.bold,

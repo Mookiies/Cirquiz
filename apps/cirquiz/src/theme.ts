@@ -20,6 +20,7 @@ export const colors = {
   // UI
   border: '#ddd',
   primaryFaint: '#EBF5FB',
+  difficultyFaint: '#f3eeff',
 
   // Player palette
   playerPalette: {

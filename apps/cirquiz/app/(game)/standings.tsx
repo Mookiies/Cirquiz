@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Difficulty } from '../../src/providers/types';
 import { AvatarIcon } from '../../src/components/AvatarIcon';
-import { BackgroundBlobs } from '../../src/components/BackgroundBlobs';
 import { Button } from '../../src/components/Button';
 import { CategorySelector } from '../../src/components/CategorySelector';
 import { DifficultySelector } from '../../src/components/DifficultySelector';
@@ -12,6 +11,7 @@ import { useCategoryLoader } from '../../src/hooks/useCategoryLoader';
 import { useGameStore } from '../../src/state/gameStore';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, spacing, fontSize, fontWeight, radius } from '../../src/theme';
+import { GradientScreen } from '../../src/components/GradientScreen';
 
 export default function StandingsScreen() {
   const { t } = useTranslation();
@@ -79,8 +79,7 @@ export default function StandingsScreen() {
   };
 
   return (
-    <View style={styles.outerContainer}>
-      <BackgroundBlobs />
+    <GradientScreen showBlobs={false} lighter>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={[
@@ -199,12 +198,11 @@ export default function StandingsScreen() {
           haptic="light"
         />
       </ScrollView>
-    </View>
+    </GradientScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  outerContainer: { flex: 1, backgroundColor: colors.background },
   scrollView: { flex: 1 },
   content: { paddingHorizontal: spacing.xl },
   title: {

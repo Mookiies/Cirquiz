@@ -1,19 +1,8 @@
 This file is purely for notes and tracking things I want to implement going forward.
 
 TBD enhancements
-- Rework the header so that each screen just handles it with some shared utilities so we can have a very suble gradient game screens so it's not just straight white.
 - Make the handoff screen have the two additional circles shown in the mockup
-
-To add more flair to the game we will be making the following changes:
-- Add a very subtle difused background, not a linear gradient one but a more diffused background composed of the main app colors.
-- This background is going to be used on the question screen, reveal screen, and standing screen.
-
-Currentlty we manage the header in one place for all these screens but we will now need to make a sort of resuable header component
-so that we can have this be significatly more custom per screen.
-- Quesetion screen - look remains the same full color for player with avatar, name and quit.
-- Handoff screen- look remains the same full color for player with avatar, name, and quit.
-- results - transparent header just showing the quit button and the new diffused background underneath
-- standings - no header just the new diffused background
+- When you click on customize categories on the the end game screen or the setup it should scroll down once the categories load
 
 OFFLINE SUPPORT
 - Store the list of categories from otdb and return that

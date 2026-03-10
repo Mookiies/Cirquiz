@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { AnswerButton } from '../../src/components/AnswerButton';
-import { BackgroundBlobs } from '../../src/components/BackgroundBlobs';
 import { GameHeader } from '../../src/components/GameHeader';
 import { QuestionHeader } from '../../src/components/QuestionHeader';
 import { useGameStore } from '../../src/state/gameStore';
 import { useQuitGame } from '../../src/hooks/useQuitGame';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, spacing } from '../../src/theme';
+import { GradientScreen } from '../../src/components/GradientScreen';
 
 export default function QuestionScreen() {
   const insets = useSafeAreaInsets();
@@ -39,8 +39,7 @@ export default function QuestionScreen() {
   };
 
   return (
-    <View style={styles.outerContainer}>
-      <BackgroundBlobs />
+    <GradientScreen showBlobs={false} lighter>
       {frozenPlayer && <GameHeader variant="player" player={frozenPlayer} onQuit={handleQuit} />}
       <ScrollView
         style={styles.scrollView}
@@ -64,12 +63,11 @@ export default function QuestionScreen() {
           ))}
         </View>
       </ScrollView>
-    </View>
+    </GradientScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  outerContainer: { flex: 1 },
   scrollView: { flex: 1 },
   container: {
     padding: spacing.xl,
