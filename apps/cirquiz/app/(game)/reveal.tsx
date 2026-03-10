@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { AvatarIcon } from '../../src/components/AvatarIcon';
@@ -43,9 +44,12 @@ export default function RevealScreen() {
                 <Text style={styles.playerAnswer}>{turn.selectedAnswer}</Text>
               </View>
               <View style={styles.resultRight}>
-                <Text style={[styles.resultIcon, turn.isCorrect ? styles.correct : styles.wrong]}>
-                  {turn.isCorrect ? t('game.reveal.correct') : t('game.reveal.wrong')}
-                </Text>
+                <Ionicons
+                  name={turn.isCorrect ? 'checkmark-circle' : 'close-circle'}
+                  size={24}
+                  color={turn.isCorrect ? colors.success : colors.error}
+                  style={styles.resultIcon}
+                />
                 <Text style={styles.score} maxFontSizeMultiplier={1}>
                   {t('game.reveal.score', {
                     round: player.roundScore,
@@ -92,8 +96,6 @@ const styles = StyleSheet.create({
   playerName: { fontSize: fontSize.base, fontWeight: fontWeight.semibold, color: colors.text },
   playerAnswer: { fontSize: fontSize.md, color: colors.textSecondary, marginTop: spacing.xs },
   resultRight: { alignItems: 'flex-end' },
-  resultIcon: { fontSize: fontSize.md, fontWeight: fontWeight.bold, marginBottom: spacing.xs },
-  correct: { color: colors.success },
-  wrong: { color: colors.error },
+  resultIcon: { marginBottom: spacing.xs },
   score: { fontSize: fontSize.sm, color: colors.textTertiary },
 });

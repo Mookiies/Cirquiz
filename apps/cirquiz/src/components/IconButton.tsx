@@ -1,31 +1,29 @@
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { TouchableOpacity, StyleSheet } from 'react-native';
 import type { ViewStyle } from 'react-native';
-import { colors, fontSize, fontWeight } from '../theme';
+import { colors } from '../theme';
 
 interface Props {
-  icon: string;
+  icon: React.ComponentProps<typeof Ionicons>['name'];
   onPress: () => void;
   color?: string;
+  size?: number;
   style?: ViewStyle;
 }
 
-export function IconButton({ icon, onPress, color = colors.error, style }: Props) {
+export function IconButton({ icon, onPress, color = colors.error, size = 24, style }: Props) {
   return (
     <TouchableOpacity style={[styles.button, style]} onPress={onPress}>
-      <Text style={[styles.icon, { color }]}>{icon}</Text>
+      <Ionicons name={icon} size={size} color={color} />
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   button: {
-    width: 40,
-    height: 40,
+    width: 44,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  icon: {
-    fontSize: fontSize.xl,
-    fontWeight: fontWeight.bold,
   },
 });

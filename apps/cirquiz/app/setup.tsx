@@ -27,7 +27,7 @@ import { useGameStore } from '../src/state/gameStore';
 import { colors, fontSize, fontWeight, radius, spacing } from '../src/theme';
 import { IconButton } from '../src/components/IconButton';
 
-const QUESTION_COUNTS = [5, 10, 15, 20] as const;
+const QUESTION_COUNTS = [1, 5, 10, 15, 20] as const;
 
 interface PlayerEntry {
   name: string;
@@ -137,7 +137,7 @@ export default function SetupScreen() {
       <View style={styles.flex}>
         {/* Header */}
         <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-          <IconButton icon="←" onPress={() => router.back()} color={colors.text} />
+          <IconButton icon="arrow-back" onPress={() => router.back()} color={colors.text} />
           <Text style={styles.headerTitle}>{t('setup.title', 'NEW GAME')}</Text>
           <View style={styles.headerSpacer} />
         </View>

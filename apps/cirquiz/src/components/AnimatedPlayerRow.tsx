@@ -64,7 +64,7 @@ export function AnimatedPlayerRow({
           onChangeText={onNameChange}
           maxLength={20}
         />
-        {canRemove && <IconButton icon="✕" onPress={onRemove} />}
+        {canRemove && <IconButton icon="close" onPress={onRemove} size={32} />}
       </View>
       {nameError ? <Text style={styles.errorText}>{nameError}</Text> : null}
     </Animated.View>
