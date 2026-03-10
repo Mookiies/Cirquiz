@@ -89,8 +89,6 @@ function BobAvatar({
 }
 
 export default function HomeScreen() {
-  console.log('home screen render');
-
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const isHydrated = useGameStore((s) => s.isHydrated);
