@@ -160,6 +160,7 @@ export default function StandingsScreen() {
       )}
 
       <Button
+        raised
         label={t('game.standings.playAnotherRound')}
         color={colors.success}
         loading={isLoading}
@@ -169,10 +170,11 @@ export default function StandingsScreen() {
       />
 
       <Button
+        text
         label={t('game.standings.endSession')}
         color={colors.error}
         onPress={handleEndSession}
-        haptic="strong"
+        haptic="light"
       />
     </ScrollView>
   );

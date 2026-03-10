@@ -58,36 +58,6 @@ function LoadingDot({ color, index }: { color: string; index: number }) {
   return <Animated.View style={[styles.dot, { backgroundColor: color }, dotStyle]} />;
 }
 
-function BobAvatar({
-  avatarKey,
-  size,
-  index,
-}: {
-  avatarKey: AvatarKey;
-  size: number;
-  index: number;
-}) {
-  const translateY = useSharedValue(0);
-  const rotate = useSharedValue(-4);
-
-  useEffect(() => {
-    const dur = 2500 + index * 280;
-    const easing = Easing.inOut(Easing.ease);
-    translateY.value = withRepeat(withTiming(-10, { duration: dur, easing }), -1, true);
-    rotate.value = withRepeat(withTiming(4, { duration: dur, easing }), -1, true);
-  }, [index, rotate, translateY]);
-
-  const style = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }, { rotate: `${rotate.value}deg` }],
-  }));
-
-  return (
-    <Animated.View style={style}>
-      <AvatarIcon avatarKey={avatarKey} size={size} />
-    </Animated.View>
-  );
-}
-
 export default function HomeScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
