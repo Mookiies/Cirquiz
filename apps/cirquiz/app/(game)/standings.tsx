@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Difficulty } from '../../src/providers/types';
@@ -33,6 +33,9 @@ export default function StandingsScreen() {
   const isLoading = useGameStore((s) => s.isLoading);
   const updateRoundConfig = useGameStore((s) => s.updateRoundConfig);
 
+  const scrollRef = useRef<ScrollView>(null);
+  const settingsButtonY = useRef(0);
+
   const [showSettings, setShowSettings] = useState(false);
   const [localCategory, setLocalCategory] = useState<string | undefined>(
     game?.category ?? undefined
@@ -41,6 +44,12 @@ export default function StandingsScreen() {
     game?.difficulty ?? undefined
   );
   const { categories, loading: loadingCategories, load: loadCategories } = useCategoryLoader();
+
+  useEffect(() => {
+    if (showSettings && !loadingCategories && categories.length > 0) {
+      scrollRef.current?.scrollTo({ y: settingsButtonY.current - insets.top, animated: true });
+    }
+  }, [showSettings, loadingCategories, categories.length]);
 
   if (!game) return null;
 
@@ -81,6 +90,7 @@ export default function StandingsScreen() {
   return (
     <GradientScreen showBlobs={false} lighter>
       <ScrollView
+        ref={scrollRef}
         style={styles.scrollView}
         contentContainerStyle={[
           styles.content,
@@ -149,18 +159,24 @@ export default function StandingsScreen() {
           );
         })}
 
-        <Button
-          variant="text"
-          label={
-            showSettings ? t('game.standings.hideSettings') : t('game.standings.changeSettings')
-          }
-          onPress={async () => {
-            if (!showSettings && categories.length === 0) await loadCategories();
-            setShowSettings((v) => !v);
+        <View
+          onLayout={(e) => {
+            settingsButtonY.current = e.nativeEvent.layout.y;
           }}
-          color={colors.primary}
-          style={{ alignSelf: 'center', marginTop: spacing.xl, marginBottom: spacing.xs }}
-        />
+        >
+          <Button
+            variant="text"
+            label={
+              showSettings ? t('game.standings.hideSettings') : t('game.standings.changeSettings')
+            }
+            onPress={async () => {
+              if (!showSettings && categories.length === 0) await loadCategories();
+              setShowSettings((v) => !v);
+            }}
+            color={colors.primary}
+            style={{ alignSelf: 'center', marginTop: spacing.xl, marginBottom: spacing.xs }}
+          />
+        </View>
 
         {showSettings && (
           <View style={styles.settingsPanel}>

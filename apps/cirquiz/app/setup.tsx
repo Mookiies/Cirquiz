@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   KeyboardAvoidingView,
@@ -52,6 +52,9 @@ export default function SetupScreen() {
 
   const avatarName = (key: AvatarKey) => t(`setup.avatarName.${key}`);
 
+  const scrollRef = useRef<ScrollView>(null);
+  const belowPlayersY = useRef(0);
+  const modeLabelOffsetY = useRef(0);
   const nextId = useRef(2);
   const [players, setPlayers] = useState<PlayerEntry[]>([
     {
@@ -148,6 +151,15 @@ export default function SetupScreen() {
     });
   };
 
+  useEffect(() => {
+    if (!quickPlay && !loadingCategories && categories.length > 0) {
+      scrollRef.current?.scrollTo({
+        y: belowPlayersY.current + modeLabelOffsetY.current,
+        animated: true,
+      });
+    }
+  }, [quickPlay, loadingCategories, categories.length]);
+
   const canStart = players.length > 0 && !isLoading;
   const pickerPlayer = pickerIndex !== null ? players[pickerIndex] : null;
 
@@ -163,6 +175,7 @@ export default function SetupScreen() {
 
         <KeyboardAvoidingView style={styles.flex} behavior="padding">
           <ScrollView
+            ref={scrollRef}
             style={styles.flex}
             contentContainerStyle={styles.content}
             keyboardShouldPersistTaps="handled"
@@ -203,7 +216,12 @@ export default function SetupScreen() {
               />
             ))}
 
-            <Animated.View layout={LinearTransition}>
+            <Animated.View
+              layout={LinearTransition}
+              onLayout={(e) => {
+                belowPlayersY.current = e.nativeEvent.layout.y;
+              }}
+            >
               {players.length < AVATAR_LIST.length && (
                 <Button
                   variant="text"
@@ -213,7 +231,14 @@ export default function SetupScreen() {
                 />
               )}
 
-              <Text style={styles.sectionLabel}>{t('setup.mode', 'Mode')}</Text>
+              <Text
+                style={styles.sectionLabel}
+                onLayout={(e) => {
+                  modeLabelOffsetY.current = e.nativeEvent.layout.y;
+                }}
+              >
+                {t('setup.mode', 'Mode')}
+              </Text>
               <View style={styles.modeRow}>
                 <ModeCard
                   icon={<LightningSVG />}
