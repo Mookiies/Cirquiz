@@ -1,11 +1,15 @@
 This file is purely for notes and tracking things I want to implement going forward.
 
 TBD enhancements
-- Store the list of categories from otdb and return that
 - Add press states for the quickplay vs customize buttons
 - Instead of touchable opacity I want to use Pressable so we can achieve a more custom look and feel. Migrate the app to use pressable instead of touchable opacity. Make sure that the way to manage press
   state is made reusable
 - Make the other buttons aside from the answers buttons use this same style as the shine button where it looks sort of 3d.
+- Make the handoff screen have the two additional circles shown in the mockup
+- Rework the header so that each screen just handles it with some shared utilities so we can have a very suble gradient game screens so it's not just straight white
+
+OFFLINE SUPPORT
+- Store the list of categories from otdb and return that
 
 Music
 

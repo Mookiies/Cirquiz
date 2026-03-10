@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: #d0d0d8;
+  padding: 40px 28px 60px;
+  font-family: 'Nunito', sans-serif;
+  display: flex; flex-direction: column; gap: 16px; align-items: center;
+}
+.title { color: rgba(0,0,0,0.4); font-size: 11px; letter-spacing: 3px; text-transform: uppercase; font-weight: 700; margin-bottom: 8px; }
+.row { display: flex; gap: 18px; align-items: flex-start; justify-content: center; flex-wrap: nowrap; }
+
+.phone {
+  width: 210px; height: 420px;
+  border-radius: 34px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 20px 56px rgba(0,0,0,0.22), 0 4px 10px rgba(0,0,0,0.12);
+  flex-shrink: 0;
+}
+.screen-label {
+  color: rgba(0,0,0,0.35); font-size: 9px; letter-spacing: 2px;
+  text-transform: uppercase; font-weight: 700; text-align: center; margin-top: 8px;
+}
+
+/* ── Shared subtle background ── */
+.bg-subtle {
+  background: linear-gradient(160deg, #f6fbff 0%, #ffffff 50%, #faf6ff 100%);
+}
+.bg-subtle::before {
+  content: '';
+  position: absolute; inset: 0; z-index: 1;
+  background:
+    radial-gradient(circle at 90% 5%,  rgba(52,152,219,0.09)  0%, transparent 50%),
+    radial-gradient(circle at 6%  90%, rgba(155,89,182,0.09)  0%, transparent 50%),
+    radial-gradient(circle at 80% 65%, rgba(46,204,113,0.05)  0%, transparent 42%),
+    radial-gradient(circle at 15% 28%, rgba(243,156,18,0.05)  0%, transparent 42%);
+}
+
+/* ── Handoff screen: full player color, NO subtle bg ── */
+.bg-player-red  { background: #E05A44; }
+.bg-player-blue { background: #3498DB; }
+
+/* ── Question screen header bar ── */
+.q-header {
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 56px; z-index: 20;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 14px;
+}
+.q-header-red  { background: #E05A44; }
+.q-header-blue { background: #3498DB; }
+.h-player { display: flex; align-items: center; gap: 7px; }
+.h-avatar { width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.h-name   { font-size: 14px; font-weight: 800; color: white; }
+.h-quit   { font-size: 13px; font-weight: 800; color: white; }
+
+/* ── Question body ── */
+.q-body {
+  position: absolute; top: 56px; left: 0; right: 0; bottom: 0;
+  padding: 14px 14px 12px;
+  z-index: 10;
+  display: flex; flex-direction: column;
+}
+.q-num   { font-size: 10px; font-weight: 700; color: rgba(0,0,0,0.3); margin-bottom: 1px; }
+.q-cat   { font-size: 9px;  font-weight: 700; color: rgba(0,0,0,0.25); margin-bottom: 8px; }
+.q-text  { font-size: 13px; font-weight: 800; color: #111; line-height: 1.35; margin-bottom: 12px; }
+.ans-btn {
+  background: white;
+  border: 2px solid;
+  border-radius: 14px;
+  padding: 10px 12px;
+  text-align: center;
+  font-size: 11px; font-weight: 800;
+  margin-bottom: 8px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+.ans-red  { border-color: #E05A44; color: #333; }
+.ans-blue { border-color: #3498DB; color: #333; }
+
+/* ── Handoff screen ── */
+.handoff-body {
+  position: absolute; inset: 0; z-index: 10;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 10px;
+  padding: 20px;
+}
+.handoff-quit { position: absolute; top: 16px; right: 16px; font-size: 14px; font-weight: 800; color: white; z-index: 20; }
+.handoff-avatar { font-size: 54px; margin-bottom: 4px; }
+.handoff-title { font-size: 22px; font-weight: 900; color: white; text-align: center; line-height: 1.2; }
+.handoff-sub   { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.75); }
+.handoff-btn   { background: white; border-radius: 16px; padding: 12px 0; width: 100%; text-align: center; font-size: 14px; font-weight: 900; color: #333; margin-top: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+/* subtle blob decoration on handoff */
+.handoff-blob1 { position: absolute; width: 160px; height: 160px; border-radius: 50%; background: rgba(255,255,255,0.07); top: -40px; right: -40px; }
+.handoff-blob2 { position: absolute; width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.07); bottom: -20px; left: -30px; }
+
+/* ── Results screen ── */
+.res-body {
+  position: absolute; inset: 0;
+  padding: 14px 14px 12px;
+  z-index: 10;
+  display: flex; flex-direction: column;
+}
+.res-title { font-size: 10px; font-weight: 700; color: rgba(0,0,0,0.3); margin-bottom: 2px; }
+.res-cat   { font-size: 9px;  font-weight: 700; color: rgba(0,0,0,0.25); margin-bottom: 7px; }
+.res-q     { font-size: 12px; font-weight: 800; color: #111; line-height: 1.3; margin-bottom: 8px; }
+.correct-label { font-size: 11px; font-weight: 800; color: #2ECC71; margin-bottom: 8px; }
+.player-card {
+  background: rgba(255,255,255,0.82);
+  backdrop-filter: blur(8px);
+  border-radius: 12px; padding: 8px 10px;
+  margin-bottom: 6px;
+  display: flex; align-items: center; gap: 7px;
+  border-left: 3px solid #E74C3C;
+  box-shadow: 0 2px 7px rgba(0,0,0,0.06);
+  flex-shrink: 0;
+}
+.player-card.blue { border-left-color: #3498DB; }
+.p-avatar { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+.p-info { flex: 1; }
+.p-name  { font-size: 9px; font-weight: 800; color: #111; }
+.p-ans   { font-size: 8px; font-weight: 700; color: #555; line-height: 1.3; }
+.p-score { font-size: 7px; color: #aaa; font-weight: 700; margin-top: 1px; }
+.p-check { font-size: 13px; flex-shrink: 0; }
+
+/* ── Standings screen ── */
+.st-body {
+  position: absolute; inset: 0;
+  padding: 16px 14px 14px;
+  z-index: 10;
+  display: flex; flex-direction: column;
+}
+.st-heading { font-size: 20px; font-weight: 900; color: #111; margin-bottom: 12px; }
+.st-card {
+  background: rgba(255,255,255,0.82);
+  backdrop-filter: blur(8px);
+  border-radius: 13px; padding: 9px 11px;
+  margin-bottom: 8px;
+  border-left: 3px solid #E74C3C;
+  box-shadow: 0 2px 7px rgba(0,0,0,0.06);
+}
+.st-card.blue { border-left-color: #3498DB; }
+.st-row { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+.st-place { font-size: 11px; font-weight: 800; color: #999; }
+.st-name  { font-size: 13px; font-weight: 900; color: #111; }
+.st-stats { display: flex; gap: 18px; padding-left: 33px; }
+.stat-n { font-size: 16px; font-weight: 900; color: #3498DB; }
+.stat-l { font-size: 8px; font-weight: 700; color: #aaa; }
+.play-btn {
+  position: absolute; bottom: 12px; left: 14px; right: 14px;
+  background: #2ECC71; border-radius: 14px; padding: 11px;
+  text-align: center; font-size: 12px; font-weight: 900; color: white;
+  box-shadow: 0 4px 14px rgba(46,204,113,0.35); z-index: 20;
+}
+</style>
+</head>
+<body>
+
+<div class="title">Circle Quiz — All Screens Together</div>
+
+<div class="row">
+
+  <!-- 1. HANDOFF — full red -->
+  <div style="display:flex;flex-direction:column;gap:8px;align-items:center;">
+    <div class="phone bg-player-red">
+      <div class="handoff-blob1"></div>
+      <div class="handoff-blob2"></div>
+      <div class="handoff-quit">Quit</div>
+      <div class="handoff-body">
+        <div class="handoff-avatar">🌶️</div>
+        <div class="handoff-title">Pass to Rosso</div>
+        <div class="handoff-sub">Question 2 of 5</div>
+        <div class="handoff-btn">I'm Ready</div>
+      </div>
+    </div>
+    <div class="screen-label">Handoff</div>
+  </div>
+
+  <!-- 2. QUESTION — red header, subtle body -->
+  <div style="display:flex;flex-direction:column;gap:8px;align-items:center;">
+    <div class="phone bg-subtle">
+      <div class="q-header q-header-red">
+        <div class="h-player">
+          <div class="h-avatar">🌶️</div>
+          <div class="h-name">Rosso</div>
+        </div>
+        <div class="h-quit">Quit</div>
+      </div>
+      <div class="q-body">
+        <div class="q-num">Question 2 of 5</div>
+        <div class="q-cat">Entertainment: Music · medium</div>
+        <div class="q-text">Which popular rock band has a one-armed drummer?</div>
+        <div class="ans-btn ans-red">Lynyrd Skynyrd</div>
+        <div class="ans-btn ans-red">Foreigner</div>
+        <div class="ans-btn ans-red">The Beatles</div>
+        <div class="ans-btn ans-red">Def Leppard</div>
+      </div>
+    </div>
+    <div class="screen-label">Question</div>
+  </div>
+
+  <!-- 3. RESULTS — subtle bg -->
+  <div style="display:flex;flex-direction:column;gap:8px;align-items:center;">
+    <div class="phone bg-subtle">
+      <div class="res-body">
+        <div class="res-title">Question 2 of 5</div>
+        <div class="res-cat">Entertainment: Music · medium</div>
+        <div class="res-q">Which popular rock band has a one-armed drummer?</div>
+        <div class="correct-label">✓ Correct Answer: Def Leppard</div>
+        <div class="player-card">
+          <div class="p-avatar" style="background:#E74C3C">🌶️</div>
+          <div class="p-info">
+            <div class="p-name">Rosso</div>
+            <div class="p-ans">Def Leppard</div>
+            <div class="p-score">Round: 2 | Total: 3</div>
+          </div>
+          <div class="p-check">✅</div>
+        </div>
+        <div class="player-card blue">
+          <div class="p-avatar" style="background:#3498DB">🐋</div>
+          <div class="p-info">
+            <div class="p-name">Blubber</div>
+            <div class="p-ans">Foreigner</div>
+            <div class="p-score">Round: 0 | Total: 1</div>
+          </div>
+          <div class="p-check">❌</div>
+        </div>
+      </div>
+    </div>
+    <div class="screen-label">Results</div>
+  </div>
+
+  <!-- 4. HANDOFF — full blue -->
+  <div style="display:flex;flex-direction:column;gap:8px;align-items:center;">
+    <div class="phone bg-player-blue">
+      <div class="handoff-blob1"></div>
+      <div class="handoff-blob2"></div>
+      <div class="handoff-quit">Quit</div>
+      <div class="handoff-body">
+        <div class="handoff-avatar">🐋</div>
+        <div class="handoff-title">Pass to Blubber</div>
+        <div class="handoff-sub">Question 3 of 5</div>
+        <div class="handoff-btn">I'm Ready</div>
+      </div>
+    </div>
+    <div class="screen-label">Handoff</div>
+  </div>
+
+  <!-- 5. STANDINGS — subtle bg -->
+  <div style="display:flex;flex-direction:column;gap:8px;align-items:center;">
+    <div class="phone bg-subtle">
+      <div class="st-body">
+        <div class="st-heading">Standings</div>
+        <div class="st-card">
+          <div class="st-row">
+            <div class="p-avatar" style="background:#E74C3C;width:24px;height:24px;font-size:12px">🌶️</div>
+            <div class="st-place">1st</div>
+            <div class="st-name">Rosso</div>
+          </div>
+          <div class="st-stats">
+            <div><div class="stat-n">3</div><div class="stat-l">Correct</div></div>
+            <div><div class="stat-n">2</div><div class="stat-l">Rounds Won</div></div>
+          </div>
+        </div>
+        <div class="st-card blue">
+          <div class="st-row">
+            <div class="p-avatar" style="background:#3498DB;width:24px;height:24px;font-size:12px">🐋</div>
+            <div class="st-place">2nd</div>
+            <div class="st-name">Blubber</div>
+          </div>
+          <div class="st-stats">
+            <div><div class="stat-n">1</div><div class="stat-l">Correct</div></div>
+            <div><div class="stat-n">0</div><div class="stat-l">Rounds Won</div></div>
+          </div>
+        </div>
+        <div class="play-btn">▶ Play Another Round</div>
+      </div>
+    </div>
+    <div class="screen-label">Standings</div>
+  </div>
+
+</div>
+</body>
+</html>
