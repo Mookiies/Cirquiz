@@ -1,16 +1,8 @@
 This file is purely for notes and tracking things I want to implement going forward.
 
 TBD enhancements
-- make eslint unused vars an error
-- Make it so the standings screen avatar, place and name go in one row and below we put the scoring information so that there isn't a big gap with no information
-
-Button story
-- Add press states for the quickplay vs customize buttons
-- Remove touchable opacity and replace with pressable that is enabled with the hook to provide animations
-
-
-- Make the handoff screen have the two additional circles shown in the mockup
 - Rework the header so that each screen just handles it with some shared utilities so we can have a very suble gradient game screens so it's not just straight white
+- Make the handoff screen have the two additional circles shown in the mockup
 
 OFFLINE SUPPORT
 - Store the list of categories from otdb and return that

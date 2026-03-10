@@ -97,35 +97,52 @@ export default function StandingsScreen() {
         );
         return (
           <View key={player.id} style={[styles.row, { borderLeftColor: player.color }]}>
-            <AvatarIcon avatarKey={player.avatar} size={40} style={styles.rowAvatar} />
-            <Text style={styles.place}>{ordinal(place)}</Text>
-            <View style={styles.playerInfo}>
-              <Text style={styles.playerName}>{player.name}</Text>
+            <View style={styles.topRow}>
+              <AvatarIcon avatarKey={player.avatar} size={40} style={styles.rowAvatar} />
+              <Text style={styles.place} maxFontSizeMultiplier={1.5}>
+                {ordinal(place)}
+              </Text>
+              <Text
+                style={styles.playerName}
+                numberOfLines={1}
+                maxFontSizeMultiplier={1.5}
+                ellipsizeMode="tail"
+              >
+                {player.name}
+              </Text>
               <View style={styles.statsRow}>
                 <View style={styles.stat}>
-                  <Text style={styles.statValue}>{player.cumulativeScore}</Text>
-                  <Text style={styles.statLabel}>{t('game.standings.correct')}</Text>
+                  <Text style={styles.statValue} maxFontSizeMultiplier={1}>
+                    {player.cumulativeScore}
+                  </Text>
+                  <Text style={styles.statLabel} maxFontSizeMultiplier={1}>
+                    {t('game.standings.correct')}
+                  </Text>
                 </View>
                 {game.rounds.length > 1 && (
                   <View style={styles.stat}>
-                    <Text style={styles.statValue}>{roundsWon[player.id]}</Text>
-                    <Text style={styles.statLabel}>{t('game.standings.roundsWon')}</Text>
+                    <Text style={styles.statValue} maxFontSizeMultiplier={1}>
+                      {roundsWon[player.id]}
+                    </Text>
+                    <Text style={styles.statLabel} maxFontSizeMultiplier={1}>
+                      {t('game.standings.roundsWon')}
+                    </Text>
                   </View>
                 )}
               </View>
-              {game.rounds.length > 1 && (
-                <View style={styles.roundGrid}>
-                  {roundScores.map((s, i) => (
-                    <View key={i} style={styles.roundCell}>
-                      <Text style={styles.roundCellLabel}>
-                        {t('game.standings.roundLabel', { n: i + 1 })}
-                      </Text>
-                      <Text style={styles.roundCellValue}>{s}</Text>
-                    </View>
-                  ))}
-                </View>
-              )}
             </View>
+            {game.rounds.length > 1 && (
+              <View style={styles.roundGrid}>
+                {roundScores.map((s, i) => (
+                  <View key={i} style={styles.roundCell}>
+                    <Text style={styles.roundCellLabel}>
+                      {t('game.standings.roundLabel', { n: i + 1 })}
+                    </Text>
+                    <Text style={styles.roundCellValue}>{s}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
           </View>
         );
       })}
@@ -190,13 +207,17 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   row: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
+    flexDirection: 'column',
     padding: spacing.lg,
     borderRadius: radius.md,
     borderLeftWidth: 4,
     backgroundColor: colors.surface,
     marginBottom: spacing.md,
+  },
+  topRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
   },
   rowAvatar: {
     marginRight: spacing.sm,
@@ -207,16 +228,15 @@ const styles = StyleSheet.create({
     fontWeight: fontWeight.bold,
     paddingRight: spacing.xs,
     color: colors.textSecondary,
-    paddingTop: spacing.xs,
   },
-  playerInfo: { flex: 1 },
   playerName: {
     fontSize: fontSize.lg,
     fontWeight: fontWeight.semibold,
     color: colors.text,
-    marginBottom: spacing.sm,
+    flex: 1,
+    minWidth: 0,
   },
-  statsRow: { flexDirection: 'row', gap: spacing.xl, marginBottom: spacing.xs },
+  statsRow: { flexDirection: 'row', gap: spacing.xl, flexShrink: 0 },
   stat: { alignItems: 'center' },
   statValue: { fontSize: fontSize.xl, fontWeight: fontWeight.bold, color: colors.primary },
   statLabel: { fontSize: fontSize.xs, color: colors.textTertiary, marginTop: spacing.xs },
