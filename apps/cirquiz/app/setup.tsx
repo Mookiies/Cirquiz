@@ -9,7 +9,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -26,6 +25,8 @@ import { useCategoryLoader } from '../src/hooks/useCategoryLoader';
 import { useGameStore } from '../src/state/gameStore';
 import { colors, fontSize, fontWeight, radius, spacing } from '../src/theme';
 import { IconButton } from '../src/components/IconButton';
+import LightningSVG from '../assets/lightning.svg';
+import SliderSVG from '../assets/slider.svg';
 
 const QUESTION_COUNTS = [1, 5, 10, 15, 20] as const;
 
@@ -206,7 +207,7 @@ export default function SetupScreen() {
                 style={[styles.modeCard, quickPlay && styles.modeCardActive]}
                 onPress={() => setQuickPlay(true)}
               >
-                <Text style={styles.modeIcon}>⚡</Text>
+                <LightningSVG />
                 <Text style={styles.modeName}>{t('setup.quickPlay')}</Text>
                 <Text style={styles.modeDesc}>
                   {t('setup.quickPlayDesc', 'Any topic, jump right in!')}
@@ -216,7 +217,7 @@ export default function SetupScreen() {
                 style={[styles.modeCard, !quickPlay && styles.modeCardActive]}
                 onPress={toggleQuickPlay}
               >
-                <Text style={styles.modeIcon}>🎯</Text>
+                <SliderSVG />
                 <Text style={styles.modeName}>{t('setup.chooseCategories')}</Text>
                 <Text style={styles.modeDesc}>
                   {t('setup.chooseCategoriesDesc', 'Pick topic & difficulty')}
