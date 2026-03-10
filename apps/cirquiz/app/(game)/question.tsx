@@ -11,17 +11,26 @@ export default function QuestionScreen() {
   const game = useGameStore((s) => s.game);
   const submitAnswer = useGameStore((s) => s.submitAnswer);
   const [selected, setSelected] = useState<string | null>(null);
+  // Freeze the accent color at mount so submitAnswer's store update (which advances
+  // currentPlayerIndex) doesn't recolor the buttons during the slide-away animation.
+  const [accentColor] = useState(() => {
+    const g = useGameStore.getState().game;
+    if (!g) return colors.primary;
+    const r = g.rounds[g.currentRoundIndex];
+    return g.players[r.currentPlayerIndex].color;
+  });
 
   if (!game) return null;
 
   const round = game.rounds[game.currentRoundIndex];
   const question = round.questions[round.currentQuestionIndex];
-  const currentPlayer = game.players[round.currentPlayerIndex];
 
   const handleAnswer = (answer: string) => {
     if (selected) return;
     setSelected(answer);
-    submitAnswer(answer);
+    setTimeout(() => {
+      submitAnswer(answer);
+    }, 150);
   };
 
   return (
@@ -41,7 +50,7 @@ export default function QuestionScreen() {
             label={option}
             selected={selected === option}
             disabled={selected !== null}
-            accentColor={currentPlayer.color}
+            accentColor={accentColor}
             onPress={() => handleAnswer(option)}
           />
         ))}

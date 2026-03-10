@@ -1,6 +1,7 @@
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
 import type { ViewStyle } from 'react-native';
-import * as Haptics from 'expo-haptics';
+import Animated from 'react-native-reanimated';
+import { usePressAnimation } from '../hooks/usePressAnimation';
 import { colors, spacing, fontSize, fontWeight, radius, opacity } from '../theme';
 
 interface Props {
@@ -30,44 +31,39 @@ export function Button({
   haptic = 'none',
   style,
 }: Props) {
-  const handlePress = () => {
-    if (haptic === 'strong') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-    } else if (haptic === 'light') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
-    onPress();
-  };
+  const { onPressIn, onPressOut, animatedStyle } = usePressAnimation({ haptic });
 
   return (
-    <TouchableOpacity
-      style={[
-        styles.base,
-        outlined
-          ? [styles.outlined, { borderColor: color }, selected && { backgroundColor: color }]
-          : { backgroundColor: color },
-        compact && styles.compactBase,
-        (disabled || loading) && styles.inactive,
-        style,
-      ]}
-      onPress={handlePress}
-      disabled={disabled || loading}
-    >
-      {loading ? (
-        <ActivityIndicator color={textColor ?? colors.white} />
-      ) : (
-        <Text
-          style={[
-            styles.text,
-            outlined ? styles.textOutlined : styles.textSolid,
-            compact && styles.compactText,
-            { color: textColor ?? (outlined && !selected ? colors.text : colors.white) },
-          ]}
-        >
-          {label}
-        </Text>
-      )}
-    </TouchableOpacity>
+    <Animated.View style={[(disabled || loading) && styles.inactive, animatedStyle, style]}>
+      <Pressable
+        style={[
+          styles.base,
+          outlined
+            ? [styles.outlined, { borderColor: color }, selected && { backgroundColor: color }]
+            : { backgroundColor: color },
+          compact && styles.compactBase,
+        ]}
+        onPress={onPress}
+        onPressIn={onPressIn}
+        onPressOut={onPressOut}
+        disabled={disabled || loading}
+      >
+        {loading ? (
+          <ActivityIndicator color={textColor ?? colors.white} />
+        ) : (
+          <Text
+            style={[
+              styles.text,
+              outlined ? styles.textOutlined : styles.textSolid,
+              compact && styles.compactText,
+              { color: textColor ?? (outlined && !selected ? colors.text : colors.white) },
+            ]}
+          >
+            {label}
+          </Text>
+        )}
+      </Pressable>
+    </Animated.View>
   );
 }
 
