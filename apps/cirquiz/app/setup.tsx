@@ -18,7 +18,7 @@ import { CategorySelector } from '../src/components/CategorySelector';
 import { DifficultySelector } from '../src/components/DifficultySelector';
 import { GradientScreen } from '../src/components/GradientScreen';
 import { ShineButton } from '../src/components/ShineButton';
-import { TextButton } from '../src/components/TextButton';
+import { Button } from '../src/components/Button';
 import { AVATAR_LIST, type AvatarKey } from '../src/avatars';
 import { type Difficulty } from '../src/providers';
 import { useCategoryLoader } from '../src/hooks/useCategoryLoader';
@@ -194,7 +194,8 @@ export default function SetupScreen() {
             ))}
 
             {players.length < AVATAR_LIST.length && (
-              <TextButton
+              <Button
+                variant="text"
                 label={`+ ${t('setup.addPlayer')}`}
                 onPress={addPlayer}
                 color={colors.primary}

@@ -27,7 +27,7 @@ export default function HandoffScreen() {
         })}
       </Text>
       <Button
-        raised
+        variant="raised"
         label={t('game.handoff.ready')}
         color={colors.white}
         textColor={colors.text}

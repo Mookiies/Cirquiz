@@ -157,7 +157,7 @@ export default function HomeScreen() {
           />
           {canResume && (
             <Button
-              outlined
+              variant="outlined"
               label={t('home.resumeGame')}
               color={colors.primary}
               onPress={handleResume}

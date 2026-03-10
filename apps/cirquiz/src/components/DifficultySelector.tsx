@@ -29,7 +29,7 @@ export function DifficultySelector({ value, onChange, style }: Props) {
         return (
           <Button
             key={label}
-            outlined
+            variant="outlined"
             compact
             selected={active}
             color={colors.difficulty}

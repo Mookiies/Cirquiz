@@ -30,7 +30,7 @@ export default function ErrorScreen() {
       <Button
         label={t('game.error.backHome')}
         onPress={handleBack}
-        outlined
+        variant="outlined"
         style={styles.button}
       />
     </View>

@@ -131,7 +131,8 @@ export default function StandingsScreen() {
         );
       })}
 
-      <TextButton
+      <Button
+        variant="text"
         label={showSettings ? t('game.standings.hideSettings') : t('game.standings.changeSettings')}
         onPress={async () => {
           if (!showSettings && categories.length === 0) await loadCategories();
@@ -160,7 +161,7 @@ export default function StandingsScreen() {
       )}
 
       <Button
-        raised
+        variant="raised"
         label={t('game.standings.playAnotherRound')}
         color={colors.success}
         loading={isLoading}
@@ -170,7 +171,7 @@ export default function StandingsScreen() {
       />
 
       <Button
-        text
+        variant="text"
         label={t('game.standings.endSession')}
         color={colors.error}
         onPress={handleEndSession}
@@ -205,7 +206,7 @@ const styles = StyleSheet.create({
   place: {
     fontSize: fontSize.lg,
     fontWeight: fontWeight.bold,
-    width: 52,
+    paddingRight: spacing.xs,
     color: colors.textSecondary,
     paddingTop: spacing.xs,
   },

@@ -13,7 +13,7 @@ export function AnswerButton({ label, selected, disabled, accentColor, onPress }
     <Button
       label={label}
       color={accentColor}
-      outlined
+      variant="outlined"
       selected={selected}
       disabled={disabled}
       onPress={onPress}

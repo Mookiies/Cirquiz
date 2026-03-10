@@ -10,16 +10,14 @@ const SHADOW_DEPTH = 5;
 interface Props {
   label: string;
   onPress: () => void;
+  variant?: 'solid' | 'outlined' | 'raised' | 'text';
   color?: string;
   textColor?: string;
   accentColor?: string;
-  outlined?: boolean;
   selected?: boolean;
   loading?: boolean;
   disabled?: boolean;
   compact?: boolean;
-  raised?: boolean;
-  text?: boolean;
   haptic?: 'strong' | 'light' | 'none';
   style?: ViewStyle;
   onLayout?: (e: LayoutChangeEvent) => void;
@@ -29,16 +27,14 @@ interface Props {
 export function Button({
   label,
   onPress,
+  variant = 'solid',
   color = colors.primary,
   textColor,
   accentColor,
-  outlined = false,
   selected = false,
   loading = false,
   disabled = false,
   compact = false,
-  raised = false,
-  text = false,
   haptic = 'none',
   style,
   onLayout,
@@ -46,7 +42,7 @@ export function Button({
 }: Props) {
   const { onPressIn, onPressOut, animatedStyle } = usePressAnimation({
     haptic,
-    mode: raised ? 'depth' : 'scale',
+    mode: variant === 'raised' ? 'depth' : 'scale',
   });
 
   const content = loading ? (
@@ -55,16 +51,16 @@ export function Button({
     <Text
       style={[
         styles.text,
-        outlined ? styles.textOutlined : styles.textSolid,
+        variant === 'outlined' ? styles.textOutlined : styles.textSolid,
         compact && styles.compactText,
-        { color: textColor ?? (outlined && !selected ? colors.text : colors.white) },
+        { color: textColor ?? (variant === 'outlined' && !selected ? colors.text : colors.white) },
       ]}
     >
       {label}
     </Text>
   );
 
-  if (raised) {
+  if (variant === 'raised') {
     const shadowColor = accentColor ?? darkenHex(color);
     return (
       <View style={style}>
@@ -98,7 +94,7 @@ export function Button({
     );
   }
 
-  if (text) {
+  if (variant === 'text') {
     return (
       <Animated.View style={[(disabled || loading) && styles.inactive, animatedStyle, style]}>
         <Pressable
@@ -119,7 +115,7 @@ export function Button({
       <Pressable
         style={[
           styles.base,
-          outlined
+          variant === 'outlined'
             ? [styles.outlined, { borderColor: color }, selected && { backgroundColor: color }]
             : { backgroundColor: color },
           compact && styles.compactBase,

@@ -1,10 +1,14 @@
 This file is purely for notes and tracking things I want to implement going forward.
 
 TBD enhancements
+- make eslint unused vars an error
+- Make it so the standings screen avatar, place and name go in one row and below we put the scoring information so that there isn't a big gap with no information
+
+Button story
 - Add press states for the quickplay vs customize buttons
-- Instead of touchable opacity I want to use Pressable so we can achieve a more custom look and feel. Migrate the app to use pressable instead of touchable opacity. Make sure that the way to manage press
-  state is made reusable
-- Make the other buttons aside from the answers buttons use this same style as the shine button where it looks sort of 3d.
+- Remove touchable opacity and replace with pressable that is enabled with the hook to provide animations
+
+
 - Make the handoff screen have the two additional circles shown in the mockup
 - Rework the header so that each screen just handles it with some shared utilities so we can have a very suble gradient game screens so it's not just straight white
 

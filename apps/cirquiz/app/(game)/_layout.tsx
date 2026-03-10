@@ -4,7 +4,7 @@ import { Alert, StyleSheet, Text, View } from 'react-native';
 import { useGameStore } from '../../src/state/gameStore';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, spacing, fontSize, fontWeight } from '../../src/theme';
-import { TextButton } from '../../src/components/TextButton';
+import { Button } from '../../src/components/Button';
 import { AvatarIcon } from '../../src/components/AvatarIcon';
 
 const SHOW_PLAYER_BANNER_ON = ['question'];
@@ -69,7 +69,8 @@ export default function GameLayout() {
           </View>
         )}
         {showQuit && (
-          <TextButton
+          <Button
+            variant="text"
             label={t('game.quit.confirm')}
             onPress={handleQuit}
             color={quitColor}
@@ -108,5 +109,5 @@ const styles = StyleSheet.create({
     fontSize: fontSize.base,
   },
   header: { alignItems: 'center', flexDirection: 'row' },
-  quitButton: { marginLeft: 'auto' },
+  quitButton: { marginLeft: 'auto', paddingRight: spacing.xl },
 });

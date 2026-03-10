@@ -54,7 +54,7 @@ export function ShineButton({
 
   return (
     <Button
-      raised
+      variant="raised"
       label={label}
       onPress={onPress}
       color={color}
