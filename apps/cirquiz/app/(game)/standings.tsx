@@ -8,7 +8,7 @@ import { Button } from '../../src/components/Button';
 import { CategorySelector } from '../../src/components/CategorySelector';
 import { DifficultySelector } from '../../src/components/DifficultySelector';
 import { TextButton } from '../../src/components/TextButton';
-import { OpenTriviaDbProvider } from '../../src/providers/opentdb/OpenTriviaDbProvider';
+import { useCategoryLoader } from '../../src/hooks/useCategoryLoader';
 import { useGameStore } from '../../src/state/gameStore';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, spacing, fontSize, fontWeight, radius } from '../../src/theme';
@@ -40,20 +40,9 @@ export default function StandingsScreen() {
   const [localDifficulty, setLocalDifficulty] = useState<Difficulty | undefined>(
     game?.difficulty ?? undefined
   );
-  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
-  const [loadingCategories, setLoadingCategories] = useState(false);
+  const { categories, loading: loadingCategories, load: loadCategories } = useCategoryLoader();
 
   if (!game) return null;
-
-  const loadCategories = async () => {
-    setLoadingCategories(true);
-    try {
-      setCategories(await new OpenTriviaDbProvider().fetchCategories());
-    } catch {
-    } finally {
-      setLoadingCategories(false);
-    }
-  };
 
   const handleDifficultyChange = (d: Difficulty | undefined) => {
     setLocalDifficulty(d);

@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   KeyboardAvoidingView,
@@ -9,28 +9,20 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withDelay,
-  withSpring,
-  withTiming,
-} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AvatarIcon } from '../src/components/AvatarIcon';
-import { BackgroundBlobs } from '../src/components/BackgroundBlobs';
+import { AnimatedPlayerRow } from '../src/components/AnimatedPlayerRow';
 import { CategorySelector } from '../src/components/CategorySelector';
 import { DifficultySelector } from '../src/components/DifficultySelector';
-import { IconButton } from '../src/components/IconButton';
+import { GradientScreen } from '../src/components/GradientScreen';
 import { ShineButton } from '../src/components/ShineButton';
 import { TextButton } from '../src/components/TextButton';
 import { AVATAR_LIST, type AvatarKey } from '../src/avatars';
-import { OpenTriviaDbProvider } from '../src/providers';
 import { type Difficulty } from '../src/providers';
+import { useCategoryLoader } from '../src/hooks/useCategoryLoader';
 import { useGameStore } from '../src/state/gameStore';
 import { colors, fontSize, fontWeight, radius, spacing } from '../src/theme';
 
@@ -44,64 +36,6 @@ interface PlayerEntry {
 
 function firstAvailableAvatar(used: AvatarKey[]): AvatarKey {
   return AVATAR_LIST.find((a) => !used.includes(a.key))?.key ?? AVATAR_LIST[0].key;
-}
-
-interface AnimatedPlayerRowProps {
-  player: PlayerEntry;
-  index: number;
-  delay: number;
-  nameError?: string;
-  canRemove: boolean;
-  onAvatarPress: () => void;
-  onNameChange: (text: string) => void;
-  onRemove: () => void;
-}
-
-function AnimatedPlayerRow({
-  player,
-  index,
-  delay,
-  nameError,
-  canRemove,
-  onAvatarPress,
-  onNameChange,
-  onRemove,
-}: AnimatedPlayerRowProps) {
-  const { t } = useTranslation();
-  const translateX = useSharedValue(-40);
-  const opacity = useSharedValue(0);
-
-  useEffect(() => {
-    translateX.value = withDelay(delay, withSpring(0));
-    opacity.value = withDelay(delay, withTiming(1, { duration: 300 }));
-  }, [delay, opacity, translateX]);
-
-  const animStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: translateX.value }],
-    opacity: opacity.value,
-  }));
-
-  const borderColor = colors.playerPalette[index % 10];
-
-  return (
-    <Animated.View style={[styles.playerCard, { borderLeftColor: borderColor }, animStyle]}>
-      <View style={styles.inputRow}>
-        <Pressable onPress={onAvatarPress} style={styles.avatarButton}>
-          <AvatarIcon avatarKey={player.avatar} size={48} />
-        </Pressable>
-        <TextInput
-          style={[styles.input, styles.playerInput, nameError ? styles.inputError : null]}
-          selectTextOnFocus
-          placeholder={`${t('setup.playerName')} ${index + 1}`}
-          value={player.name}
-          onChangeText={onNameChange}
-          maxLength={20}
-        />
-        {canRemove && <IconButton icon="✕" onPress={onRemove} />}
-      </View>
-      {nameError ? <Text style={styles.errorText}>{nameError}</Text> : null}
-    </Animated.View>
-  );
 }
 
 export default function SetupScreen() {
@@ -121,8 +55,7 @@ export default function SetupScreen() {
   const [quickPlay, setQuickPlay] = useState(true);
   const [category, setCategory] = useState<string | undefined>(undefined);
   const [difficulty, setDifficulty] = useState<Difficulty | undefined>(undefined);
-  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
-  const [loadingCategories, setLoadingCategories] = useState(false);
+  const { categories, loading: loadingCategories, load: loadCategories } = useCategoryLoader();
   const [nameErrors, setNameErrors] = useState<Record<number, string>>({});
   const [pickerIndex, setPickerIndex] = useState<number | null>(null);
 
@@ -153,19 +86,6 @@ export default function SetupScreen() {
       })
     );
     setPickerIndex(null);
-  };
-
-  const loadCategories = async () => {
-    setLoadingCategories(true);
-    try {
-      const p = new OpenTriviaDbProvider();
-      const cats = await p.fetchCategories();
-      setCategories(cats);
-    } catch (e) {
-      console.warn('Failed to load categories:', e);
-    } finally {
-      setLoadingCategories(false);
-    }
   };
 
   const toggleQuickPlay = async () => {
@@ -212,8 +132,7 @@ export default function SetupScreen() {
   const pickerPlayer = pickerIndex !== null ? players[pickerIndex] : null;
 
   return (
-    <LinearGradient style={styles.gradient} colors={['#EBF5FB', '#fff', '#f3eeff']}>
-      <BackgroundBlobs />
+    <GradientScreen>
       <View style={styles.flex}>
         {/* Header */}
         <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
@@ -388,12 +307,11 @@ export default function SetupScreen() {
           </Pressable>
         </Pressable>
       </Modal>
-    </LinearGradient>
+    </GradientScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  gradient: { flex: 1 },
   flex: { flex: 1, backgroundColor: 'transparent' },
   header: {
     flexDirection: 'row',
@@ -452,31 +370,6 @@ const styles = StyleSheet.create({
   chipTextActive: {
     color: colors.primary,
   },
-  playerCard: {
-    backgroundColor: colors.white,
-    borderRadius: 16,
-    borderLeftWidth: 4,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.07,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    padding: spacing.md,
-    fontSize: fontSize.base,
-    marginBottom: spacing.sm,
-  },
-  inputRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  playerInput: { flex: 1, marginBottom: 0 },
-  avatarButton: { flexShrink: 0 },
-  inputError: { borderColor: colors.error },
-  errorText: { color: colors.error, fontSize: fontSize.sm, marginBottom: 4, marginTop: spacing.xs },
   modeRow: {
     flexDirection: 'row',
     gap: spacing.sm,

@@ -1,4 +1,3 @@
-import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -14,8 +13,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AvatarIcon } from '../src/components/AvatarIcon';
-import { BackgroundBlobs } from '../src/components/BackgroundBlobs';
 import { Button } from '../src/components/Button';
+import { GradientScreen } from '../src/components/GradientScreen';
 import { ShineButton } from '../src/components/ShineButton';
 import { type AvatarKey } from '../src/avatars';
 import { useGameStore } from '../src/state/gameStore';
@@ -161,8 +160,7 @@ export default function HomeScreen() {
 
   if (!isHydrated) {
     return (
-      <LinearGradient style={styles.gradient} colors={['#EBF5FB', '#fff', '#f3eeff']}>
-        <BackgroundBlobs />
+      <GradientScreen>
         <View style={styles.loadingContainer}>
           <View style={styles.logoWrapper}>
             <CirclequizLogo width={300} height={84} />
@@ -173,13 +171,12 @@ export default function HomeScreen() {
             ))}
           </View>
         </View>
-      </LinearGradient>
+      </GradientScreen>
     );
   }
 
   return (
-    <LinearGradient style={styles.gradient} colors={['#EBF5FB', '#fff', '#f3eeff']}>
-      <BackgroundBlobs />
+    <GradientScreen>
       <View style={[styles.screen, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
         <Animated.View style={[styles.avatarRow, topRowStyle]}>
           {TOP_AVATARS.map((key, i) => (
@@ -218,14 +215,11 @@ export default function HomeScreen() {
           )}
         </Animated.View>
       </View>
-    </LinearGradient>
+    </GradientScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  gradient: {
-    flex: 1,
-  },
   loadingContainer: {
     flex: 1,
     alignItems: 'center',
