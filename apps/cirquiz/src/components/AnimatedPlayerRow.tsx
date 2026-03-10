@@ -1,18 +1,16 @@
-import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withDelay,
-  withSpring,
-  withTiming,
-} from 'react-native-reanimated';
+import Animated, { Keyframe, LinearTransition } from 'react-native-reanimated';
 import { AVATAR_MAP, type AvatarKey } from '../avatars';
 import { AvatarIcon } from './AvatarIcon';
 import { IconButton } from './IconButton';
 import { usePressAnimation } from '../hooks/usePressAnimation';
 import { colors, fontSize, radius, spacing } from '../theme';
+
+const exitAnim = new Keyframe({
+  from: { opacity: 1, transform: [{ translateX: 0 }] },
+  to: { opacity: 0, transform: [{ translateX: -40 }] },
+}).duration(200);
 
 interface AnimatedPlayerRowProps {
   player: { name: string; avatar: AvatarKey };
@@ -36,18 +34,13 @@ export function AnimatedPlayerRow({
   onRemove,
 }: AnimatedPlayerRowProps) {
   const { t } = useTranslation();
-  const translateX = useSharedValue(-40);
-  const opacity = useSharedValue(0);
 
-  useEffect(() => {
-    translateX.value = withDelay(delay, withSpring(0));
-    opacity.value = withDelay(delay, withTiming(1, { duration: 300 }));
-  }, [delay, opacity, translateX]);
-
-  const animStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: translateX.value }],
-    opacity: opacity.value,
-  }));
+  const enterAnim = new Keyframe({
+    from: { opacity: 0, transform: [{ translateX: -40 }] },
+    to: { opacity: 1, transform: [{ translateX: 0 }] },
+  })
+    .duration(300)
+    .delay(delay);
 
   const borderColor = AVATAR_MAP[player.avatar].color;
   const {
@@ -57,7 +50,12 @@ export function AnimatedPlayerRow({
   } = usePressAnimation({ mode: 'scale' });
 
   return (
-    <Animated.View style={[styles.playerCard, { borderLeftColor: borderColor }, animStyle]}>
+    <Animated.View
+      entering={enterAnim}
+      exiting={exitAnim}
+      layout={LinearTransition}
+      style={[styles.playerCard, { borderLeftColor: borderColor }]}
+    >
       <View style={styles.inputRow}>
         <Pressable
           onPress={onAvatarPress}

@@ -11,6 +11,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import Animated, { LinearTransition } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AnimatedPlayerRow } from '../src/components/AnimatedPlayerRow';
 import { AvatarCell } from '../src/components/AvatarCell';
@@ -33,6 +34,7 @@ import SliderSVG from '../assets/slider.svg';
 const QUESTION_COUNTS = [1, 5, 10, 15, 20] as const;
 
 interface PlayerEntry {
+  id: number;
   name: string;
   avatar: AvatarKey;
   nameCustomized: boolean;
@@ -50,9 +52,20 @@ export default function SetupScreen() {
 
   const avatarName = (key: AvatarKey) => t(`setup.avatarName.${key}`);
 
+  const nextId = useRef(2);
   const [players, setPlayers] = useState<PlayerEntry[]>([
-    { name: avatarName(AVATAR_LIST[0].key), avatar: AVATAR_LIST[0].key, nameCustomized: false },
-    { name: avatarName(AVATAR_LIST[1].key), avatar: AVATAR_LIST[1].key, nameCustomized: false },
+    {
+      id: 0,
+      name: avatarName(AVATAR_LIST[0].key),
+      avatar: AVATAR_LIST[0].key,
+      nameCustomized: false,
+    },
+    {
+      id: 1,
+      name: avatarName(AVATAR_LIST[1].key),
+      avatar: AVATAR_LIST[1].key,
+      nameCustomized: false,
+    },
   ]);
   const initialPlayerCount = useRef(2);
   const [questionCount, setQuestionCount] = useState('10');
@@ -68,7 +81,11 @@ export default function SetupScreen() {
   const addPlayer = () => {
     if (players.length >= AVATAR_LIST.length) return;
     const avatar = firstAvailableAvatar(usedAvatars);
-    setPlayers((prev) => [...prev, { name: avatarName(avatar), avatar, nameCustomized: false }]);
+    const id = nextId.current++;
+    setPlayers((prev) => [
+      ...prev,
+      { id, name: avatarName(avatar), avatar, nameCustomized: false },
+    ]);
   };
 
   const removePlayer = (index: number) => {
@@ -165,7 +182,7 @@ export default function SetupScreen() {
             <Text style={styles.sectionLabel}>{t('setup.players')}</Text>
             {players.map((player, index) => (
               <AnimatedPlayerRow
-                key={index}
+                key={player.id}
                 player={player}
                 index={index}
                 delay={index < initialPlayerCount.current ? index * 80 : 0}
@@ -186,49 +203,51 @@ export default function SetupScreen() {
               />
             ))}
 
-            {players.length < AVATAR_LIST.length && (
-              <Button
-                variant="text"
-                label={`+ ${t('setup.addPlayer')}`}
-                onPress={addPlayer}
-                color={colors.primary}
-              />
-            )}
+            <Animated.View layout={LinearTransition}>
+              {players.length < AVATAR_LIST.length && (
+                <Button
+                  variant="text"
+                  label={`+ ${t('setup.addPlayer')}`}
+                  onPress={addPlayer}
+                  color={colors.primary}
+                />
+              )}
 
-            <Text style={styles.sectionLabel}>{t('setup.mode', 'Mode')}</Text>
-            <View style={styles.modeRow}>
-              <ModeCard
-                icon={<LightningSVG />}
-                name={t('setup.quickPlay')}
-                description={t('setup.quickPlayDesc', 'Any topic, jump right in!')}
-                active={quickPlay}
-                onPress={() => setQuickPlay(true)}
-              />
-              <ModeCard
-                icon={<SliderSVG />}
-                name={t('setup.chooseCategories')}
-                description={t('setup.chooseCategoriesDesc', 'Pick topic & difficulty')}
-                active={!quickPlay}
-                onPress={turnQuickplayOff}
-              />
-            </View>
-
-            {!quickPlay && (
-              <View>
-                <Text style={styles.sectionLabel}>{t('common.difficulty')}</Text>
-                <DifficultySelector value={difficulty} onChange={setDifficulty} />
-
-                <Text style={styles.sectionLabel}>{t('common.category')}</Text>
-                <CategorySelector
-                  categories={categories}
-                  value={category}
-                  onChange={setCategory}
-                  loading={loadingCategories}
+              <Text style={styles.sectionLabel}>{t('setup.mode', 'Mode')}</Text>
+              <View style={styles.modeRow}>
+                <ModeCard
+                  icon={<LightningSVG />}
+                  name={t('setup.quickPlay')}
+                  description={t('setup.quickPlayDesc', 'Any topic, jump right in!')}
+                  active={quickPlay}
+                  onPress={() => setQuickPlay(true)}
+                />
+                <ModeCard
+                  icon={<SliderSVG />}
+                  name={t('setup.chooseCategories')}
+                  description={t('setup.chooseCategoriesDesc', 'Pick topic & difficulty')}
+                  active={!quickPlay}
+                  onPress={turnQuickplayOff}
                 />
               </View>
-            )}
 
-            <View style={{ height: 100 }} />
+              {!quickPlay && (
+                <View>
+                  <Text style={styles.sectionLabel}>{t('common.difficulty')}</Text>
+                  <DifficultySelector value={difficulty} onChange={setDifficulty} />
+
+                  <Text style={styles.sectionLabel}>{t('common.category')}</Text>
+                  <CategorySelector
+                    categories={categories}
+                    value={category}
+                    onChange={setCategory}
+                    loading={loadingCategories}
+                  />
+                </View>
+              )}
+
+              <View style={{ height: 100 }} />
+            </Animated.View>
           </ScrollView>
         </KeyboardAvoidingView>
 

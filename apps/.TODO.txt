@@ -1,7 +1,6 @@
 This file is purely for notes and tracking things I want to implement going forward.
 
 TBD enhancements
-- Make the handoff screen have the two additional circles shown in the mockup
 - When you click on customize categories on the the end game screen or the setup it should scroll down once the categories load
 
 OFFLINE SUPPORT
