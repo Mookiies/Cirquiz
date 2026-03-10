@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { AvatarIcon } from '../../src/components/AvatarIcon';
 import { Button } from '../../src/components/Button';
+import { QuestionHeader } from '../../src/components/QuestionHeader';
 import { useGameStore } from '../../src/state/gameStore';
 import { colors, spacing, fontSize, fontWeight, radius } from '../../src/theme';
 
@@ -21,6 +22,11 @@ export default function RevealScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      <QuestionHeader
+        question={question}
+        questionIndex={round.currentQuestionIndex}
+        questionCount={round.questions.length}
+      />
       <Text style={styles.correctAnswer}>
         {t('game.reveal.correctAnswer', { answer: question.correctAnswer })}
       </Text>
@@ -40,7 +46,7 @@ export default function RevealScreen() {
                 <Text style={[styles.resultIcon, turn.isCorrect ? styles.correct : styles.wrong]}>
                   {turn.isCorrect ? t('game.reveal.correct') : t('game.reveal.wrong')}
                 </Text>
-                <Text style={styles.score}>
+                <Text style={styles.score} maxFontSizeMultiplier={1}>
                   {t('game.reveal.score', {
                     round: player.roundScore,
                     total: player.cumulativeScore,
@@ -64,7 +70,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   content: { padding: spacing.xl, paddingBottom: spacing['4xl'] },
   correctAnswer: {
-    fontSize: fontSize.lg,
+    fontSize: fontSize.base,
     fontWeight: fontWeight.bold,
     color: colors.success,
     marginBottom: spacing.xl,

@@ -13,6 +13,7 @@ module.exports = defineConfig([
     },
     rules: {
       'local/no-raw-text': 'error',
+      'react-hooks/exhaustive-deps': 'error',
     },
     files: ['**/*.tsx'],
   },

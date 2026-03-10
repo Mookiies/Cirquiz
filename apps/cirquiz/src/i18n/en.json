@@ -1,6 +1,7 @@
 {
   "home": {
     "appName": "Cirquiz",
+    "subtitle": "Challenge your friends!",
     "newGame": "New Game",
     "resumeGame": "Resume Game",
     "loading": "Loading..."

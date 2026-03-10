@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>CIRQUIZ — Concept B</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0f0f14;
+            font-family: 'Nunito', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        h1.page-title {
+            font-family: 'Fredoka One', cursive;
+            font-size: 22px; letter-spacing: 4px; color: #3498DB;
+            margin-bottom: 4px; text-align: center;
+            text-shadow: 0 0 30px rgba(52,152,219,0.5);
+        }
+        .page-sub {
+            color: rgba(255,255,255,0.3); font-size: 11px;
+            letter-spacing: 2px; text-transform: uppercase;
+            margin-bottom: 36px; text-align: center;
+        }
+        .phone {
+            width: 320px; height: 660px; border-radius: 40px;
+            overflow: hidden; position: relative; background: #fff;
+            box-shadow:
+                    0 0 0 2px rgba(255,255,255,0.08),
+                    0 40px 80px rgba(0,0,0,0.7),
+                    inset 0 0 0 1px rgba(255,255,255,0.04);
+        }
+        .cb-bg {
+            position: absolute; inset: 0;
+            background: linear-gradient(160deg, #EBF5FB 0%, #fff 45%, #f3eeff 100%);
+        }
+        .cb-shape {
+            position: absolute; border-radius: 50%; opacity: 0.13;
+            animation: cbBounce var(--dur,4s) ease-in-out infinite alternate;
+            animation-delay: var(--delay, 0s);
+        }
+        @keyframes cbBounce {
+            from { transform: translate(0,0) scale(1); }
+            to   { transform: translate(var(--tx,10px), var(--ty,-15px)) scale(1.1); }
+        }
+        .cb-settings-icon {
+            position: absolute; top: 16px; right: 16px;
+            font-size: 22px; cursor: pointer; opacity: 0.28;
+            animation: cbSettingsSpin 10s linear infinite;
+        }
+        @keyframes cbSettingsSpin {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+        /* ── Avatar rows ── */
+        .cb-parade, .cb-bottom-chars {
+            position: absolute; left: 0; right: 0;
+            display: flex; justify-content: center; gap: 8px; padding: 0 14px;
+        }
+        .cb-parade { top: 52px; animation: rowReveal 0.6s ease both; }
+        .cb-bottom-chars { bottom: 178px; animation: rowReveal 0.6s ease 0.3s both; }
+        @keyframes rowReveal {
+            from { opacity: 0; transform: translateY(-24px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .cb-avatar {
+            width: 44px; height: 44px; border-radius: 50%;
+            background: var(--color, white);
+            box-shadow: 0 3px 12px rgba(0,0,0,0.15), 0 0 0 2.5px rgba(255,255,255,0.6) inset;
+            border: none;
+            overflow: hidden; padding: 4px; flex-shrink: 0;
+            animation: cbBob calc(2.5s + var(--i,0) * 0.28s) ease-in-out infinite alternate;
+            animation-delay: calc(var(--i,0) * 0.12s);
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .cb-avatar:hover {
+            transform: scale(1.28) translateY(-7px) !important;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.22), 0 0 0 2.5px rgba(255,255,255,0.7) inset;
+        }
+        @keyframes cbBob {
+            from { transform: translateY(0) rotate(-4deg); }
+            to   { transform: translateY(-10px) rotate(4deg); }
+        }
+        .cb-bottom-char {
+            width: 50px; height: 50px; border-radius: 50%;
+            background: var(--color, white);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15), 0 0 0 2.5px rgba(255,255,255,0.6) inset;
+            border: none;
+            overflow: hidden; padding: 5px; flex-shrink: 0;
+            animation: cbBob calc(2.8s + var(--i,0) * 0.3s) ease-in-out infinite alternate;
+            animation-delay: calc(var(--i,0) * 0.15s + 0.4s);
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .cb-bottom-char:hover {
+            transform: scale(1.22) translateY(-6px) !important;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2), 0 0 0 2.5px rgba(255,255,255,0.7) inset;
+        }
+        /* ── Hero ── */
+        .cb-hero {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            animation: cbHeroReveal 0.7s cubic-bezier(0.34,1.56,0.64,1) 0.2s both;
+        }
+        @keyframes cbHeroReveal {
+            from { opacity: 0; transform: scale(0.85); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+        .cb-title {
+            font-family: 'Fredoka One', cursive; font-size: 56px; letter-spacing: 5px; line-height: 1;
+            background: linear-gradient(140deg, #3498DB 0%, #9B59B6 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 4px 14px rgba(52,152,219,0.18));
+        }
+        /* ── Loading dots ── */
+        .cb-dots {
+            display: flex; gap: 9px; margin-top: 28px;
+        }
+        .cb-dot {
+            width: 10px; height: 10px; border-radius: 50%;
+            animation: dotBounce 1.2s ease-in-out infinite;
+            animation-delay: var(--d, 0s);
+        }
+        @keyframes dotBounce {
+            0%, 80%, 100% { transform: scale(0.7); opacity: 0.35; }
+            40%            { transform: scale(1.25); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+<h1 class="page-title">CIRQUIZ</h1>
+<p class="page-sub">Concept B · Bright Pop</p>
+
+<div class="phone">
+    <div class="cb-bg"></div>
+    <div class="cb-shape" style="width:220px;height:220px;background:#3498DB;top:-70px;right:-90px;--dur:5s;--tx:-10px;--ty:15px;"></div>
+    <div class="cb-shape" style="width:160px;height:160px;background:#9B59B6;bottom:-50px;left:-60px;--dur:6s;--delay:1s;--tx:15px;--ty:-10px;"></div>
+    <div class="cb-shape" style="width:90px;height:90px;background:#2ECC71;top:240px;right:-25px;--dur:4s;--delay:0.5s;--tx:-8px;--ty:12px;"></div>
+    <div class="cb-shape" style="width:70px;height:70px;background:#F39C12;top:310px;left:-20px;--dur:5.5s;--delay:1.5s;--tx:10px;--ty:-8px;"></div>
+
+    <span class="cb-settings-icon">⚙️</span>
+
+
+    <div class="cb-hero">
+        <div class="cb-title">CIRQUIZ</div>
+        <div class="cb-dots">
+            <div class="cb-dot" style="background:#3498DB;--d:0s;"></div>
+            <div class="cb-dot" style="background:#9B59B6;--d:0.2s;"></div>
+            <div class="cb-dot" style="background:#2ECC71;--d:0.4s;"></div>
+            <div class="cb-dot" style="background:#F39C12;--d:0.6s;"></div>
+            <div class="cb-dot" style="background:#E74C3C;--d:0.8s;"></div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
