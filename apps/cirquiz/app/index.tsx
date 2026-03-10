@@ -3,7 +3,6 @@ import { useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 import Animated, {
-  Easing,
   useAnimatedStyle,
   useSharedValue,
   withDelay,
@@ -12,11 +11,9 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AvatarIcon } from '../src/components/AvatarIcon';
 import { Button } from '../src/components/Button';
 import { GradientScreen } from '../src/components/GradientScreen';
 import { ShineButton } from '../src/components/ShineButton';
-import { type AvatarKey } from '../src/avatars';
 import { useGameStore } from '../src/state/gameStore';
 import { colors, fontSize, spacing } from '../src/theme';
 import CirclequizLogo from '../assets/circlequiz.svg';

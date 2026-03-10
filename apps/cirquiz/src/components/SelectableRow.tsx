@@ -1,19 +1,22 @@
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { Pressable, Text, StyleSheet } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { colors, spacing, fontSize, fontWeight, radius } from '../theme';
+import { usePressAnimation } from '../hooks/usePressAnimation';
 
 interface Props {
   label: string;
   active: boolean;
   onPress: () => void;
-  showCheck?: boolean;
 }
 
-export function SelectableRow({ label, active, onPress, showCheck }: Props) {
+export function SelectableRow({ label, active, onPress }: Props) {
+  const { onPressIn, onPressOut, animatedStyle } = usePressAnimation();
   return (
-    <TouchableOpacity style={[styles.row, active && styles.rowActive]} onPress={onPress}>
-      <Text style={[styles.text, active && styles.textActive]}>{label}</Text>
-      {showCheck && <Text style={styles.check}>✓</Text>}
-    </TouchableOpacity>
+    <Pressable onPress={onPress} onPressIn={onPressIn} onPressOut={onPressOut}>
+      <Animated.View style={[styles.row, active && styles.rowActive, animatedStyle]}>
+        <Text style={[styles.text, active && styles.textActive]}>{label}</Text>
+      </Animated.View>
+    </Pressable>
   );
 }
 
@@ -32,6 +35,6 @@ const styles = StyleSheet.create({
   },
   rowActive: { backgroundColor: colors.primaryFaint, borderColor: colors.primary },
   text: { fontSize: fontSize.base, color: colors.text },
-  textActive: { color: colors.primary, fontWeight: fontWeight.semibold },
+  textActive: { color: colors.primary },
   check: { fontSize: fontSize.base, color: colors.primary, fontWeight: fontWeight.bold },
 });

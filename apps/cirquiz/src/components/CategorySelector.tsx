@@ -32,7 +32,6 @@ export function CategorySelector({ categories, value, onChange, loading }: Props
             label={cat.name}
             active={active}
             onPress={() => onChange(cat.id)}
-            showCheck={active}
           />
         );
       })}

@@ -1,7 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
-import { TouchableOpacity, StyleSheet } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
+import Animated from 'react-native-reanimated';
 import type { ViewStyle } from 'react-native';
 import { colors } from '../theme';
+import { usePressAnimation } from '../hooks/usePressAnimation';
 
 interface Props {
   icon: React.ComponentProps<typeof Ionicons>['name'];
@@ -12,10 +14,13 @@ interface Props {
 }
 
 export function IconButton({ icon, onPress, color = colors.error, size = 24, style }: Props) {
+  const { onPressIn, onPressOut, animatedStyle } = usePressAnimation({ scale: 0.9 });
   return (
-    <TouchableOpacity style={[styles.button, style]} onPress={onPress}>
-      <Ionicons name={icon} size={size} color={color} />
-    </TouchableOpacity>
+    <Pressable onPress={onPress} onPressIn={onPressIn} onPressOut={onPressOut}>
+      <Animated.View style={[styles.button, style, animatedStyle]}>
+        <Ionicons name={icon} size={size} color={color} />
+      </Animated.View>
+    </Pressable>
   );
 }
 

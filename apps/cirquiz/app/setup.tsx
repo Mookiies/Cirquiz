@@ -12,11 +12,13 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AvatarIcon } from '../src/components/AvatarIcon';
 import { AnimatedPlayerRow } from '../src/components/AnimatedPlayerRow';
+import { AvatarCell } from '../src/components/AvatarCell';
 import { CategorySelector } from '../src/components/CategorySelector';
+import { ChipButton } from '../src/components/ChipButton';
 import { DifficultySelector } from '../src/components/DifficultySelector';
 import { GradientScreen } from '../src/components/GradientScreen';
+import { ModeCard } from '../src/components/ModeCard';
 import { ShineButton } from '../src/components/ShineButton';
 import { Button } from '../src/components/Button';
 import { AVATAR_LIST, type AvatarKey } from '../src/avatars';
@@ -90,10 +92,9 @@ export default function SetupScreen() {
     setPickerIndex(null);
   };
 
-  const toggleQuickPlay = async () => {
-    const next = !quickPlay;
-    setQuickPlay(next);
-    if (!next && categories.length === 0) {
+  const turnQuickplayOff = async () => {
+    setQuickPlay(false);
+    if (categories.length === 0) {
       await loadCategories();
     }
   };
@@ -152,20 +153,12 @@ export default function SetupScreen() {
             <Text style={styles.sectionLabel}>{t('setup.questionCount')}</Text>
             <View style={styles.chipsRow}>
               {QUESTION_COUNTS.map((count) => (
-                <Pressable
+                <ChipButton
                   key={count}
-                  style={[styles.chip, questionCount === String(count) && styles.chipActive]}
+                  label={count}
+                  active={questionCount === String(count)}
                   onPress={() => setQuestionCount(String(count))}
-                >
-                  <Text
-                    style={[
-                      styles.chipText,
-                      questionCount === String(count) && styles.chipTextActive,
-                    ]}
-                  >
-                    {count}
-                  </Text>
-                </Pressable>
+                />
               ))}
             </View>
 
@@ -204,26 +197,20 @@ export default function SetupScreen() {
 
             <Text style={styles.sectionLabel}>{t('setup.mode', 'Mode')}</Text>
             <View style={styles.modeRow}>
-              <Pressable
-                style={[styles.modeCard, quickPlay && styles.modeCardActive]}
+              <ModeCard
+                icon={<LightningSVG />}
+                name={t('setup.quickPlay')}
+                description={t('setup.quickPlayDesc', 'Any topic, jump right in!')}
+                active={quickPlay}
                 onPress={() => setQuickPlay(true)}
-              >
-                <LightningSVG />
-                <Text style={styles.modeName}>{t('setup.quickPlay')}</Text>
-                <Text style={styles.modeDesc}>
-                  {t('setup.quickPlayDesc', 'Any topic, jump right in!')}
-                </Text>
-              </Pressable>
-              <Pressable
-                style={[styles.modeCard, !quickPlay && styles.modeCardActive]}
-                onPress={toggleQuickPlay}
-              >
-                <SliderSVG />
-                <Text style={styles.modeName}>{t('setup.chooseCategories')}</Text>
-                <Text style={styles.modeDesc}>
-                  {t('setup.chooseCategoriesDesc', 'Pick topic & difficulty')}
-                </Text>
-              </Pressable>
+              />
+              <ModeCard
+                icon={<SliderSVG />}
+                name={t('setup.chooseCategories')}
+                description={t('setup.chooseCategoriesDesc', 'Pick topic & difficulty')}
+                active={!quickPlay}
+                onPress={turnQuickplayOff}
+              />
             </View>
 
             {!quickPlay && (
@@ -276,32 +263,17 @@ export default function SetupScreen() {
                   usedAvatars.includes(avatarDef.key) && pickerPlayer?.avatar !== avatarDef.key;
                 const selected = pickerPlayer?.avatar === avatarDef.key;
                 return (
-                  <Pressable
+                  <AvatarCell
                     key={avatarDef.key}
+                    avatarDef={avatarDef}
+                    selected={selected}
+                    taken={taken}
                     onPress={() => {
-                      if (!taken && pickerIndex !== null) {
+                      if (pickerIndex !== null) {
                         updatePlayerAvatar(pickerIndex, avatarDef.key);
                       }
                     }}
-                    style={[
-                      styles.avatarCell,
-                      selected && {
-                        shadowColor: avatarDef.color,
-                        shadowOffset: { width: 0, height: 0 },
-                        shadowOpacity: 1,
-                        shadowRadius: 8,
-                        elevation: 8,
-                      },
-                      taken && styles.avatarCellDisabled,
-                    ]}
-                    disabled={taken}
-                  >
-                    <AvatarIcon
-                      avatarKey={avatarDef.key}
-                      size={64}
-                      style={taken ? styles.avatarIconDisabled : undefined}
-                    />
-                  </Pressable>
+                  />
                 );
               })}
             </View>
@@ -347,62 +319,9 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     flexWrap: 'wrap',
   },
-  chip: {
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    borderRadius: radius.pill,
-    borderWidth: 2,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-  },
-  chipActive: {
-    borderColor: colors.primary,
-    backgroundColor: colors.primaryFaint,
-  },
-  chipText: {
-    fontSize: fontSize.base,
-    fontWeight: fontWeight.semibold,
-    color: colors.textSecondary,
-  },
-  chipTextActive: {
-    color: colors.primary,
-  },
   modeRow: {
     flexDirection: 'row',
     gap: spacing.sm,
-  },
-  modeCard: {
-    flex: 1,
-    backgroundColor: colors.white,
-    borderRadius: 16,
-    borderWidth: 2,
-    borderColor: colors.border,
-    padding: spacing.md,
-    alignItems: 'center',
-    gap: spacing.xs,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  modeCardActive: {
-    borderColor: colors.primary,
-    backgroundColor: colors.primaryFaint,
-  },
-  modeIcon: {
-    fontSize: 24,
-  },
-  modeName: {
-    fontSize: fontSize.sm,
-    fontWeight: fontWeight.bold,
-    color: colors.text,
-    textAlign: 'center',
-  },
-  modeDesc: {
-    fontSize: fontSize.xs,
-    color: colors.textSecondary,
-    textAlign: 'center',
   },
   stickyBottom: {
     position: 'absolute',
@@ -429,11 +348,4 @@ const styles = StyleSheet.create({
     width: 64 * 5 + spacing.sm * 4,
     gap: spacing.sm,
   },
-  avatarCell: {
-    borderRadius: radius.lg,
-  },
-  avatarCellDisabled: {
-    opacity: 0.3,
-  },
-  avatarIconDisabled: {},
 });

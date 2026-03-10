@@ -8,9 +8,10 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
-import { AVATAR_LIST, AVATAR_MAP, type AvatarKey } from '../avatars';
+import { AVATAR_MAP, type AvatarKey } from '../avatars';
 import { AvatarIcon } from './AvatarIcon';
 import { IconButton } from './IconButton';
+import { usePressAnimation } from '../hooks/usePressAnimation';
 import { colors, fontSize, radius, spacing } from '../theme';
 
 interface AnimatedPlayerRowProps {
@@ -49,12 +50,24 @@ export function AnimatedPlayerRow({
   }));
 
   const borderColor = AVATAR_MAP[player.avatar].color;
+  const {
+    onPressIn: avatarPressIn,
+    onPressOut: avatarPressOut,
+    animatedStyle: avatarAnimStyle,
+  } = usePressAnimation({ mode: 'scale' });
 
   return (
     <Animated.View style={[styles.playerCard, { borderLeftColor: borderColor }, animStyle]}>
       <View style={styles.inputRow}>
-        <Pressable onPress={onAvatarPress} style={styles.avatarButton}>
-          <AvatarIcon avatarKey={player.avatar} size={48} />
+        <Pressable
+          onPress={onAvatarPress}
+          onPressIn={avatarPressIn}
+          onPressOut={avatarPressOut}
+          style={styles.avatarButton}
+        >
+          <Animated.View style={avatarAnimStyle}>
+            <AvatarIcon avatarKey={player.avatar} size={48} />
+          </Animated.View>
         </Pressable>
         <TextInput
           style={[styles.input, styles.playerInput, nameError ? styles.inputError : null]}
