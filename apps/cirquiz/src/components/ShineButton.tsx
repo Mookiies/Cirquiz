@@ -16,6 +16,8 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
+import * as Haptics from 'expo-haptics';
+import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fontSize, fontWeight, spacing } from '../theme';
 
 const SHADOW_DEPTH = 5;
@@ -34,6 +36,7 @@ interface Props {
   color?: string;
   disabled?: boolean;
   loading?: boolean;
+  haptic?: 'strong' | 'light' | 'none';
   style?: ViewStyle;
 }
 
@@ -43,6 +46,7 @@ export function ShineButton({
   color = colors.primary,
   disabled,
   loading,
+  haptic = 'strong',
   style,
 }: Props) {
   const shineX = useSharedValue(-1);
@@ -72,6 +76,11 @@ export function ShineButton({
   };
 
   const handlePressIn = () => {
+    if (haptic === 'strong') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    } else if (haptic === 'light') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
     pressY.value = withTiming(SHADOW_DEPTH, { duration: 80 });
   };
 
@@ -103,7 +112,14 @@ export function ShineButton({
           ) : (
             <Text style={styles.label}>{label}</Text>
           )}
-          <Animated.View style={[styles.shine, shineStyle]} pointerEvents="none" />
+          <Animated.View style={[styles.shine, shineStyle]} pointerEvents="none">
+            <LinearGradient
+              colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.45)', 'rgba(255,255,255,0)']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={StyleSheet.absoluteFill}
+            />
+          </Animated.View>
         </Animated.View>
       </Pressable>
     </Animated.View>
@@ -142,8 +158,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     bottom: 0,
-    width: '60%',
-    backgroundColor: 'rgba(255,255,255,0.18)',
+    width: '100%',
     transform: [{ skewX: '-15deg' }],
   },
 });

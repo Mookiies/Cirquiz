@@ -1,5 +1,6 @@
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import type { ViewStyle } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { colors, spacing, fontSize, fontWeight, radius, opacity } from '../theme';
 
 interface Props {
@@ -12,6 +13,7 @@ interface Props {
   loading?: boolean;
   disabled?: boolean;
   compact?: boolean;
+  haptic?: 'strong' | 'light' | 'none';
   style?: ViewStyle;
 }
 
@@ -25,8 +27,18 @@ export function Button({
   loading = false,
   disabled = false,
   compact = false,
+  haptic = 'none',
   style,
 }: Props) {
+  const handlePress = () => {
+    if (haptic === 'strong') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    } else if (haptic === 'light') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    onPress();
+  };
+
   return (
     <TouchableOpacity
       style={[
@@ -38,7 +50,7 @@ export function Button({
         (disabled || loading) && styles.inactive,
         style,
       ]}
-      onPress={onPress}
+      onPress={handlePress}
       disabled={disabled || loading}
     >
       {loading ? (

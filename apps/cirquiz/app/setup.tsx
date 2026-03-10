@@ -25,6 +25,7 @@ import { type Difficulty } from '../src/providers';
 import { useCategoryLoader } from '../src/hooks/useCategoryLoader';
 import { useGameStore } from '../src/state/gameStore';
 import { colors, fontSize, fontWeight, radius, spacing } from '../src/theme';
+import { IconButton } from '../src/components/IconButton';
 
 const QUESTION_COUNTS = [5, 10, 15, 20] as const;
 
@@ -136,9 +137,7 @@ export default function SetupScreen() {
       <View style={styles.flex}>
         {/* Header */}
         <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-            <Text style={styles.backBtnText}>←</Text>
-          </TouchableOpacity>
+          <IconButton icon="←" onPress={() => router.back()} color={colors.text} />
           <Text style={styles.headerTitle}>{t('setup.title', 'NEW GAME')}</Text>
           <View style={styles.headerSpacer} />
         </View>
@@ -252,7 +251,7 @@ export default function SetupScreen() {
             pointerEvents="none"
           />
           <ShineButton
-            label={t('setup.start', '🎮 START GAME')}
+            label={t('setup.start')}
             color={colors.success}
             loading={isLoading}
             disabled={!canStart}
@@ -324,10 +323,6 @@ const styles = StyleSheet.create({
     height: 40,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  backBtnText: {
-    fontSize: fontSize.xl,
-    color: colors.text,
   },
   headerTitle: {
     flex: 1,

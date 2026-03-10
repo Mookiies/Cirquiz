@@ -61,6 +61,7 @@ export default function RevealScreen() {
       <Button
         label={isLastQuestion ? t('game.reveal.viewStandings') : t('game.reveal.nextQuestion')}
         onPress={advanceAfterReveal}
+        haptic="strong"
       />
     </ScrollView>
   );

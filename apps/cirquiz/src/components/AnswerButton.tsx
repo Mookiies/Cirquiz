@@ -17,6 +17,7 @@ export function AnswerButton({ label, selected, disabled, accentColor, onPress }
       selected={selected}
       disabled={disabled}
       onPress={onPress}
+      haptic="strong"
     />
   );
 }

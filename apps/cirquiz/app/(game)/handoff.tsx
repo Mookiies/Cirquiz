@@ -30,6 +30,7 @@ export default function HandoffScreen() {
         color={colors.white}
         textColor={colors.text}
         onPress={() => router.replace('/(game)/question')}
+        haptic="light"
         style={styles.readyButton}
       />
     </View>

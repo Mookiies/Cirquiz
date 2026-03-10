@@ -164,6 +164,7 @@ export default function StandingsScreen() {
         color={colors.success}
         loading={isLoading}
         onPress={startNextRound}
+        haptic="strong"
         style={styles.roundButton}
       />
 
@@ -171,6 +172,7 @@ export default function StandingsScreen() {
         label={t('game.standings.endSession')}
         color={colors.error}
         onPress={handleEndSession}
+        haptic="strong"
       />
     </ScrollView>
   );
