@@ -4,7 +4,8 @@
     "subtitle": "Challenge your friends!",
     "newGame": "New Game",
     "resumeGame": "Resume Game",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "pressBackToExit": "Press back again to exit"
   },
   "error": {
     "somethingWentWrong": "Something went wrong",

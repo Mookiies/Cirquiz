@@ -1,7 +1,7 @@
-import { router } from 'expo-router';
-import { useCallback, useEffect } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, Text, View } from 'react-native';
+import { BackHandler, Platform, StyleSheet, Text, ToastAndroid, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -99,6 +99,23 @@ export default function HomeScreen() {
     transform: [{ translateY: ctaTranslateY.value }],
     opacity: ctaOpacity.value,
   }));
+  const lastBackPress = useRef<number>(0);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (Platform.OS !== 'android') return;
+      const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+        if (router.canGoBack()) return false;
+        const now = Date.now();
+        if (now - lastBackPress.current < 2000) return false;
+        lastBackPress.current = now;
+        ToastAndroid.show(t('home.pressBackToExit'), ToastAndroid.SHORT);
+        return true;
+      });
+      return () => subscription.remove();
+    }, [t])
+  );
+
   const canResume = game !== null && (game.state === 'in-progress' || game.state === 'completed');
 
   const handleResume = () => {
