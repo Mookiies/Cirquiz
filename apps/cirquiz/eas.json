@@ -11,7 +11,7 @@
     "preview": {
       "distribution": "internal",
       "environment": "preview",
-      "env": { "APP_ENV": "staging" }
+      "env": { "APP_ENV": "preview" }
     },
     "production": {
       "distribution": "store",
