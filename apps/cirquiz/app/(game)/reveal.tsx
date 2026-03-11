@@ -9,6 +9,7 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated';
+import { useState } from 'react';
 import { AvatarIcon } from '../../src/components/AvatarIcon';
 import { Button } from '../../src/components/Button';
 import { GameHeader } from '../../src/components/GameHeader';
@@ -22,9 +23,25 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 export default function RevealScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-  const game = useGameStore((s) => s.game);
   const advanceAfterReveal = useGameStore((s) => s.advanceAfterReveal);
   const handleQuit = useQuitGame();
+
+  // Freeze display data at mount so advanceAfterReveal's store update (which advances
+  // currentQuestionIndex) doesn't re-render the content during the slide-away animation.
+  const [frozen] = useState(() => {
+    const g = useGameStore.getState().game;
+    if (!g) return null;
+    const r = g.rounds[g.currentRoundIndex];
+    const q = r.questions[r.currentQuestionIndex];
+    return {
+      question: q,
+      questionIndex: r.currentQuestionIndex,
+      questionCount: r.questions.length,
+      isLastQuestion: r.currentQuestionIndex === r.questions.length - 1,
+      questionTurns: r.turns.filter((turn) => turn.questionId === q.id),
+      players: g.players,
+    };
+  });
 
   const scrollY = useSharedValue(0);
   const scrollHandler = useAnimatedScrollHandler({
@@ -41,14 +58,9 @@ export default function RevealScreen() {
     ),
   }));
 
-  if (!game) return null;
+  if (!frozen) return null;
 
-  const round = game.rounds[game.currentRoundIndex];
-  const question = round.questions[round.currentQuestionIndex];
-  const isLastQuestion = round.currentQuestionIndex === round.questions.length - 1;
-
-  // Turns for the current question
-  const questionTurns = round.turns.filter((turn) => turn.questionId === question.id);
+  const { question, questionIndex, questionCount, isLastQuestion, questionTurns, players } = frozen;
 
   return (
     <GradientScreen showBlobs={false} mode="no-white">
@@ -62,8 +74,8 @@ export default function RevealScreen() {
         >
           <QuestionHeader
             question={question}
-            questionIndex={round.currentQuestionIndex}
-            questionCount={round.questions.length}
+            questionIndex={questionIndex}
+            questionCount={questionCount}
           />
           <Text style={styles.correctAnswer}>
             {t('game.reveal.correctAnswer', { answer: question.correctAnswer })}
@@ -71,7 +83,7 @@ export default function RevealScreen() {
 
           <View style={styles.resultsContainer}>
             {questionTurns.map((turn) => {
-              const player = game.players.find((p) => p.id === turn.playerId);
+              const player = players.find((p) => p.id === turn.playerId);
               if (!player) return null;
               return (
                 <View
