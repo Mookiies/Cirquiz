@@ -1,6 +1,14 @@
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withTiming,
+  Easing,
+} from 'react-native-reanimated';
 import { AvatarIcon } from '../../src/components/AvatarIcon';
 import { Button } from '../../src/components/Button';
 import { GameHeader } from '../../src/components/GameHeader';
@@ -14,6 +22,25 @@ export default function HandoffScreen() {
   const game = useGameStore((s) => s.game);
   const handleQuit = useQuitGame();
 
+  const scale1 = useSharedValue(1);
+  const scale2 = useSharedValue(1);
+
+  useEffect(() => {
+    scale1.value = withRepeat(
+      withTiming(1.03, { duration: 2200, easing: Easing.inOut(Easing.ease) }),
+      -1,
+      true
+    );
+    scale2.value = withRepeat(
+      withTiming(1.03, { duration: 2800, easing: Easing.inOut(Easing.ease) }),
+      -1,
+      true
+    );
+  }, [scale1, scale2]);
+
+  const circle1Style = useAnimatedStyle(() => ({ transform: [{ scale: scale1.value }] }));
+  const circle2Style = useAnimatedStyle(() => ({ transform: [{ scale: scale2.value }] }));
+
   if (!game) return null;
 
   const round = game.rounds[game.currentRoundIndex];
@@ -21,8 +48,8 @@ export default function HandoffScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: currentPlayer.color }]}>
-      <View style={styles.circleTopRight} />
-      <View style={styles.circleBottomLeft} />
+      <Animated.View style={[styles.circleTopRight, circle1Style]} />
+      <Animated.View style={[styles.circleBottomLeft, circle2Style]} />
       <GameHeader
         variant="transparent"
         player={currentPlayer}
