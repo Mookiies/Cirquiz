@@ -17,9 +17,11 @@ import { useGameStore } from '../../src/state/gameStore';
 import { useQuitGame } from '../../src/hooks/useQuitGame';
 import { colors, spacing, fontSize, fontWeight, radius } from '../../src/theme';
 import { GradientScreen } from '../../src/components/GradientScreen';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function RevealScreen() {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const game = useGameStore((s) => s.game);
   const advanceAfterReveal = useGameStore((s) => s.advanceAfterReveal);
   const handleQuit = useQuitGame();
@@ -99,13 +101,6 @@ export default function RevealScreen() {
               );
             })}
           </View>
-
-          <Button
-            variant="raised"
-            label={isLastQuestion ? t('game.reveal.viewStandings') : t('game.reveal.nextQuestion')}
-            onPress={advanceAfterReveal}
-            haptic="strong"
-          />
         </Animated.ScrollView>
         <Animated.View style={[styles.fadeOverlay, overlayStyle]} pointerEvents="none">
           <LinearGradient
@@ -113,6 +108,19 @@ export default function RevealScreen() {
             style={StyleSheet.absoluteFill}
           />
         </Animated.View>
+        <View style={[styles.stickyBottom, { paddingBottom: insets.bottom + spacing.md }]}>
+          <LinearGradient
+            style={StyleSheet.absoluteFill}
+            colors={['rgba(243,238,255,0)', colors.difficultyFaint]}
+            pointerEvents="none"
+          />
+          <Button
+            variant="raised"
+            label={isLastQuestion ? t('game.reveal.viewStandings') : t('game.reveal.nextQuestion')}
+            onPress={advanceAfterReveal}
+            haptic="strong"
+          />
+        </View>
       </View>
     </GradientScreen>
   );
@@ -133,7 +141,15 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
   },
-  content: { padding: CONTENT_PADDING_TOP, paddingBottom: spacing['4xl'] },
+  content: { padding: CONTENT_PADDING_TOP, paddingBottom: 160 },
+  stickyBottom: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing['2xl'],
+  },
   correctAnswer: {
     fontSize: fontSize.base,
     fontWeight: fontWeight.bold,

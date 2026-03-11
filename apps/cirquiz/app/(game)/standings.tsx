@@ -1,3 +1,4 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -37,6 +38,7 @@ export default function StandingsScreen() {
   const scrollRef = useRef<ScrollView>(null);
   const settingsButtonY = useRef(0);
 
+  const [stickyBottomHeight, setStickyBottomHeight] = useState(0);
   const [showSettings, setShowSettings] = useState(false);
   const [localCategory, setLocalCategory] = useState<string | undefined>(
     game?.category ?? undefined
@@ -97,7 +99,7 @@ export default function StandingsScreen() {
           styles.content,
           {
             paddingTop: insets.top + spacing.xl,
-            paddingBottom: insets.bottom + spacing.xl,
+            paddingBottom: stickyBottomHeight,
           },
         ]}
       >
@@ -196,7 +198,18 @@ export default function StandingsScreen() {
             />
           </View>
         )}
+      </ScrollView>
 
+      <View
+        style={[styles.stickyBottom, { paddingBottom: insets.bottom + spacing.md }]}
+        onLayout={(e) => setStickyBottomHeight(e.nativeEvent.layout.height)}
+      >
+        <LinearGradient
+          style={StyleSheet.absoluteFill}
+          colors={['rgba(243,238,255,0)', colors.difficultyFaint]}
+          pointerEvents="none"
+          locations={[0, 0.3]}
+        />
         <ShineButton
           label={t('game.standings.playAnotherRound')}
           color={colors.success}
@@ -204,7 +217,6 @@ export default function StandingsScreen() {
           onPress={startNextRound}
           style={styles.roundButton}
         />
-
         <Button
           variant="text"
           label={t('game.standings.endSession')}
@@ -212,14 +224,23 @@ export default function StandingsScreen() {
           onPress={handleEndSession}
           haptic="light"
         />
-      </ScrollView>
+      </View>
     </GradientScreen>
   );
 }
 
 const styles = StyleSheet.create({
+  flex: { flex: 1 },
   scrollView: { flex: 1 },
   content: { paddingHorizontal: spacing.xl },
+  stickyBottom: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing['2xl'],
+  },
   title: {
     fontSize: fontSize['3xl'],
     fontWeight: fontWeight.bold,
@@ -269,7 +290,6 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   roundButton: {
-    marginTop: spacing.xl,
     marginBottom: spacing.md,
   },
   settingsPanel: { marginBottom: spacing.xs },
