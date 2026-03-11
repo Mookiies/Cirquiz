@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ErrorBoundaryProps, Stack } from 'expo-router';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 import { Button } from '../src/components/Button';
@@ -52,7 +53,11 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
 }
 
 export default function RootLayout() {
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <KeyboardProvider>
+      <Stack screenOptions={{ headerShown: false }} />
+    </KeyboardProvider>
+  );
 }
 
 const styles = StyleSheet.create({

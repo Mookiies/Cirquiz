@@ -16,14 +16,15 @@
   "dependencies": {
     "@expo/metro-runtime": "~55.0.6",
     "@react-native-async-storage/async-storage": "2.2.0",
+    "add": "^2.0.6",
     "expo": "~55.0.5",
     "expo-constants": "~55.0.7",
-    "expo-dev-client": "~55.0.13",
+    "expo-dev-client": "~55.0.16",
     "expo-haptics": "~55.0.8",
     "expo-linear-gradient": "~55.0.8",
     "expo-linking": "~55.0.7",
     "expo-localization": "~55.0.8",
-    "expo-router": "~55.0.4",
+    "expo-router": "~55.0.5",
     "expo-status-bar": "~55.0.4",
     "he": "^1.2.0",
     "i18next": "^25.8.14",
@@ -31,6 +32,7 @@
     "react-dom": "19.2.0",
     "react-i18next": "^16.5.6",
     "react-native": "0.83.2",
+    "react-native-keyboard-controller": "1.20.7",
     "react-native-reanimated": "4.2.1",
     "react-native-safe-area-context": "~5.6.2",
     "react-native-screens": "~4.23.0",
@@ -39,6 +41,7 @@
     "zustand": "^5.0.11"
   },
   "devDependencies": {
+    "@types/add": "^2",
     "@types/he": "^1.2.3",
     "@types/jest": "29.5.14",
     "@types/react": "~19.2.2",

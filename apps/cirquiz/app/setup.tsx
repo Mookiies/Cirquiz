@@ -2,16 +2,13 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import Animated, { interpolate, LinearTransition, useAnimatedStyle } from 'react-native-reanimated';
 import {
-  KeyboardAvoidingView,
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-import Animated, { LinearTransition } from 'react-native-reanimated';
+  KeyboardAwareScrollView,
+  KeyboardAwareScrollViewRef,
+  useReanimatedKeyboardAnimation,
+} from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AnimatedPlayerRow } from '../src/components/AnimatedPlayerRow';
 import { AvatarCell } from '../src/components/AvatarCell';
@@ -52,7 +49,7 @@ export default function SetupScreen() {
 
   const avatarName = (key: AvatarKey) => t(`setup.avatarName.${key}`);
 
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<KeyboardAwareScrollViewRef>(null);
   const belowPlayersY = useRef(0);
   const modeLabelOffsetY = useRef(0);
   const nextId = useRef(2);
@@ -78,6 +75,7 @@ export default function SetupScreen() {
   const { categories, loading: loadingCategories, load: loadCategories } = useCategoryLoader();
   const [nameErrors, setNameErrors] = useState<Record<number, string>>({});
   const [pickerIndex, setPickerIndex] = useState<number | null>(null);
+  const [stickyHeight, setStickyHeight] = useState(0);
 
   const usedAvatars = players.map((p) => p.avatar);
 
@@ -160,6 +158,13 @@ export default function SetupScreen() {
     }
   }, [quickPlay, loadingCategories, categories.length]);
 
+  const { height, progress } = useReanimatedKeyboardAnimation();
+
+  const stickyAnimatedStyle = useAnimatedStyle(() => ({
+    bottom: -height.value,
+    paddingBottom: interpolate(progress.value, [0, 1], [insets.bottom + spacing.md, spacing.md]),
+  }));
+
   const canStart = players.length > 0 && !isLoading;
   const pickerPlayer = pickerIndex !== null ? players[pickerIndex] : null;
 
@@ -173,111 +178,114 @@ export default function SetupScreen() {
           <View style={styles.headerSpacer} />
         </View>
 
-        <KeyboardAvoidingView style={styles.flex} behavior="padding">
-          <ScrollView
-            ref={scrollRef}
-            style={styles.flex}
-            contentContainerStyle={styles.content}
-            keyboardShouldPersistTaps="handled"
-          >
-            <Text style={styles.sectionLabel}>{t('setup.questionCount')}</Text>
-            <View style={styles.chipsRow}>
-              {QUESTION_COUNTS.map((count) => (
-                <ChipButton
-                  key={count}
-                  label={count}
-                  active={questionCount === String(count)}
-                  onPress={() => setQuestionCount(String(count))}
-                />
-              ))}
-            </View>
-
-            <Text style={styles.sectionLabel}>{t('setup.players')}</Text>
-            {players.map((player, index) => (
-              <AnimatedPlayerRow
-                key={player.id}
-                player={player}
-                index={index}
-                delay={index < initialPlayerCount.current ? index * 80 : 0}
-                nameError={nameErrors[index]}
-                canRemove={players.length > 1}
-                onAvatarPress={() => setPickerIndex(index)}
-                onNameChange={(text) => {
-                  updatePlayerName(index, text);
-                  if (nameErrors[index]) {
-                    setNameErrors((prev) => {
-                      const n = { ...prev };
-                      delete n[index];
-                      return n;
-                    });
-                  }
-                }}
-                onRemove={() => removePlayer(index)}
+        <KeyboardAwareScrollView
+          ref={scrollRef}
+          style={styles.flex}
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+          bottomOffset={stickyHeight}
+        >
+          <Text style={styles.sectionLabel}>{t('setup.questionCount')}</Text>
+          <View style={styles.chipsRow}>
+            {QUESTION_COUNTS.map((count) => (
+              <ChipButton
+                key={count}
+                label={count}
+                active={questionCount === String(count)}
+                onPress={() => setQuestionCount(String(count))}
               />
             ))}
+          </View>
 
-            <Animated.View
-              layout={LinearTransition}
+          <Text style={styles.sectionLabel}>{t('setup.players')}</Text>
+          {players.map((player, index) => (
+            <AnimatedPlayerRow
+              key={player.id}
+              player={player}
+              index={index}
+              delay={index < initialPlayerCount.current ? index * 80 : 0}
+              nameError={nameErrors[index]}
+              canRemove={players.length > 1}
+              onAvatarPress={() => setPickerIndex(index)}
+              onNameChange={(text) => {
+                updatePlayerName(index, text);
+                if (nameErrors[index]) {
+                  setNameErrors((prev) => {
+                    const n = { ...prev };
+                    delete n[index];
+                    return n;
+                  });
+                }
+              }}
+              onRemove={() => removePlayer(index)}
+            />
+          ))}
+
+          <Animated.View
+            layout={LinearTransition}
+            onLayout={(e) => {
+              belowPlayersY.current = e.nativeEvent.layout.y;
+            }}
+          >
+            {players.length < AVATAR_LIST.length && (
+              <Button
+                variant="text"
+                label={`+ ${t('setup.addPlayer')}`}
+                onPress={addPlayer}
+                color={colors.primary}
+              />
+            )}
+
+            <Text
+              style={styles.sectionLabel}
               onLayout={(e) => {
-                belowPlayersY.current = e.nativeEvent.layout.y;
+                modeLabelOffsetY.current = e.nativeEvent.layout.y;
               }}
             >
-              {players.length < AVATAR_LIST.length && (
-                <Button
-                  variant="text"
-                  label={`+ ${t('setup.addPlayer')}`}
-                  onPress={addPlayer}
-                  color={colors.primary}
-                />
-              )}
+              {t('setup.mode', 'Mode')}
+            </Text>
+            <View style={styles.modeRow}>
+              <ModeCard
+                icon={<LightningSVG />}
+                name={t('setup.quickPlay')}
+                description={t('setup.quickPlayDesc', 'Any topic, jump right in!')}
+                active={quickPlay}
+                onPress={() => setQuickPlay(true)}
+              />
+              <ModeCard
+                icon={<SliderSVG />}
+                name={t('setup.chooseCategories')}
+                description={t('setup.chooseCategoriesDesc', 'Pick topic & difficulty')}
+                active={!quickPlay}
+                onPress={turnQuickplayOff}
+              />
+            </View>
 
-              <Text
-                style={styles.sectionLabel}
-                onLayout={(e) => {
-                  modeLabelOffsetY.current = e.nativeEvent.layout.y;
-                }}
-              >
-                {t('setup.mode', 'Mode')}
-              </Text>
-              <View style={styles.modeRow}>
-                <ModeCard
-                  icon={<LightningSVG />}
-                  name={t('setup.quickPlay')}
-                  description={t('setup.quickPlayDesc', 'Any topic, jump right in!')}
-                  active={quickPlay}
-                  onPress={() => setQuickPlay(true)}
-                />
-                <ModeCard
-                  icon={<SliderSVG />}
-                  name={t('setup.chooseCategories')}
-                  description={t('setup.chooseCategoriesDesc', 'Pick topic & difficulty')}
-                  active={!quickPlay}
-                  onPress={turnQuickplayOff}
+            {!quickPlay && (
+              <View>
+                <Text style={styles.sectionLabel}>{t('common.difficulty')}</Text>
+                <DifficultySelector value={difficulty} onChange={setDifficulty} />
+
+                <Text style={styles.sectionLabel}>{t('common.category')}</Text>
+                <CategorySelector
+                  categories={categories}
+                  value={category}
+                  onChange={setCategory}
+                  loading={loadingCategories}
                 />
               </View>
+            )}
 
-              {!quickPlay && (
-                <View>
-                  <Text style={styles.sectionLabel}>{t('common.difficulty')}</Text>
-                  <DifficultySelector value={difficulty} onChange={setDifficulty} />
-
-                  <Text style={styles.sectionLabel}>{t('common.category')}</Text>
-                  <CategorySelector
-                    categories={categories}
-                    value={category}
-                    onChange={setCategory}
-                    loading={loadingCategories}
-                  />
-                </View>
-              )}
-
-              <View style={{ height: 100 }} />
-            </Animated.View>
-          </ScrollView>
-        </KeyboardAvoidingView>
+            <View style={{ height: 100 }} />
+          </Animated.View>
+        </KeyboardAwareScrollView>
 
         {/* Sticky CTA */}
-        <View style={[styles.stickyBottom, { paddingBottom: insets.bottom + spacing.md }]}>
+        <Animated.View
+          style={[styles.stickyBottom, stickyAnimatedStyle]}
+          onLayout={(e) => setStickyHeight(e.nativeEvent.layout.height)}
+          pointerEvents="box-none"
+        >
           <LinearGradient
             style={StyleSheet.absoluteFill}
             colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.95)', '#fff']}
@@ -290,7 +298,7 @@ export default function SetupScreen() {
             disabled={!canStart}
             onPress={handleStart}
           />
-        </View>
+        </Animated.View>
       </View>
 
       <Modal

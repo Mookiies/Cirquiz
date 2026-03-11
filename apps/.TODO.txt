@@ -1,7 +1,6 @@
 This file is purely for notes and tracking things I want to implement going forward.
 
 - replace when going to the home screen
-- fix the keyboard and the start button the the setup screen
 - Cache and prefetch the categories. Categories shouldn't be changing while the app is running. We can just hard code these.
 - Add support for trivia API and a settings page to be able to change them.
     - Along with this we should then support having multiple category selection because this api support that. also multiple difficulty
