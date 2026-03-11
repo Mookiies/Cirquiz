@@ -23,8 +23,8 @@ export function ChipButton({ label, active, onPress }: ChipButtonProps) {
 
 const styles = StyleSheet.create({
   chip: {
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xl,
     borderRadius: radius.pill,
     borderWidth: 2,
     borderColor: colors.border,

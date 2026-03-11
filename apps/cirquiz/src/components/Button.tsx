@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     paddingVertical: spacing.lg,
   },
-  compactBase: { paddingVertical: spacing.sm, paddingHorizontal: spacing.sm },
+  compactBase: { paddingVertical: spacing.md, paddingHorizontal: spacing.md },
   inactive: { opacity: opacity.inactive },
   shinePressable: { zIndex: 1 },
   raisedBase: { overflow: 'hidden' },
