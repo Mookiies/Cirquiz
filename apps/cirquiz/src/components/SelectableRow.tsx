@@ -10,7 +10,7 @@ interface Props {
 }
 
 export function SelectableRow({ label, active, onPress }: Props) {
-  const { onPressIn, onPressOut, animatedStyle } = usePressAnimation();
+  const { onPressIn, onPressOut, animatedStyle } = usePressAnimation({ haptic: 'none' });
   return (
     <Pressable onPress={onPress} onPressIn={onPressIn} onPressOut={onPressOut}>
       <Animated.View style={[styles.row, active && styles.rowActive, animatedStyle]}>

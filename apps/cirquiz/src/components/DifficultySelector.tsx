@@ -34,6 +34,7 @@ export function DifficultySelector({ value, onChange, style }: Props) {
             selected={active}
             color={colors.difficulty}
             label={label}
+            haptic="none"
             onPress={() => onChange(optVal)}
             style={{ flex: 1 }}
           />

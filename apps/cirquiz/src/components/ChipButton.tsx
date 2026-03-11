@@ -10,7 +10,11 @@ interface ChipButtonProps {
 }
 
 export function ChipButton({ label, active, onPress }: ChipButtonProps) {
-  const { onPressIn, onPressOut, animatedStyle } = usePressAnimation({ mode: 'scale', scale: 0.9 });
+  const { onPressIn, onPressOut, animatedStyle } = usePressAnimation({
+    mode: 'scale',
+    scale: 0.9,
+    haptic: 'none',
+  });
 
   return (
     <Pressable onPress={onPress} onPressIn={onPressIn} onPressOut={onPressOut}>

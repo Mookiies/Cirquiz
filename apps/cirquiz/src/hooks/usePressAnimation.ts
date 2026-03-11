@@ -15,7 +15,7 @@ export function usePressAnimation({
   depth = 5,
   durationIn = 80,
   durationOut = 120,
-  haptic = 'none',
+  haptic = 'light',
   mode = 'scale',
 }: PressAnimationOptions = {}) {
   const pressValue = useSharedValue(mode === 'scale' ? 1 : 0);

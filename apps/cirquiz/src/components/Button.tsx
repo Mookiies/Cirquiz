@@ -35,7 +35,7 @@ export function Button({
   loading = false,
   disabled = false,
   compact = false,
-  haptic = 'light',
+  haptic,
   style,
   onLayout,
   children,
