@@ -39,7 +39,7 @@ export default function QuestionScreen() {
   };
 
   return (
-    <GradientScreen showBlobs={false} lighter>
+    <GradientScreen showBlobs={false} mode="lighter">
       {frozenPlayer && <GameHeader variant="player" player={frozenPlayer} onQuit={handleQuit} />}
       <ScrollView
         style={styles.scrollView}

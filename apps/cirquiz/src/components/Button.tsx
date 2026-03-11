@@ -35,7 +35,7 @@ export function Button({
   loading = false,
   disabled = false,
   compact = false,
-  haptic = 'none',
+  haptic = 'light',
   style,
   onLayout,
   children,
@@ -43,6 +43,7 @@ export function Button({
   const { onPressIn, onPressOut, animatedStyle } = usePressAnimation({
     haptic,
     mode: variant === 'raised' ? 'depth' : 'scale',
+    scale: variant === 'text' ? 0.85 : 0.95,
   });
 
   const content = loading ? (

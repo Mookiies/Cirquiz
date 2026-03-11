@@ -17,7 +17,6 @@ import { useGameStore } from '../../src/state/gameStore';
 import { useQuitGame } from '../../src/hooks/useQuitGame';
 import { colors, spacing, fontSize, fontWeight, radius } from '../../src/theme';
 import { GradientScreen } from '../../src/components/GradientScreen';
-import { lightenHex } from '../../src/utils/color';
 
 export default function RevealScreen() {
   const { t } = useTranslation();
@@ -50,7 +49,7 @@ export default function RevealScreen() {
   const questionTurns = round.turns.filter((turn) => turn.questionId === question.id);
 
   return (
-    <GradientScreen showBlobs={false} lighter>
+    <GradientScreen showBlobs={false} mode="no-white">
       <GameHeader variant="transparent" onQuit={handleQuit} />
       <View style={styles.scrollContainer}>
         <Animated.ScrollView
@@ -110,7 +109,7 @@ export default function RevealScreen() {
         </Animated.ScrollView>
         <Animated.View style={[styles.fadeOverlay, overlayStyle]} pointerEvents="none">
           <LinearGradient
-            colors={[lightenHex(colors.primaryFaint, 0.02), 'rgba(255,255,255,0)']}
+            colors={[colors.primaryFaint, 'rgba(255,255,255,0)']}
             style={StyleSheet.absoluteFill}
           />
         </Animated.View>
@@ -150,7 +149,7 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     borderRadius: radius.md,
     borderLeftWidth: 4,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.white,
   },
   resultAvatar: { marginRight: spacing.sm, flexShrink: 0 },
   resultInfo: { flex: 1 },

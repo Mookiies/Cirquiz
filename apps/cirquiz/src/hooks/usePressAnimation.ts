@@ -11,7 +11,7 @@ interface PressAnimationOptions {
 }
 
 export function usePressAnimation({
-  scale = 0.97,
+  scale = 0.92,
   depth = 5,
   durationIn = 80,
   durationOut = 120,

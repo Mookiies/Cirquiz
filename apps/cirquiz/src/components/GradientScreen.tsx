@@ -8,24 +8,22 @@ interface Props {
   children: React.ReactNode;
   style?: StyleProp<ViewStyle>;
   showBlobs?: boolean;
-  lighter?: boolean;
+  mode?: keyof typeof GRADIENT_COLORS;
 }
-const LIGHTEN_AMMOUNT = 0.02;
+const LIGHTEN_AMMOUNT = 0.06;
 const GRADIENT_COLORS = {
-  default: [colors.primaryFaint, colors.white, colors.difficultyFaint] as const,
+  standard: [colors.primaryFaint, colors.white, colors.difficultyFaint] as const,
   lighter: [
     lightenHex(colors.primaryFaint, LIGHTEN_AMMOUNT),
     colors.white,
     lightenHex(colors.difficultyFaint, LIGHTEN_AMMOUNT),
   ] as const,
+  'no-white': [colors.primaryFaint, colors.difficultyFaint] as const,
 };
 
-export function GradientScreen({ children, style, showBlobs = true, lighter = false }: Props) {
+export function GradientScreen({ children, style, showBlobs = true, mode = 'standard' }: Props) {
   return (
-    <LinearGradient
-      style={[{ flex: 1 }, style]}
-      colors={lighter ? GRADIENT_COLORS.lighter : GRADIENT_COLORS.default}
-    >
+    <LinearGradient style={[{ flex: 1 }, style]} colors={GRADIENT_COLORS[mode]}>
       {showBlobs && <BackgroundBlobs />}
       {children}
     </LinearGradient>

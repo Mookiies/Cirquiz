@@ -12,6 +12,7 @@ import { useGameStore } from '../../src/state/gameStore';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, spacing, fontSize, fontWeight, radius } from '../../src/theme';
 import { GradientScreen } from '../../src/components/GradientScreen';
+import { ShineButton } from '../../src/components/ShineButton';
 
 export default function StandingsScreen() {
   const { t } = useTranslation();
@@ -49,7 +50,7 @@ export default function StandingsScreen() {
     if (showSettings && !loadingCategories && categories.length > 0) {
       scrollRef.current?.scrollTo({ y: settingsButtonY.current - insets.top, animated: true });
     }
-  }, [showSettings, loadingCategories, categories.length]);
+  }, [showSettings, loadingCategories, categories.length, insets.top]);
 
   if (!game) return null;
 
@@ -88,7 +89,7 @@ export default function StandingsScreen() {
   };
 
   return (
-    <GradientScreen showBlobs={false} lighter>
+    <GradientScreen showBlobs={false} mode="no-white">
       <ScrollView
         ref={scrollRef}
         style={styles.scrollView}
@@ -196,13 +197,11 @@ export default function StandingsScreen() {
           </View>
         )}
 
-        <Button
-          variant="raised"
+        <ShineButton
           label={t('game.standings.playAnotherRound')}
           color={colors.success}
           loading={isLoading}
           onPress={startNextRound}
-          haptic="strong"
           style={styles.roundButton}
         />
 
@@ -232,7 +231,7 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     borderRadius: radius.md,
     borderLeftWidth: 4,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.white,
     marginBottom: spacing.md,
   },
   topRow: {
