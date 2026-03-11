@@ -18,16 +18,22 @@ import { ShineButton } from '../../src/components/ShineButton';
 export default function StandingsScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  const ordinalKeys = {
+    one: 'game.standings.ordinal_ordinal_one',
+    two: 'game.standings.ordinal_ordinal_two',
+    few: 'game.standings.ordinal_ordinal_few',
+    other: 'game.standings.ordinal_ordinal_other',
+  } as const;
   const ordinal = (n: number) => {
     const mod10 = n % 10;
     const mod100 = n % 100;
-    let rule: string;
+    let rule: keyof typeof ordinalKeys;
     if (mod100 >= 11 && mod100 <= 13) rule = 'other';
     else if (mod10 === 1) rule = 'one';
     else if (mod10 === 2) rule = 'two';
     else if (mod10 === 3) rule = 'few';
     else rule = 'other';
-    return t(`game.standings.ordinal_ordinal_${rule}`, { count: n });
+    return t(ordinalKeys[rule], { count: n });
   };
   const game = useGameStore((s) => s.game);
   const quitGame = useGameStore((s) => s.quitGame);
