@@ -57,8 +57,7 @@
       "wrong": "Wrong",
       "nextQuestion": "Next Question",
       "viewStandings": "View Standings",
-      "correctAnswer": "Correct Answer: {{answer}}",
-      "score": "Round: {{round}} | Total: {{total}}"
+      "correctAnswer": "Correct Answer: {{answer}}"
     },
     "standings": {
       "title": "Standings",

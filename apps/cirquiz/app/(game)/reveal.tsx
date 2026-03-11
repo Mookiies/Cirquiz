@@ -90,12 +90,6 @@ export default function RevealScreen() {
                       color={turn.isCorrect ? colors.success : colors.error}
                       style={styles.resultIcon}
                     />
-                    <Text style={styles.score} maxFontSizeMultiplier={1}>
-                      {t('game.reveal.score', {
-                        round: player.roundScore,
-                        total: player.cumulativeScore,
-                      })}
-                    </Text>
                   </View>
                 </View>
               );
