@@ -12,15 +12,6 @@ export interface OtdbResponse {
   results: OtdbQuestion[];
 }
 
-export interface OtdbCategoryItem {
-  id: number;
-  name: string;
-}
-
-export interface OtdbCategoryResponse {
-  trivia_categories: OtdbCategoryItem[];
-}
-
 export interface OtdbTokenResponse {
   response_code: number;
   response_message: string;
