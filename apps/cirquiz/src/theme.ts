@@ -1,7 +1,7 @@
 export const colors = {
   // Brand
   primary: '#3498DB',
-  success: '#2ECC71',
+  success: '#28B463',
   error: '#E74C3C',
   difficulty: '#9B59B6',
   white: '#fff',
