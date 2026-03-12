@@ -26,10 +26,7 @@
 
 **Why this priority**: [Explain the value and why it has this priority level]
 
-**Independent Test**: [Describe how this can be tested independently. For mobile UI stories,
-include the Maestro MCP steps: launch app → inspect view hierarchy / take screenshot →
-run flow. E.g., "Launch app, navigate to [screen], verify [element] visible via
-inspect_view_hierarchy; run maestro flow flows/[story].yaml"]
+**Independent Test**: [Describe how this can be tested independently.]
 
 **Acceptance Scenarios**:
 
@@ -44,8 +41,7 @@ inspect_view_hierarchy; run maestro flow flows/[story].yaml"]
 
 **Why this priority**: [Explain the value and why it has this priority level]
 
-**Independent Test**: [Describe how this can be tested independently. For mobile UI stories,
-include Maestro MCP steps: launch app → inspect / screenshot → run flow.]
+**Independent Test**: [Describe how this can be tested independently.]
 
 **Acceptance Scenarios**:
 

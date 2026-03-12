@@ -31,14 +31,11 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file. Must address all five principles:]
+[Gates determined based on constitution file. Must address all four principles:]
 [I. Code Quality — readability, no duplication, lint passes]
 [II. Testing Standards — happy-path tests for P1 journeys, written alongside code]
 [III. UX Consistency — navigation/error/loading patterns match existing screens]
 [IV. Performance — <2s interactions, no regressions, no N+1 fetching]
-[V. Live Verification via Maestro — each P1 story verified by launching the app and]
-[   inspecting with Maestro MCP (inspect_view_hierarchy / take_screenshot / run_flow).]
-[   Screenshot or passing flow output MUST be saved to specs/ before merge.]
 
 ## Project Structure
 

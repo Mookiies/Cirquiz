@@ -54,7 +54,7 @@ specs/001-pass-and-play-trivia/
 cirquiz/
 ├── package.json                   # yarn workspaces root: workspaces: ["apps/*"]
 ├── apps/
-│   └── mobile/                    # Expo React Native app
+│   └── cirquiz/                   # Expo React Native app
 │       ├── app/                   # Expo Router — file-based screens
 │       │   ├── _layout.tsx        # Root layout (navigation container, i18n init)
 │       │   ├── index.tsx          # Home: New Game / Resume Game
@@ -69,21 +69,27 @@ cirquiz/
 │       │       ├── standings.tsx  # Final standings: CUMULATIVE scores, Play Another Round, Go Home
 │       │       └── error.tsx      # API error screen (question fetch failure)
 │       ├── src/
+│       │   ├── avatars.ts         # Avatar definitions
+│       │   ├── theme.ts           # Design tokens (colors, spacing, typography)
 │       │   ├── providers/         # TriviaQuestionProvider interface + implementations
 │       │   │   ├── index.ts       # Re-exports interface, types, and OpenTriviaDbProvider
 │       │   │   ├── interface.ts   # TriviaQuestionProvider interface
 │       │   │   ├── types.ts       # Question, Category, QuestionFetchParams, TriviaProviderError, enums
 │       │   │   └── opentdb/
-│       │   │       ├── OpenTriviaDbProvider.ts   # Concrete OTDB implementation
-│       │   │       └── otdbTypes.ts              # Internal OTDB API response shapes
+│       │   │       ├── OpenTriviaDbProvider.ts          # Concrete OTDB implementation
+│       │   │       ├── otdbTypes.ts                     # Internal OTDB API response shapes
+│       │   │       └── __tests__/OpenTriviaDbProvider.test.ts
 │       │   ├── components/        # Custom RN components (no design library, base RN stylesheets)
 │       │   ├── state/             # Zustand store + AsyncStorage persist adapter (see §Store Shape)
+│       │   │   ├── gameStore.ts
+│       │   │   ├── types.ts
+│       │   │   └── __tests__/gameStore.test.ts
 │       │   ├── i18n/              # en.json strings; i18next + expo-localization init
 │       │   ├── hooks/             # useGame, useCurrentPlayer, useCurrentQuestion, etc.
-│       │   └── utils/             # htmlDecode (he library), shuffle (Fisher-Yates), uuid (crypto.randomUUID)
-│       ├── __tests__/
+│       │   └── utils/             # htmlDecode (he library), shuffle (Fisher-Yates), color helpers
+│       │       └── __tests__/     # Co-located unit tests
 │       ├── metro.config.js        # Standard default config (no watchFolders needed; provider is inside the app)
-│       ├── app.config.js          # Dynamic config (replaces app.json); reads APP_ENV
+│       ├── app.config.ts          # Dynamic config (replaces app.json); reads APP_ENV
 │       └── eas.json               # Run `eas build` from apps/cirquiz/, not workspace root
 └── specs/
 ```
