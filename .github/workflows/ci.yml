@@ -24,13 +24,13 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Lint
-        run: yarn workspace mobile lint
+        run: yarn workspace cirquiz lint
 
       - name: Format check
-        run: yarn workspace mobile format:check
+        run: yarn workspace cirquiz format:check
 
       - name: Typecheck
-        run: yarn workspace mobile typecheck
+        run: yarn workspace cirquiz typecheck
 
       - name: Test
-        run: yarn workspace mobile test --ci
+        run: yarn workspace cirquiz test --ci
