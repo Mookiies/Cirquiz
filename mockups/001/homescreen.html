@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>CIRQUIZ — Concept B</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0f0f14;
+            font-family: 'Nunito', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        h1.page-title {
+            font-family: 'Fredoka One', cursive;
+            font-size: 22px; letter-spacing: 4px; color: #3498DB;
+            margin-bottom: 4px; text-align: center;
+            text-shadow: 0 0 30px rgba(52,152,219,0.5);
+        }
+        .page-sub {
+            color: rgba(255,255,255,0.3); font-size: 11px;
+            letter-spacing: 2px; text-transform: uppercase;
+            margin-bottom: 36px; text-align: center;
+        }
+        .phone {
+            width: 320px; height: 660px; border-radius: 40px;
+            overflow: hidden; position: relative; background: #fff;
+            box-shadow:
+                    0 0 0 2px rgba(255,255,255,0.08),
+                    0 40px 80px rgba(0,0,0,0.7),
+                    inset 0 0 0 1px rgba(255,255,255,0.04);
+        }
+        .cb-bg {
+            position: absolute; inset: 0;
+            background: linear-gradient(160deg, #EBF5FB 0%, #fff 45%, #f3eeff 100%);
+        }
+        .cb-shape {
+            position: absolute; border-radius: 50%; opacity: 0.13;
+            animation: cbBounce var(--dur,4s) ease-in-out infinite alternate;
+            animation-delay: var(--delay, 0s);
+        }
+        @keyframes cbBounce {
+            from { transform: translate(0,0) scale(1); }
+            to   { transform: translate(var(--tx,10px), var(--ty,-15px)) scale(1.1); }
+        }
+        .cb-settings-icon {
+            position: absolute; top: 16px; right: 16px;
+            font-size: 22px; cursor: pointer; opacity: 0.28;
+            animation: cbSettingsSpin 10s linear infinite;
+        }
+        @keyframes cbSettingsSpin {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+        /* ── Avatar rows ── */
+        .cb-parade, .cb-bottom-chars {
+            position: absolute; left: 0; right: 0;
+            display: flex; justify-content: center; gap: 8px; padding: 0 14px;
+        }
+        .cb-parade { top: 52px; animation: rowReveal 0.6s ease both; }
+        .cb-bottom-chars { bottom: 178px; animation: rowReveal 0.6s ease 0.3s both; }
+        @keyframes rowReveal {
+            from { opacity: 0; transform: translateY(-24px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .cb-avatar {
+            width: 44px; height: 44px; border-radius: 50%;
+            background: var(--color, white);
+            box-shadow: 0 3px 12px rgba(0,0,0,0.15), 0 0 0 2.5px rgba(255,255,255,0.6) inset;
+            border: none;
+            overflow: hidden; padding: 4px; flex-shrink: 0;
+            animation: cbBob calc(2.5s + var(--i,0) * 0.28s) ease-in-out infinite alternate;
+            animation-delay: calc(var(--i,0) * 0.12s);
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .cb-avatar:hover {
+            transform: scale(1.28) translateY(-7px) !important;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.22), 0 0 0 2.5px rgba(255,255,255,0.7) inset;
+        }
+        @keyframes cbBob {
+            from { transform: translateY(0) rotate(-4deg); }
+            to   { transform: translateY(-10px) rotate(4deg); }
+        }
+        .cb-bottom-char {
+            width: 50px; height: 50px; border-radius: 50%;
+            background: var(--color, white);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15), 0 0 0 2.5px rgba(255,255,255,0.6) inset;
+            border: none;
+            overflow: hidden; padding: 5px; flex-shrink: 0;
+            animation: cbBob calc(2.8s + var(--i,0) * 0.3s) ease-in-out infinite alternate;
+            animation-delay: calc(var(--i,0) * 0.15s + 0.4s);
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .cb-bottom-char:hover {
+            transform: scale(1.22) translateY(-6px) !important;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2), 0 0 0 2.5px rgba(255,255,255,0.7) inset;
+        }
+        /* ── Hero ── */
+        .cb-hero {
+            position: absolute; top: 152px; left: 0; right: 0;
+            display: flex; flex-direction: column; align-items: center;
+            animation: cbHeroReveal 0.7s cubic-bezier(0.34,1.56,0.64,1) 0.2s both;
+        }
+        @keyframes cbHeroReveal {
+            from { opacity: 0; transform: scale(0.7); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+        .cb-badge {
+            background: linear-gradient(135deg, #3498DB, #9B59B6);
+            border-radius: 24px; padding: 5px 18px; margin-bottom: 16px;
+            font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+            color: white; font-weight: 800;
+            box-shadow: 0 4px 16px rgba(52,152,219,0.28);
+            animation: badgePop 2s ease-in-out infinite alternate;
+        }
+        @keyframes badgePop {
+            from { transform: scale(1); }
+            to   { transform: scale(1.04); box-shadow: 0 6px 24px rgba(52,152,219,0.45); }
+        }
+        .cb-title {
+            font-family: 'Fredoka One', cursive; font-size: 56px; letter-spacing: 5px; line-height: 1;
+            background: linear-gradient(140deg, #3498DB 0%, #9B59B6 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 4px 14px rgba(52,152,219,0.18));
+        }
+        .cb-sub {
+            margin-top: 10px; font-size: 14px; font-weight: 700; letter-spacing: 1px; color: #999;
+        }
+        /* ── CTA ── */
+        .cb-cta {
+            position: absolute; bottom: 52px; left: 22px; right: 22px;
+            display: flex; flex-direction: column; gap: 11px;
+        }
+        .cb-btn-main {
+            background: #2ECC71; border: none; border-radius: 18px; padding: 20px;
+            font-family: 'Fredoka One', cursive; font-size: 22px; letter-spacing: 2px;
+            color: white; cursor: pointer; width: 100%;
+            box-shadow: 0 6px 0 #27ae60, 0 10px 24px rgba(46,204,113,0.32);
+            transition: transform 0.1s, box-shadow 0.1s;
+            animation: cbBtnEntrance 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.55s both;
+            position: relative; overflow: hidden;
+        }
+        .cb-btn-main::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+            animation: btnShine 3.5s ease-in-out infinite; animation-delay: 1.5s;
+        }
+        @keyframes btnShine {
+            0%  { left: -100%; } 35% { left: 140%; } 100% { left: 140%; }
+        }
+        @keyframes cbBtnEntrance {
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .cb-btn-main:hover { transform: translateY(-2px); box-shadow: 0 8px 0 #27ae60, 0 14px 30px rgba(46,204,113,0.48); }
+        .cb-btn-main:active { transform: translateY(5px); box-shadow: 0 1px 0 #27ae60, 0 4px 12px rgba(46,204,113,0.28); }
+        .cb-btn-settings {
+            background: none; border: 2px solid #e8e8e8; border-radius: 14px; padding: 13px;
+            font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 700; color: #bbb;
+            cursor: pointer; letter-spacing: 1px;
+            animation: cbBtnEntrance 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.68s both;
+            transition: border-color 0.2s, color 0.2s;
+        }
+        .cb-btn-settings:hover { border-color: #ccc; color: #999; }
+    </style>
+</head>
+<body>
+<h1 class="page-title">CIRQUIZ</h1>
+<p class="page-sub">Concept B · Bright Pop</p>
+
+<div class="phone">
+    <div class="cb-bg"></div>
+    <div class="cb-shape" style="width:220px;height:220px;background:#3498DB;top:-70px;right:-90px;--dur:5s;--tx:-10px;--ty:15px;"></div>
+    <div class="cb-shape" style="width:160px;height:160px;background:#9B59B6;bottom:-50px;left:-60px;--dur:6s;--delay:1s;--tx:15px;--ty:-10px;"></div>
+    <div class="cb-shape" style="width:90px;height:90px;background:#2ECC71;top:240px;right:-25px;--dur:4s;--delay:0.5s;--tx:-8px;--ty:12px;"></div>
+    <div class="cb-shape" style="width:70px;height:70px;background:#F39C12;top:310px;left:-20px;--dur:5.5s;--delay:1.5s;--tx:10px;--ty:-8px;"></div>
+
+    <span class="cb-settings-icon">⚙️</span>
+
+    <!-- Top row: chili whale alien jackolantern gremlin robot -->
+    <div class="cb-parade">
+        <div class="cb-avatar" style="--i:0;--color:#E74C3C;"><svg style="width:100%;height:100%;display:block;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+
+            <!-- stem -->
+            <path d="M52 18 C54 12 60 10 62 8" fill="none" stroke="#27ae60" stroke-width="3" stroke-linecap="round"/>
+            <path d="M52 18 C48 14 44 13 42 11" fill="none" stroke="#27ae60" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- body -->
+            <path d="M50 22 C64 22 76 32 78 48 C80 62 74 76 64 82 C58 86 54 84 50 78 C46 84 42 86 36 82 C26 76 20 62 22 48 C24 32 36 22 50 22Z" fill="#E74C3C" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- shading -->
+            <path d="M50 22 C58 22 68 30 72 44 C68 38 60 34 50 34 C40 34 32 38 28 44 C32 30 42 22 50 22Z" fill="#ff7675" opacity="0.5"/>
+            <!-- highlight -->
+            <ellipse cx="40" cy="40" rx="5" ry="8" fill="white" opacity="0.25" transform="rotate(-15 40 40)"/>
+            <!-- face -->
+            <circle cx="43" cy="62" r="4" fill="white" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="57" cy="62" r="4" fill="white" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="44" cy="63" r="2" fill="#1a1a1a"/>
+            <circle cx="58" cy="63" r="2" fill="#1a1a1a"/>
+            <circle cx="44.8" cy="62.2" r="0.7" fill="white"/>
+            <circle cx="58.8" cy="62.2" r="0.7" fill="white"/>
+            <path d="M44 70 Q50 75 56 70" fill="none" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round"/>
+
+        </svg></div>
+        <div class="cb-avatar" style="--i:1;--color:#3498DB;"><svg style="width:100%;height:100%;display:block;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+
+            <!-- tail -->
+            <path d="M78 55 C85 46 90 42 88 38 C86 34 80 38 78 44" fill="#3498DB" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M78 55 C85 64 90 68 88 72 C86 76 80 72 78 66" fill="#3498DB" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- body -->
+            <ellipse cx="44" cy="56" rx="38" ry="26" fill="#3498DB" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- belly -->
+            <ellipse cx="38" cy="62" rx="20" ry="12" fill="#85c1e9" opacity="0.6"/>
+            <!-- spout -->
+            <path d="M28 30 C26 22 28 16 30 12" fill="none" stroke="#85c1e9" stroke-width="3" stroke-linecap="round"/>
+            <path d="M30 12 C28 8 32 6 32 10" fill="none" stroke="#85c1e9" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M30 12 C34 8 36 10 33 13" fill="none" stroke="#85c1e9" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- flipper -->
+            <path d="M42 70 C38 78 30 82 26 78 C22 74 30 68 38 68Z" fill="#2980b9" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- eye -->
+            <circle cx="22" cy="50" r="5" fill="white" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="23" cy="50" r="2.5" fill="#1a1a1a"/>
+            <circle cx="23.8" cy="49.2" r="0.9" fill="white"/>
+            <!-- smile -->
+            <path d="M16 56 Q20 60 26 57" fill="none" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round"/>
+            <!-- highlight -->
+            <ellipse cx="52" cy="44" rx="10" ry="6" fill="white" opacity="0.2" transform="rotate(-10 52 44)"/>
+
+        </svg></div>
+        <div class="cb-avatar" style="--i:2;--color:#2ECC71;"><svg style="width:100%;height:100%;display:block;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+
+            <!-- antennae -->
+            <line x1="38" y1="18" x2="30" y2="8" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="29" cy="7" r="3.5" fill="#2ECC71" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="62" y1="18" x2="70" y2="8" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="71" cy="7" r="3.5" fill="#2ECC71" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- head -->
+            <ellipse cx="50" cy="42" rx="28" ry="30" fill="#2ECC71" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- head highlight -->
+            <ellipse cx="40" cy="30" rx="10" ry="12" fill="white" opacity="0.2" transform="rotate(-10 40 30)"/>
+            <!-- body -->
+            <path d="M36 68 C30 72 26 82 28 88 C30 94 70 94 72 88 C74 82 70 72 64 68Z" fill="#27ae60" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- big eyes -->
+            <ellipse cx="38" cy="44" rx="10" ry="12" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <ellipse cx="62" cy="44" rx="10" ry="12" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <ellipse cx="36" cy="41" rx="4" ry="5" fill="white" opacity="0.9"/>
+            <ellipse cx="60" cy="41" rx="4" ry="5" fill="white" opacity="0.9"/>
+            <circle cx="37" cy="42" r="1.5" fill="#1a1a1a"/>
+            <circle cx="61" cy="42" r="1.5" fill="#1a1a1a"/>
+            <!-- mouth -->
+            <path d="M40 60 Q50 66 60 60" fill="none" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- little arms -->
+            <path d="M22 74 Q16 70 14 64" fill="none" stroke="#2ECC71" stroke-width="5" stroke-linecap="round"/>
+            <path d="M78 74 Q84 70 86 64" fill="none" stroke="#2ECC71" stroke-width="5" stroke-linecap="round"/>
+
+        </svg></div>
+        <div class="cb-avatar" style="--i:3;--color:#F39C12;"><svg style="width:100%;height:100%;display:block;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+
+            <!-- stem -->
+            <path d="M50 18 C50 12 54 8 56 6" fill="none" stroke="#27ae60" stroke-width="4" stroke-linecap="round"/>
+            <path d="M50 18 C46 14 44 10 42 9" fill="none" stroke="#27ae60" stroke-width="3" stroke-linecap="round"/>
+            <!-- pumpkin body -->
+            <path d="M50 22 C64 22 76 34 76 52 C76 70 64 82 50 82 C36 82 24 70 24 52 C24 34 36 22 50 22Z" fill="#F39C12" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- pumpkin ridges -->
+            <path d="M50 22 C50 22 46 36 46 52 C46 68 50 82 50 82" fill="none" stroke="#d68910" stroke-width="2" opacity="0.6"/>
+            <path d="M50 22 C50 22 54 36 54 52 C54 68 50 82 50 82" fill="none" stroke="#d68910" stroke-width="2" opacity="0.6"/>
+            <path d="M34 28 C28 38 28 66 34 76" fill="none" stroke="#d68910" stroke-width="2" opacity="0.5"/>
+            <path d="M66 28 C72 38 72 66 66 76" fill="none" stroke="#d68910" stroke-width="2" opacity="0.5"/>
+            <!-- highlight -->
+            <ellipse cx="38" cy="38" rx="7" ry="10" fill="white" opacity="0.2" transform="rotate(-10 38 38)"/>
+            <!-- carved face - triangle eyes -->
+            <polygon points="36,46 42,38 48,46" fill="#1a1a1a"/>
+            <polygon points="52,46 58,38 64,46" fill="#1a1a1a"/>
+            <!-- nose -->
+            <polygon points="50,50 46,57 54,57" fill="#1a1a1a"/>
+            <!-- jagged mouth -->
+            <path d="M32 66 L36 62 L40 66 L44 60 L50 66 L56 60 L60 66 L64 62 L68 66" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="1" stroke-linejoin="round"/>
+            <!-- inner glow -->
+            <ellipse cx="50" cy="62" rx="14" ry="8" fill="#f39c12" opacity="0.3"/>
+
+        </svg></div>
+        <div class="cb-avatar" style="--i:4;--color:#9B59B6;"><svg style="width:100%;height:100%;display:block;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+
+            <!-- ears -->
+            <path d="M20 36 C14 24 10 16 18 12 C24 10 28 20 26 32Z" fill="#9B59B6" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M80 36 C86 24 90 16 82 12 C76 10 72 20 74 32Z" fill="#9B59B6" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M20 34 C16 26 14 20 19 16 C22 14 25 22 23 32Z" fill="#c39bd3" opacity="0.5"/>
+            <path d="M80 34 C84 26 86 20 81 16 C78 14 75 22 77 32Z" fill="#c39bd3" opacity="0.5"/>
+            <!-- head -->
+            <ellipse cx="50" cy="50" rx="30" ry="32" fill="#9B59B6" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- head highlight -->
+            <ellipse cx="38" cy="34" rx="10" ry="12" fill="white" opacity="0.18" transform="rotate(-15 38 34)"/>
+            <!-- horns -->
+            <path d="M34 22 C30 14 26 10 28 6 C30 4 34 8 36 16Z" fill="#7d3c98" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M66 22 C70 14 74 10 72 6 C70 4 66 8 64 16Z" fill="#7d3c98" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- eyes -->
+            <circle cx="38" cy="46" r="7" fill="#f9e04b" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="62" cy="46" r="7" fill="#f9e04b" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="39" cy="46" r="3.5" fill="#1a1a1a"/>
+            <circle cx="63" cy="46" r="3.5" fill="#1a1a1a"/>
+            <circle cx="40" cy="44.8" r="1.2" fill="white"/>
+            <circle cx="64" cy="44.8" r="1.2" fill="white"/>
+            <!-- grin with teeth -->
+            <path d="M28 62 Q50 74 72 62" fill="#7d3c98" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round"/>
+            <rect x="38" y="62" width="6" height="7" rx="1" fill="white" stroke="#1a1a1a" stroke-width="1.5"/>
+            <rect x="46" y="62" width="6" height="8" rx="1" fill="white" stroke="#1a1a1a" stroke-width="1.5"/>
+            <rect x="54" y="62" width="6" height="7" rx="1" fill="white" stroke="#1a1a1a" stroke-width="1.5"/>
+            <!-- tiny arms -->
+            <path d="M20 62 Q12 66 10 74 Q14 76 18 72" fill="#9B59B6" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M80 62 Q88 66 90 74 Q86 76 82 72" fill="#9B59B6" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+        </svg></div>
+        <div class="cb-avatar" style="--i:5;--color:#1ABC9C;"><svg style="width:100%;height:100%;display:block;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+
+            <!-- antenna -->
+            <line x1="50" y1="14" x2="50" y2="8" stroke="#1a1a1a" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="50" cy="6" r="3.5" fill="#1ABC9C" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- head -->
+            <rect x="26" y="14" width="48" height="38" rx="8" fill="#1ABC9C" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- head shading top -->
+            <rect x="26" y="14" width="48" height="12" rx="8" fill="#16a085" opacity="0.5"/>
+            <!-- screen face -->
+            <rect x="32" y="20" width="36" height="26" rx="4" fill="#0e6655" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- LED eyes -->
+            <rect x="36" y="26" width="10" height="8" rx="2" fill="#48dbfb"/>
+            <rect x="54" y="26" width="10" height="8" rx="2" fill="#48dbfb"/>
+            <rect x="38" y="27.5" width="4" height="3" rx="1" fill="white" opacity="0.8"/>
+            <rect x="56" y="27.5" width="4" height="3" rx="1" fill="white" opacity="0.8"/>
+            <!-- pixel mouth -->
+            <rect x="36" y="38" width="4" height="4" rx="1" fill="#1ABC9C"/>
+            <rect x="42" y="36" width="4" height="6" rx="1" fill="#1ABC9C"/>
+            <rect x="48" y="36" width="4" height="6" rx="1" fill="#1ABC9C"/>
+            <rect x="54" y="36" width="4" height="6" rx="1" fill="#1ABC9C"/>
+            <rect x="60" y="38" width="4" height="4" rx="1" fill="#1ABC9C"/>
+            <!-- body -->
+            <rect x="30" y="52" width="40" height="32" rx="6" fill="#17a589" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- chest panel -->
+            <rect x="36" y="58" width="28" height="18" rx="3" fill="#148f77" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="44" cy="67" r="4" fill="#1ABC9C" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="56" cy="67" r="4" fill="#e74c3c" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- arms -->
+            <rect x="14" y="54" width="14" height="22" rx="6" fill="#1ABC9C" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="72" y="54" width="14" height="22" rx="6" fill="#1ABC9C" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- feet -->
+            <rect x="32" y="82" width="14" height="10" rx="4" fill="#148f77" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="54" y="82" width="14" height="10" rx="4" fill="#148f77" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+        </svg></div>
+    </div>
+
+    <div class="cb-hero">
+        <div class="cb-badge">🎯 Trivia Party Game</div>
+        <div class="cb-title">CIRQUIZ</div>
+        <div class="cb-sub">Challenge your friends!</div>
+    </div>
+
+    <!-- Bottom row: brain rubberduck hotsauce yeti -->
+    <div class="cb-bottom-chars">
+        <div class="cb-bottom-char" style="--i:0;--color:#E91E63;"><svg style="width:100%;height:100%;display:block;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+
+            <!-- brain body - wrinkly blob -->
+            <path d="M50 16 C60 14 70 18 74 28 C80 26 86 32 84 40 C88 44 88 52 84 56 C86 62 82 70 76 72 C74 80 66 84 58 82 C54 86 46 86 42 82 C34 84 26 80 24 72 C18 70 14 62 16 56 C12 52 12 44 16 40 C14 32 20 26 26 28 C30 18 40 14 50 16Z" fill="#E91E63" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- wrinkle lines -->
+            <path d="M50 16 C50 24 46 30 46 38" fill="none" stroke="#c0392b" stroke-width="2" opacity="0.5" stroke-linecap="round"/>
+            <path d="M54 16 C56 24 58 30 56 40" fill="none" stroke="#c0392b" stroke-width="2" opacity="0.5" stroke-linecap="round"/>
+            <path d="M50 40 C48 48 50 56 48 64" fill="none" stroke="#c0392b" stroke-width="2" opacity="0.5" stroke-linecap="round"/>
+            <path d="M50 40 C52 50 52 58 54 64" fill="none" stroke="#c0392b" stroke-width="2" opacity="0.5" stroke-linecap="round"/>
+            <path d="M26 36 C32 38 34 44 32 50" fill="none" stroke="#c0392b" stroke-width="2" opacity="0.5" stroke-linecap="round"/>
+            <path d="M74 36 C68 38 66 44 68 50" fill="none" stroke="#c0392b" stroke-width="2" opacity="0.5" stroke-linecap="round"/>
+            <!-- center divide -->
+            <path d="M50 18 C50 36 50 54 50 74" fill="none" stroke="#c0392b" stroke-width="2.5" opacity="0.4" stroke-linecap="round"/>
+            <!-- highlight -->
+            <ellipse cx="36" cy="28" rx="8" ry="10" fill="white" opacity="0.2" transform="rotate(-20 36 28)"/>
+            <!-- cute face -->
+            <circle cx="40" cy="56" r="5" fill="white" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="60" cy="56" r="5" fill="white" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="41" cy="57" r="2.5" fill="#1a1a1a"/>
+            <circle cx="61" cy="57" r="2.5" fill="#1a1a1a"/>
+            <circle cx="41.8" cy="56.2" r="0.9" fill="white"/>
+            <circle cx="61.8" cy="56.2" r="0.9" fill="white"/>
+            <!-- little legs -->
+            <path d="M38 82 C36 88 34 92 32 94" fill="none" stroke="#E91E63" stroke-width="5" stroke-linecap="round"/>
+            <path d="M50 84 C50 90 50 94 50 96" fill="none" stroke="#E91E63" stroke-width="5" stroke-linecap="round"/>
+            <path d="M62 82 C64 88 66 92 68 94" fill="none" stroke="#E91E63" stroke-width="5" stroke-linecap="round"/>
+
+        </svg></div>
+        <div class="cb-bottom-char" style="--i:1;--color:#F1C40F;"><svg style="width:100%;height:100%;display:block;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+
+            <!-- body -->
+            <ellipse cx="50" cy="68" rx="34" ry="24" fill="#F1C40F" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- body highlight -->
+            <ellipse cx="38" cy="60" rx="12" ry="8" fill="white" opacity="0.2" transform="rotate(-15 38 60)"/>
+            <!-- head -->
+            <circle cx="68" cy="46" r="20" fill="#F1C40F" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- head highlight -->
+            <ellipse cx="60" cy="38" rx="7" ry="9" fill="white" opacity="0.25" transform="rotate(-10 60 38)"/>
+            <!-- beak -->
+            <path d="M84 46 C90 44 94 46 94 50 C94 54 90 56 84 54Z" fill="#e67e22" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- nostril -->
+            <circle cx="91" cy="48" r="1.2" fill="#d35400"/>
+            <!-- eye -->
+            <circle cx="72" cy="40" r="5.5" fill="white" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="73" cy="40" r="3" fill="#1a1a1a"/>
+            <circle cx="74" cy="38.8" r="1" fill="white"/>
+            <!-- eyelash -->
+            <path d="M68 36 C70 33 74 33 76 36" fill="none" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round"/>
+            <!-- wing -->
+            <path d="M24 66 C18 60 18 52 26 52 C30 52 34 56 34 62Z" fill="#d4ac0d" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- water ripple -->
+            <ellipse cx="50" cy="90" rx="30" ry="5" fill="none" stroke="#85c1e9" stroke-width="2" opacity="0.6"/>
+            <ellipse cx="50" cy="90" rx="20" ry="3" fill="none" stroke="#85c1e9" stroke-width="1.5" opacity="0.4"/>
+
+        </svg></div>
+        <div class="cb-bottom-char" style="--i:2;--color:#FF5722;"><svg style="width:100%;height:100%;display:block;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+
+            <!-- bottle body -->
+            <path d="M36 42 C34 44 32 50 32 60 C32 72 36 84 42 88 C44 90 56 90 58 88 C64 84 68 72 68 60 C68 50 66 44 64 42Z" fill="#FF5722" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- bottle highlight -->
+            <path d="M38 46 C36 50 36 60 38 70 C40 60 40 48 42 44Z" fill="white" opacity="0.2"/>
+            <!-- label -->
+            <rect x="34" y="58" width="32" height="22" rx="3" fill="#fff3e0" stroke="#1a1a1a" stroke-width="1.5"/>
+            <!-- neck -->
+            <rect x="42" y="30" width="16" height="14" rx="4" fill="#e64a19" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- cap -->
+            <rect x="40" y="22" width="20" height="10" rx="3" fill="#bf360c" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- flame on top -->
+            <path d="M50 8 C46 12 44 16 46 20 C44 18 42 20 44 22 C42 20 48 14 50 8Z" fill="#f39c12"/>
+            <path d="M50 8 C54 12 56 16 54 20 C56 18 58 20 56 22 C58 20 52 14 50 8Z" fill="#e74c3c"/>
+            <path d="M50 10 C50 14 50 18 50 22 C48 18 50 10 50 10Z" fill="#f9ca24" opacity="0.8"/>
+            <!-- little arms -->
+            <path d="M32 56 Q22 52 18 58 Q20 64 26 62" fill="#FF5722" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M68 56 Q78 52 82 58 Q80 64 74 62" fill="#FF5722" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- face -->
+            <circle cx="42" cy="50" r="3.5" fill="white" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="58" cy="50" r="3.5" fill="white" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="43" cy="50.5" r="1.8" fill="#1a1a1a"/>
+            <circle cx="59" cy="50.5" r="1.8" fill="#1a1a1a"/>
+            <path d="M42 55 Q50 60 58 55" fill="none" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round"/>
+            <!-- sweat drop -->
+            <path d="M30 48 C30 44 26 46 28 50 C30 52 32 50 30 48Z" fill="#85c1e9"/>
+
+        </svg></div>
+        <div class="cb-bottom-char" style="--i:3;--color:#00BCD4;"><svg style="width:100%;height:100%;display:block;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+
+            <!-- fur tufts outer -->
+            <circle cx="22" cy="38" r="10" fill="#00BCD4" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="78" cy="38" r="10" fill="#00BCD4" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="16" cy="54" r="9" fill="#00BCD4" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="84" cy="54" r="9" fill="#00BCD4" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- ears -->
+            <circle cx="24" cy="26" r="8" fill="#00BCD4" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="76" cy="26" r="8" fill="#00BCD4" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="24" cy="26" r="4" fill="#b2ebf2" opacity="0.7"/>
+            <circle cx="76" cy="26" r="4" fill="#b2ebf2" opacity="0.7"/>
+            <!-- head -->
+            <circle cx="50" cy="44" r="28" fill="#00BCD4" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- fur texture on head -->
+            <circle cx="26" cy="34" r="8" fill="#00BCD4" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="74" cy="34" r="8" fill="#00BCD4" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="34" cy="22" r="7" fill="#00BCD4" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="66" cy="22" r="7" fill="#00BCD4" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="50" cy="18" r="7" fill="#00BCD4" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- face highlight -->
+            <ellipse cx="40" cy="34" rx="10" ry="12" fill="white" opacity="0.2" transform="rotate(-10 40 34)"/>
+            <!-- snout -->
+            <ellipse cx="50" cy="56" rx="14" ry="10" fill="#b2ebf2" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- eyes -->
+            <circle cx="38" cy="42" r="7" fill="white" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="62" cy="42" r="7" fill="white" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="39" cy="43" r="4" fill="#1a1a1a"/>
+            <circle cx="63" cy="43" r="4" fill="#1a1a1a"/>
+            <circle cx="40.5" cy="41.5" r="1.5" fill="white"/>
+            <circle cx="64.5" cy="41.5" r="1.5" fill="white"/>
+            <!-- happy brow -->
+            <path d="M32 36 C36 32 42 33 44 36" fill="none" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M56 36 C58 33 64 32 68 36" fill="none" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- mouth -->
+            <path d="M42 60 Q50 66 58 60" fill="none" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- nose -->
+            <ellipse cx="50" cy="53" rx="4" ry="3" fill="#0097a7" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- body / feet -->
+            <ellipse cx="50" cy="86" rx="22" ry="12" fill="#00BCD4" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="35" cy="90" r="8" fill="#00BCD4" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="65" cy="90" r="8" fill="#00BCD4" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- arms -->
+            <circle cx="18" cy="68" r="9" fill="#00BCD4" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="82" cy="68" r="9" fill="#00BCD4" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+        </svg></div>
+    </div>
+
+    <div class="cb-cta">
+        <button class="cb-btn-main">🎮 NEW GAME</button>
+        <button class="cb-btn-settings">⚙️ Settings</button>
+    </div>
+</div>
+</body>
+</html>

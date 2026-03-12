@@ -14,7 +14,7 @@
 
 ## 2. Monorepo Structure
 
-**Decision**: yarn workspaces monorepo with a single current workspace (`apps/mobile`). The `TriviaQuestionProvider` interface and implementations live inside `apps/mobile/src/providers/` — not a separate package.
+**Decision**: yarn workspaces monorepo with a single current workspace (`apps/cirquiz`). The `TriviaQuestionProvider` interface and implementations live inside `apps/cirquiz/src/providers/` — not a separate package.
 
 The root `package.json` defines workspaces:
 ```json
@@ -25,15 +25,15 @@ The root `package.json` defines workspaces:
 }
 ```
 
-**Rationale**: The monorepo structure is retained to accommodate a future `apps/api` workspace (custom trivia API). However, extracting the provider into a separate `packages/trivia-provider` npm package is unnecessary now: there is only one consumer (`apps/mobile`), and a separate package introduces Metro symlink resolution complexity with no current benefit. FR-012 (decoupled provider) is satisfied by a well-typed TypeScript interface in `src/providers/interface.ts` — no package boundary required.
+**Rationale**: The monorepo structure is retained to accommodate a future `apps/api` workspace (custom trivia API). However, extracting the provider into a separate `packages/trivia-provider` npm package is unnecessary now: there is only one consumer (`apps/cirquiz`), and a separate package introduces Metro symlink resolution complexity with no current benefit. FR-012 (decoupled provider) is satisfied by a well-typed TypeScript interface in `src/providers/interface.ts` — no package boundary required.
 
-**Metro configuration**: Because the provider is inside `apps/mobile` (not a cross-package symlink), `metro.config.js` can use the standard default config:
+**Metro configuration**: Because the provider is inside `apps/cirquiz` (not a cross-package symlink), `metro.config.js` can use the standard default config:
 ```javascript
 const { getDefaultConfig } = require('expo/metro-config');
 module.exports = getDefaultConfig(__dirname);
 ```
 
-**EAS Build**: Always run `eas build` from within `apps/mobile/` — EAS reads `app.json`/`app.config.js` from the directory it is invoked in.
+**EAS Build**: Always run `eas build` from within `apps/cirquiz/` — EAS reads `app.json`/`app.config.js` from the directory it is invoked in.
 
 **Future `apps/api`**: When a custom trivia backend is added, it gets its own workspace at `apps/api/`. If shared types are needed across workspaces at that point, a `packages/shared` package can be introduced and the Metro cross-package configuration applied then.
 
@@ -81,7 +81,7 @@ Without `createJSONStorage`, the persist middleware silently fails to hydrate on
 
 ## 5. Localization
 
-**Decision**: `i18next` + `react-i18next` with a single `en.json` strings file in `apps/mobile/src/i18n/`. Use `expo-localization` for device locale detection.
+**Decision**: `i18next` + `react-i18next` with a single `en.json` strings file in `apps/cirquiz/src/i18n/`. Use `expo-localization` for device locale detection.
 
 **React Native initialization notes**:
 - Do NOT use the `initReactI18next` + browser language detector (`i18next-browser-languagedetector`) — that package is browser-only.
@@ -174,7 +174,7 @@ app/
 | `preview` | Staging; prod-like internal testing | ` (Staging)` | `.staging` | live OTDB |
 | `production` | App Store / Play Store release | (none) | (none) | live OTDB |
 
-**`apps/mobile/eas.json` structure**:
+**`apps/cirquiz/eas.json` structure**:
 ```json
 {
   "build": {
@@ -194,7 +194,7 @@ app/
 }
 ```
 
-**`apps/mobile/app.config.js` pattern**:
+**`apps/cirquiz/app.config.js` pattern**:
 ```javascript
 const env = process.env.APP_ENV ?? 'development';
 const suffixes = {
@@ -218,7 +218,7 @@ import Constants from 'expo-constants';
 const appEnv = Constants.expoConfig?.extra?.appEnv ?? 'development';
 ```
 
-**Local development**: Create `apps/mobile/.env.local` (gitignored) for any local overrides. `APP_ENV` defaults to `development` when running `npx expo start`.
+**Local development**: Create `apps/cirquiz/.env.local` (gitignored) for any local overrides. `APP_ENV` defaults to `development` when running `npx expo start`.
 
 **Note**: Since OTDB is a free public API with no auth, there is no separate staging API endpoint. The `preview` build tests production-equivalent behavior (real API, prod-like bundle) on internal devices before App Store submission.
 
@@ -234,14 +234,14 @@ const appEnv = Constants.expoConfig?.extra?.appEnv ?? 'development';
 
 **Rules**:
 1. **Never commit secrets to git.** No `.env` files containing real secrets, no hardcoded credentials in source.
-2. **Local development secrets**: Stored in `apps/mobile/.env.local` (gitignored). This file is never committed. A `.env.local.example` with placeholder values IS committed as a template.
+2. **Local development secrets**: Stored in `apps/cirquiz/.env.local` (gitignored). This file is never committed. A `.env.local.example` with placeholder values IS committed as a template.
 3. **CI/EAS secrets**: Stored as EAS environment variables (set via `eas secret:create` or the Expo dashboard). These are injected at build time and never written to the repository.
 4. **Runtime secrets** (if a future backend requires auth tokens): Retrieved from EAS environment variables at build time via `app.config.js` and accessed at runtime via `expo-constants`. They are baked into the binary — acceptable for a personal project, but note this means they are extractable from the binary. Do not use this pattern for user-facing auth tokens or PII.
 
 **Gitignore entries required**:
 ```
-apps/mobile/.env.local
-apps/mobile/.env.*.local
+apps/cirquiz/.env.local
+apps/cirquiz/.env.*.local
 ```
 
 **`.env.local.example`** (committed to repo as documentation):

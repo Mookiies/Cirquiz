@@ -1,0 +1,91 @@
+{
+  "home": {
+    "appName": "Cirquiz",
+    "subtitle": "Challenge your friends!",
+    "newGame": "New Game",
+    "resumeGame": "Resume Game",
+    "loading": "Loading...",
+    "pressBackToExit": "Press back again to exit"
+  },
+  "error": {
+    "somethingWentWrong": "Something went wrong",
+    "tryAgain": "Try Again",
+    "resetGame": "Reset Game & Go Home"
+  },
+  "common": {
+    "difficulty": "Difficulty",
+    "category": "Category",
+    "any": "Any",
+    "anyCategory": "Any Category",
+    "easy": "Easy",
+    "medium": "Medium",
+    "hard": "Hard"
+  },
+  "setup": {
+    "title": "New Game",
+    "addPlayer": "Add Player",
+    "start": "Start Game",
+    "quickPlay": "Quick Play",
+    "chooseCategories": "Choose Categories",
+    "playerName": "Player",
+    "avatarName": {
+      "chili": "Rosso",
+      "whale": "Blubber",
+      "alien": "Zorg",
+      "jackolantern": "Grimsley",
+      "gremlin": "Vex",
+      "robot": "Clank",
+      "brain": "Gyrus",
+      "rubberduck": "Quacks",
+      "hotsauce": "Scoville",
+      "yeti": "Bigsby"
+    },
+    "questionCount": "Number of Questions",
+    "players": "Players",
+    "nameEmpty": "Name cannot be empty",
+    "nameUnique": "Name must be unique"
+  },
+  "game": {
+    "handoff": {
+      "title": "Pass to {{name}}",
+      "ready": "I'm Ready"
+    },
+    "question": {
+      "title": "Question {{current}} of {{total}}"
+    },
+    "reveal": {
+      "correct": "Correct!",
+      "wrong": "Wrong",
+      "nextQuestion": "Next Question",
+      "viewStandings": "View Standings",
+      "correctAnswer": "Correct Answer: {{answer}}"
+    },
+    "standings": {
+      "title": "Standings",
+      "playAnotherRound": "Play Another Round",
+      "endSession": "End Session",
+      "place": "{{place}}. {{name}}",
+      "ordinal_ordinal_one": "{{count}}st",
+      "ordinal_ordinal_two": "{{count}}nd",
+      "ordinal_ordinal_few": "{{count}}rd",
+      "ordinal_ordinal_other": "{{count}}th",
+      "correct": "Correct",
+      "roundsWon": "Rounds Won",
+      "roundLabel": "R{{n}}",
+      "hideSettings": "Hide Settings",
+      "changeSettings": "Change Category / Difficulty"
+    },
+    "error": {
+      "title": "Something went wrong",
+      "message": "Could not load questions. Please try again.",
+      "retry": "Try Again",
+      "backHome": "Back to Home"
+    },
+    "quit": {
+      "title": "Quit Game",
+      "message": "Are you sure you want to quit?",
+      "confirm": "Quit",
+      "cancel": "Cancel"
+    }
+  }
+}

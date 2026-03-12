@@ -5,7 +5,7 @@
 
 ## Summary
 
-A local pass-and-play multiplayer (1–6 players) trivia app for iOS and Android. Players take turns answering the same questions on a single shared device; a strict handoff screen gates each turn in multiplayer. Game state is persisted locally for recovery. Questions are sourced via an abstracted `TriviaQuestionProvider` interface, initially backed by the Open Trivia Database. Built with Expo + React Native, TypeScript, Expo Router, Zustand, and EAS for cross-platform builds. Delivered in a monorepo (`apps/mobile`) with the provider logic in `apps/mobile/src/providers/`.
+A local pass-and-play multiplayer (1–6 players) trivia app for iOS and Android. Players take turns answering the same questions on a single shared device; a strict handoff screen gates each turn in multiplayer. Game state is persisted locally for recovery. Questions are sourced via an abstracted `TriviaQuestionProvider` interface, initially backed by the Open Trivia Database. Built with Expo + React Native, TypeScript, Expo Router, Zustand, and EAS for cross-platform builds. Delivered in a monorepo (`apps/cirquiz`) with the provider logic in `apps/cirquiz/src/providers/`.
 
 ## Technical Context
 
@@ -14,7 +14,7 @@ A local pass-and-play multiplayer (1–6 players) trivia app for iOS and Android
 **Storage**: AsyncStorage (`@react-native-async-storage/async-storage`) for game state persistence
 **Testing**: Jest + React Native Testing Library
 **Target Platform**: iOS (15+) and Android (API 31+); both required (FR-019)
-**Project Type**: Mobile app (monorepo root with `apps/mobile`; future `apps/api` workspace planned)
+**Project Type**: Mobile app (monorepo root with `apps/cirquiz`; future `apps/api` workspace planned)
 **Performance Goals**: Primary interactions responsive; screen transitions < 300ms on mid-range device (SC-001)
 **Constraints**: No network dependency during active gameplay; only at game start for question fetch (FR-017); offline-capable once questions are loaded
 **Scale/Scope**: Single-device local play; 1–6 players; personal project scope
@@ -84,11 +84,11 @@ cirquiz/
 │       ├── __tests__/
 │       ├── metro.config.js        # Standard default config (no watchFolders needed; provider is inside the app)
 │       ├── app.config.js          # Dynamic config (replaces app.json); reads APP_ENV
-│       └── eas.json               # Run `eas build` from apps/mobile/, not workspace root
+│       └── eas.json               # Run `eas build` from apps/cirquiz/, not workspace root
 └── specs/
 ```
 
-**Structure Decision**: Monorepo with yarn workspaces (`apps/*`). The `TriviaQuestionProvider` interface and implementations live in `apps/mobile/src/providers/` — inside the app, not a separate package. This avoids the Metro symlink complexity of a cross-package dependency while keeping the monorepo structure ready for a future `apps/api/` workspace.
+**Structure Decision**: Monorepo with yarn workspaces (`apps/*`). The `TriviaQuestionProvider` interface and implementations live in `apps/cirquiz/src/providers/` — inside the app, not a separate package. This avoids the Metro symlink complexity of a cross-package dependency while keeping the monorepo structure ready for a future `apps/api/` workspace.
 
 **Score display by screen**:
 - **`reveal.tsx`** (Answer Reveal, mid-round): Shows each player's **round score** (points earned in the current round so far). Cumulative scores are not the focus here.
@@ -113,14 +113,14 @@ Three environments managed via EAS build profiles. See [research.md §9](./resea
 Per-environment config is driven by `APP_ENV` injected in `eas.json` and read by `app.config.js` (dynamic config). This gives each environment a distinct app name suffix and bundle ID suffix so all three can be installed side-by-side on a device.
 
 **Secrets**: See [research.md §10](./research.md). Rules in brief:
-- Local secrets → `apps/mobile/.env.local` (gitignored; never committed)
+- Local secrets → `apps/cirquiz/.env.local` (gitignored; never committed)
 - CI/build secrets → EAS environment variables (`eas secret:create`)
 - A `.env.local.example` with placeholder values is committed as a template
 - No secrets are hardcoded in source or committed to git under any circumstances
 
 **Key files added to project structure** (beyond what is listed above):
 ```
-apps/mobile/
+apps/cirquiz/
 ├── app.config.js        # Dynamic config replacing app.json; reads APP_ENV
 ├── eas.json             # Three profiles: development, preview, production
 ├── .env.local           # Gitignored; local developer secrets
@@ -157,11 +157,11 @@ Notable design decisions:
 
 See [contracts/trivia-provider.md](./contracts/trivia-provider.md).
 
-- `TriviaQuestionProvider` interface defined in `apps/mobile/src/providers/interface.ts`
+- `TriviaQuestionProvider` interface defined in `apps/cirquiz/src/providers/interface.ts`
 - `OpenTriviaDbProvider` is the first concrete implementation
 - Error contract: `TriviaProviderError` with typed error codes; game logic catches and maps to FR-017
 
-**Provider extensibility model**: The design supports **one active provider per game session**. The concrete provider is injected at app startup (wired in the Zustand store). Swapping providers means changing which implementation is injected — not a runtime user-facing choice (that is out of scope). Future providers simply implement `TriviaQuestionProvider` and can be added to `apps/mobile/src/providers/` without touching game logic.
+**Provider extensibility model**: The design supports **one active provider per game session**. The concrete provider is injected at app startup (wired in the Zustand store). Swapping providers means changing which implementation is injected — not a runtime user-facing choice (that is out of scope). Future providers simply implement `TriviaQuestionProvider` and can be added to `apps/cirquiz/src/providers/` without touching game logic.
 
 ### Quickstart
 
@@ -181,7 +181,7 @@ Tasks must be executed in this order. Items at the same level can be parallelise
 1. Monorepo scaffold
    └── workspace root package.json (workspaces: ["apps/*"]), .gitignore
 
-2. apps/mobile scaffold              ← Expo init + config
+2. apps/cirquiz scaffold              ← Expo init + config
    ├── Expo init, metro.config.js, app.config.js, eas.json, .env.local.example
    └── i18n init (src/i18n/en.json, i18next setup)
 
@@ -262,7 +262,7 @@ All navigation uses `router.replace` (not `router.push`) for in-game transitions
 
 Reference: [data-model.md](./data-model.md) for entity types, [research.md §3](./research.md) for Zustand + AsyncStorage adapter pattern.
 
-**File**: `apps/mobile/src/state/gameStore.ts`
+**File**: `apps/cirquiz/src/state/gameStore.ts`
 
 ```typescript
 // State
@@ -393,7 +393,7 @@ Reference: [spec.md FR-006, FR-014](./spec.md)
 
 Reference: [research.md §7](./research.md), [spec.md SC-001 through SC-006](./spec.md)
 
-**Mock provider** (`apps/mobile/__tests__/mocks/MockTriviaProvider.ts`; path relative to workspace root):
+**Mock provider** (`apps/cirquiz/__tests__/mocks/MockTriviaProvider.ts`; path relative to workspace root):
 ```typescript
 class MockTriviaProvider implements TriviaQuestionProvider {
   constructor(private questions: Question[]) {}
@@ -417,7 +417,7 @@ Inject via `gameStore.ts` by exporting a `setProviderForTesting(p)` function (te
 | Tied scores render without tiebreaker | SC-006 | `__tests__/standings.test.ts` |
 | Mock provider swap leaves game logic unchanged | SC-004 | `__tests__/providerContract.test.ts` |
 
-**Provider tests** (`apps/mobile/__tests__/providers/`):
+**Provider tests** (`apps/cirquiz/__tests__/providers/`):
 - `OpenTriviaDbProvider.test.ts`: mock `fetch`, test question mapping, HTML decoding, type mapping, error code → `TriviaProviderError` mapping, internal session token request on first call and reuse on subsequent calls.
 
 ---
@@ -425,6 +425,6 @@ Inject via `gameStore.ts` by exporting a `setProviderForTesting(p)` function (te
 ### Utility Decisions
 
 - **HTML decoding**: Use the `he` npm package (`he.decode(str)`). Lightweight, no DOM dependency, works in React Native.
-- **Shuffle**: Fisher-Yates in `apps/mobile/src/utils/shuffle.ts`. No external dependency.
+- **Shuffle**: Fisher-Yates in `apps/cirquiz/src/utils/shuffle.ts`. No external dependency.
 - **UUID**: `crypto.randomUUID()` — available in React Native's Hermes engine (Expo SDK 49+). No external dependency.
-- **i18n key convention**: Dot-separated, screen-prefixed. Examples: `home.newGame`, `setup.addPlayer`, `game.handoff.ready`, `game.reveal.correct`. All keys defined in `apps/mobile/src/i18n/en.json`.
+- **i18n key convention**: Dot-separated, screen-prefixed. Examples: `home.newGame`, `setup.addPlayer`, `game.handoff.ready`, `game.reveal.correct`. All keys defined in `apps/cirquiz/src/i18n/en.json`.

@@ -121,7 +121,7 @@ type RoundState   = 'in-progress' | 'completed';
 
 ## TriviaQuestionProvider Interface
 
-Defined in `apps/mobile/src/providers/interface.ts`. Game logic depends only on this interface — never on a concrete implementation.
+Defined in `apps/cirquiz/src/providers/interface.ts`. Game logic depends only on this interface — never on a concrete implementation.
 
 ```typescript
 interface QuestionFetchParams {

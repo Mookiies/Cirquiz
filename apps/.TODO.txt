@@ -1,19 +1,12 @@
 This file is purely for notes and tracking things I want to implement going forward.
 
-- Github actions for running ts, eslint, and types
-- When there's a fetch error it should be possible to retry the fetch instead of the only option being to quit the game on /error
-- Styles and colors should be centralized and tokenized. There should be no floating numbers.
-- There are many non-localized strings at the moment. Add the eslint rule to catch these and make sure all get added to translation files.
-- bigger tap targets
+- replace when going to the home screen
+- Cache and prefetch the categories. Categories shouldn't be changing while the app is running. We can just hard code these.
+- Add support for trivia API and a settings page to be able to change them.
+    - Along with this we should then support having multiple category selection because this api support that. also multiple difficulty
 
-TBD enhancements
+OFFLINE SUPPORT
 - Store the list of categories from otdb and return that
-- Adding avatars in combo with the colors. i.e. Green monkey, purple demon, etc. This would be a fun way to add some personality to the game and make it more engaging.
-
-Future Ideas:
-
-Animations
-    - Make the buttons more exciting and interactive than  just the current simple press.
 
 Music
 
@@ -25,4 +18,13 @@ Questions:
 - Generate our own questions
     - Web scraping NLP to generate a large bank that could be used offline
     - Generating a backend that is able to handle it
+    - embedding for offline
 - AI generated question (maybe embedding models and working with it that way)?
+
+- MUSIC INTEGRATION
+
+Instead of trying to be fancy and search it's probably best to use premade playlists to pull from to make things simpler.
+
+- SPOTIFY: DOA they are deprecating the preview url not worth investing in
+- DEEZER: looks promissing: https://developers.deezer.com/api/errors
+- Apple Music looks promising: perhaps more widely adopted and we could let users give us a playlist URL in additon to making our own
