@@ -12,6 +12,19 @@ import { TriviaApiQuestion, TriviaApiResponse } from './triviaApiTypes';
 
 const BASE_URL = 'https://the-trivia-api.com/v2';
 
+const CATEGORY_NAME_MAP: Record<string, string> = {
+  arts_and_literature: 'Arts & Literature',
+  film_and_tv: 'Film & TV',
+  food_and_drink: 'Food & Drink',
+  general_knowledge: 'General Knowledge',
+  geography: 'Geography',
+  history: 'History',
+  music: 'Music',
+  science: 'Science',
+  society_and_culture: 'Society & Culture',
+  sport_and_leisure: 'Sport & Leisure',
+};
+
 export class TheTriviaApiProvider implements TriviaQuestionProvider {
   async fetchQuestions(params: QuestionFetchParams): Promise<Question[]> {
     const url = new URL(`${BASE_URL}/questions`);
@@ -42,7 +55,7 @@ export class TheTriviaApiProvider implements TriviaQuestionProvider {
         text: q.question.text,
         correctAnswer: q.correctAnswer,
         options: shuffle([q.correctAnswer, ...q.incorrectAnswers]),
-        category: q.category,
+        category: CATEGORY_NAME_MAP[q.category] || q.category,
         difficulty: q.difficulty as Difficulty,
       })
     );
