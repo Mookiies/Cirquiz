@@ -20,7 +20,7 @@ type SettingsStore = SettingsStoreState & SettingsStoreActions;
 export const useSettingsStore = create<SettingsStore>()(
   persist(
     (set) => ({
-      questionSource: 'otdb',
+      questionSource: 'the-trivia-api',
       isHydrated: false,
       setQuestionSource: (source) => set({ questionSource: source }),
     }),
@@ -32,7 +32,7 @@ export const useSettingsStore = create<SettingsStore>()(
       migrate: (persistedState, fromVersion) => {
         // v0 had no schema — treat as empty and fall back to defaults
         if (fromVersion < 1) {
-          return { questionSource: 'otdb' as QuestionSource };
+          return { questionSource: 'the-trivia-api' as QuestionSource };
         }
         return persistedState as SettingsStoreState;
       },

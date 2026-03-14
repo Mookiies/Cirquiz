@@ -3,12 +3,12 @@ import { useSettingsStore } from '../settingsStore';
 
 beforeEach(async () => {
   await AsyncStorage.clear();
-  useSettingsStore.setState({ questionSource: 'otdb', isHydrated: false });
+  useSettingsStore.setState({ questionSource: 'the-trivia-api', isHydrated: false });
 });
 
 describe('settingsStore', () => {
-  it('defaults to otdb', () => {
-    expect(useSettingsStore.getState().questionSource).toBe('otdb');
+  it('defaults to the-trivia-api', () => {
+    expect(useSettingsStore.getState().questionSource).toBe('the-trivia-api');
   });
 
   it('setQuestionSource updates state', () => {
@@ -46,7 +46,7 @@ describe('settingsStore', () => {
       })
     );
     await useSettingsStore.persist.rehydrate();
-    expect(useSettingsStore.getState().questionSource).toBe('otdb');
+    expect(useSettingsStore.getState().questionSource).toBe('the-trivia-api');
   });
 
   it('isHydrated is not persisted', async () => {
