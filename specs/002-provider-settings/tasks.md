@@ -23,11 +23,11 @@ No project initialization needed — all dependencies (`@react-native-async-stor
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T001 [P] Create `apps/cirquiz/src/providers/thetriviaapi/triviaApiTypes.ts` with TypeScript types for The Trivia API v2 response shape (`TriviaApiQuestion`, `TriviaApiResponse`)
-- [ ] T002 Implement `apps/cirquiz/src/providers/thetriviaapi/TheTriviaApiProvider.ts` — `fetchQuestions` (GET `/v2/questions` with `limit`, `categories`, `difficulties` params + response mapping), `fetchCategories` (hardcoded 10-entry array), `supportsCategories` → `true`, `supportsDifficulty` → `true`, `resetSession` → no-op
-- [ ] T003 Write `apps/cirquiz/src/providers/thetriviaapi/__tests__/TheTriviaApiProvider.test.ts` — unit tests covering HTTP fetch and response mapping, `fetchCategories` returns all 10 categories, `supportsCategories`/`supportsDifficulty` return `true`, `resetSession` is a no-op, error handling for failed fetch
-- [ ] T004 Create `apps/cirquiz/src/providers/providerFactory.ts` with `getProvider(source: QuestionSource): TriviaQuestionProvider` — module-scoped singleton per source key; export `setProviderForTesting(source, provider)` for test injection
-- [ ] T005 [P] Update `apps/cirquiz/src/providers/index.ts` to export `TheTriviaApiProvider` and `getProvider`
+- [X] T001 [P] Create `apps/cirquiz/src/providers/thetriviaapi/triviaApiTypes.ts` with TypeScript types for The Trivia API v2 response shape (`TriviaApiQuestion`, `TriviaApiResponse`)
+- [X] T002 Implement `apps/cirquiz/src/providers/thetriviaapi/TheTriviaApiProvider.ts` — `fetchQuestions` (GET `/v2/questions` with `limit`, `categories`, `difficulties` params + response mapping), `fetchCategories` (hardcoded 10-entry array), `supportsCategories` → `true`, `supportsDifficulty` → `true`, `resetSession` → no-op
+- [X] T003 Write `apps/cirquiz/src/providers/thetriviaapi/__tests__/TheTriviaApiProvider.test.ts` — unit tests covering HTTP fetch and response mapping, `fetchCategories` returns all 10 categories, `supportsCategories`/`supportsDifficulty` return `true`, `resetSession` is a no-op, error handling for failed fetch
+- [X] T004 Create `apps/cirquiz/src/providers/providerFactory.ts` with `getProvider(source: QuestionSource): TriviaQuestionProvider` — module-scoped singleton per source key; export `setProviderForTesting(source, provider)` for test injection
+- [X] T005 [P] Update `apps/cirquiz/src/providers/index.ts` to export `TheTriviaApiProvider` and `getProvider`
 
 **Checkpoint**: Foundation ready — `TheTriviaApiProvider` and `getProvider` factory are available for all user story phases.
 
@@ -41,13 +41,13 @@ No project initialization needed — all dependencies (`@react-native-async-stor
 
 ### Implementation for User Story 1
 
-- [ ] T006 [P] [US1] Add `settings.*` translation keys to `apps/cirquiz/src/i18n/en.json` — `title`, `questionSource`, `otdb`, `theTriviaApi`, `categoryResetNotice`
-- [ ] T007 [US1] Create `apps/cirquiz/src/state/settingsStore.ts` — export `QuestionSource` type (`'otdb' | 'the-trivia-api'`), create Zustand store with `questionSource: QuestionSource` (default `'otdb'`) and `setQuestionSource` action (in-memory only; persistence added in US2)
-- [ ] T008 [US1] Update `apps/cirquiz/src/state/gameStore.ts` — remove module-level `let provider = new OpenTriviaDbProvider()`; resolve provider via `getProvider(useSettingsStore.getState().questionSource)` at call time inside `startGame`, `retryFetch`, and `startNextRound`
-- [ ] T009 [US1] Update `apps/cirquiz/src/state/__tests__/gameStore.test.ts` — add test: call `setProviderForTesting('the-trivia-api', mockProvider)`, set `questionSource` to `'the-trivia-api'`, call `startGame`, assert mock `TheTriviaApiProvider` was used to fetch questions
-- [ ] T010 [US1] Create `apps/cirquiz/app/settings.tsx` — dedicated settings screen using `GradientScreen` + `SelectableRow` for OTDB and The Trivia API rows, active source indicator (checked/selected state), calls `setQuestionSource` on tap, back navigation via `router.back()`
-- [ ] T011 [P] [US1] Add gear `IconButton` to `apps/cirquiz/app/index.tsx` that calls `router.push('/settings')`
-- [ ] T012 [P] [US1] Add gear `IconButton` to `apps/cirquiz/app/setup.tsx` (header area, alongside existing controls) that calls `router.push('/settings')`
+- [X] T006 [P] [US1] Add `settings.*` translation keys to `apps/cirquiz/src/i18n/en.json` — `title`, `questionSource`, `otdb`, `theTriviaApi`, `categoryResetNotice`
+- [X] T007 [US1] Create `apps/cirquiz/src/state/settingsStore.ts` — export `QuestionSource` type (`'otdb' | 'the-trivia-api'`), create Zustand store with `questionSource: QuestionSource` (default `'otdb'`) and `setQuestionSource` action (in-memory only; persistence added in US2)
+- [X] T008 [US1] Update `apps/cirquiz/src/state/gameStore.ts` — remove module-level `let provider = new OpenTriviaDbProvider()`; resolve provider via `getProvider(useSettingsStore.getState().questionSource)` at call time inside `startGame`, `retryFetch`, and `startNextRound`
+- [X] T009 [US1] Update `apps/cirquiz/src/state/__tests__/gameStore.test.ts` — add test: call `setProviderForTesting('the-trivia-api', mockProvider)`, set `questionSource` to `'the-trivia-api'`, call `startGame`, assert mock `TheTriviaApiProvider` was used to fetch questions
+- [X] T010 [US1] Create `apps/cirquiz/app/settings.tsx` — dedicated settings screen using `GradientScreen` + `SelectableRow` for OTDB and The Trivia API rows, active source indicator (checked/selected state), calls `setQuestionSource` on tap, back navigation via `router.back()`
+- [X] T011 [P] [US1] Add gear `IconButton` to `apps/cirquiz/app/index.tsx` that calls `router.push('/settings')`
+- [X] T012 [P] [US1] Add gear `IconButton` to `apps/cirquiz/app/setup.tsx` (header area, alongside existing controls) that calls `router.push('/settings')`
 
 **Checkpoint**: User Story 1 complete — verify: settings opens from home and setup, source switches to The Trivia API, new game fetches TTA questions, back navigation returns to the originating screen.
 
@@ -61,8 +61,8 @@ No project initialization needed — all dependencies (`@react-native-async-stor
 
 ### Implementation for User Story 2
 
-- [ ] T013 [US2] Update `apps/cirquiz/src/state/settingsStore.ts` — wrap store with Zustand `persist` middleware using `createJSONStorage(() => AsyncStorage)` at key `@cirquiz/settings`; add `isHydrated: boolean` to state; exclude `isHydrated` from persisted partials (same pattern as `gameStore.ts`)
-- [ ] T014 [US2] Write `apps/cirquiz/src/state/__tests__/settingsStore.test.ts` — tests for default value (`'otdb'`), `setQuestionSource` updates state, `isHydrated` is `false` before rehydration and `true` after, and persisted value is restored on re-init (mock AsyncStorage)
+- [X] T013 [US2] Update `apps/cirquiz/src/state/settingsStore.ts` — wrap store with Zustand `persist` middleware using `createJSONStorage(() => AsyncStorage)` at key `@cirquiz/settings`; add `isHydrated: boolean` to state; exclude `isHydrated` from persisted partials (same pattern as `gameStore.ts`)
+- [X] T014 [US2] Write `apps/cirquiz/src/state/__tests__/settingsStore.test.ts` — tests for default value (`'otdb'`), `setQuestionSource` updates state, `isHydrated` is `false` before rehydration and `true` after, and persisted value is restored on re-init (mock AsyncStorage)
 
 **Checkpoint**: User Story 2 complete — verify: select TTA, close app, reopen, settings shows TTA; fresh install / cleared storage defaults to OTDB.
 
@@ -76,8 +76,8 @@ No project initialization needed — all dependencies (`@react-native-async-stor
 
 ### Implementation for User Story 3
 
-- [ ] T015 [US3] Update `apps/cirquiz/src/hooks/useCategoryLoader.ts` — replace hardcoded `new OpenTriviaDbProvider()` with `getProvider(useSettingsStore.getState().questionSource)` so categories load from the active provider; re-fetch when `questionSource` changes
-- [ ] T016 [US3] Update `apps/cirquiz/app/setup.tsx` — observe `questionSource` from `useSettingsStore` in a `useEffect`; when source changes and a category is currently selected, clear it and display a brief non-blocking animated toast overlay (using `react-native-reanimated`) showing the `settings.categoryResetNotice` i18n string
+- [X] T015 [US3] Update `apps/cirquiz/src/hooks/useCategoryLoader.ts` — replace hardcoded `new OpenTriviaDbProvider()` with `getProvider(useSettingsStore.getState().questionSource)` so categories load from the active provider; re-fetch when `questionSource` changes
+- [X] T016 [US3] Update `apps/cirquiz/app/setup.tsx` — observe `questionSource` from `useSettingsStore` in a `useEffect`; when source changes and a category is currently selected, clear it and display a brief non-blocking toast notice
 
 **Checkpoint**: User Story 3 complete — verify: TTA active → setup shows 10 TTA categories; OTDB active → setup shows OTDB categories; changing source while setup is open clears selected category and shows toast.
 
@@ -85,8 +85,8 @@ No project initialization needed — all dependencies (`@react-native-async-stor
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [ ] T017 Run quality gates from monorepo root: `yarn workspace cirquiz lint && yarn workspace cirquiz format:check && yarn workspace cirquiz typecheck` — resolve all errors
-- [ ] T018 Validate all US1 acceptance scenarios from `specs/002-provider-settings/quickstart.md` — confirm navigation flow, source switching, and full-game completion with both providers
+- [X] T017 Run quality gates from monorepo root: `yarn workspace cirquiz lint && yarn workspace cirquiz format:check && yarn workspace cirquiz typecheck` — resolve all errors
+- [X] T018 Validate all US1 acceptance scenarios from `specs/002-provider-settings/quickstart.md` — confirm navigation flow, source switching, and full-game completion with both providers
 
 ---
 

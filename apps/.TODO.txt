@@ -3,6 +3,7 @@ This file is purely for notes and tracking things I want to implement going forw
 - replace when going to the home screen
 - Add support for trivia API and a settings page to be able to change them.
     - Along with this we should then support having multiple category selection because this api support that. also multiple difficulty
+- Instead of refresshing the session for otdb when we run out of questions we should show some sort of UI to reset the session or allow changing the category selection
 
 OFFLINE SUPPORT
 - Store the list of categories from otdb and return that

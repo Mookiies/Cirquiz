@@ -45,6 +45,13 @@
     "nameEmpty": "Name cannot be empty",
     "nameUnique": "Name must be unique"
   },
+  "settings": {
+    "title": "Settings",
+    "questionSource": "Question Source",
+    "otdb": "Open Trivia Database",
+    "theTriviaApi": "The Trivia API",
+    "categoryResetNotice": "Category selection was reset."
+  },
   "game": {
     "handoff": {
       "title": "Pass to {{name}}",

@@ -22,7 +22,9 @@ import { Button } from '../src/components/Button';
 import { AVATAR_LIST, type AvatarKey } from '../src/avatars';
 import { type Difficulty } from '../src/providers';
 import { useCategoryLoader } from '../src/hooks/useCategoryLoader';
+import { useToast } from '../src/hooks/useToast';
 import { useGameStore } from '../src/state/gameStore';
+import { useSettingsStore } from '../src/state/settingsStore';
 import { colors, fontSize, fontWeight, radius, spacing } from '../src/theme';
 import { IconButton } from '../src/components/IconButton';
 import LightningSVG from '../assets/lightning.svg';
@@ -76,6 +78,32 @@ export default function SetupScreen() {
   const [nameErrors, setNameErrors] = useState<Record<number, string>>({});
   const [pickerIndex, setPickerIndex] = useState<number | null>(null);
   const [stickyHeight, setStickyHeight] = useState(0);
+
+  const questionSource = useSettingsStore((s) => s.questionSource);
+  const isFirstRender = useRef(true);
+  const { showToast, ToastNode } = useToast();
+
+  // Refs let us read latest values in the effect without adding them as deps
+  const categoryRef = useRef(category);
+  categoryRef.current = category;
+  const quickPlayRef = useRef(quickPlay);
+  quickPlayRef.current = quickPlay;
+  const loadCategoriesRef = useRef(loadCategories);
+  loadCategoriesRef.current = loadCategories;
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    if (categoryRef.current !== undefined) {
+      setCategory(undefined);
+      showToast(t('settings.categoryResetNotice'));
+    }
+    if (!quickPlayRef.current) {
+      loadCategoriesRef.current();
+    }
+  }, [questionSource, t, showToast]);
 
   const usedAvatars = players.map((p) => p.avatar);
 
@@ -175,7 +203,11 @@ export default function SetupScreen() {
         <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
           <IconButton icon="arrow-back" onPress={() => router.back()} color={colors.text} />
           <Text style={styles.headerTitle}>{t('setup.title', 'NEW GAME')}</Text>
-          <View style={styles.headerSpacer} />
+          <IconButton
+            icon="settings-outline"
+            onPress={() => router.push('/settings')}
+            color={colors.text}
+          />
         </View>
 
         <KeyboardAwareScrollView
@@ -332,6 +364,7 @@ export default function SetupScreen() {
           </View>
         </Pressable>
       </Modal>
+      {ToastNode}
     </GradientScreen>
   );
 }

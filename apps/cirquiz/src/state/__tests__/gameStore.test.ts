@@ -1,8 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
-import { setProviderForTesting, useGameStore } from '../gameStore';
+import { setProviderForTesting } from '../../providers/providerFactory';
+import { useGameStore } from '../gameStore';
 import { Question, TriviaProviderError, TriviaProviderErrorCode } from '../../providers/types';
 import { Game, Player, Round } from '../types';
+import { useSettingsStore } from '../settingsStore';
 
 jest.mock('expo-router', () => ({ router: { replace: jest.fn() } }));
 
@@ -17,7 +19,7 @@ const mockProvider = {
   resetSession: jest.fn(),
 };
 
-beforeAll(() => setProviderForTesting(mockProvider));
+beforeAll(() => setProviderForTesting('otdb', mockProvider));
 
 const makeQuestion = (id: string, correctAnswer = 'A'): Question => ({
   id,
@@ -475,5 +477,36 @@ describe('Hydrate', () => {
     const state = useGameStore.getState();
     expect(state.isHydrated).toBe(true);
     expect(state.game).toBeNull();
+  });
+});
+
+// ─── Provider source switching ────────────────────────────────────────────────
+
+describe('startGame uses provider matching active questionSource', () => {
+  const questions = [makeQuestion('q1'), makeQuestion('q2'), makeQuestion('q3')];
+
+  it('uses TheTriviaApiProvider when questionSource is the-trivia-api', async () => {
+    const ttaMockFetch = jest.fn<Promise<Question[]>, [any]>().mockResolvedValue(questions);
+    const ttaMockProvider = {
+      fetchQuestions: ttaMockFetch,
+      fetchCategories: jest.fn().mockResolvedValue([]),
+      supportsCategories: () => true,
+      supportsDifficulty: () => true,
+      resetSession: jest.fn(),
+    };
+    setProviderForTesting('the-trivia-api', ttaMockProvider);
+    useSettingsStore.setState({ questionSource: 'the-trivia-api' });
+
+    await useGameStore.getState().startGame({
+      players: [{ name: 'Alice', avatar: 'chili' }],
+      questionCount: 3,
+      mode: 'quick',
+    });
+
+    expect(ttaMockFetch).toHaveBeenCalled();
+    expect(mockFetchQuestions).not.toHaveBeenCalled();
+
+    // Restore
+    useSettingsStore.setState({ questionSource: 'otdb' });
   });
 });

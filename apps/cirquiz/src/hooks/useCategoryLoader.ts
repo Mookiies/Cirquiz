@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { OpenTriviaDbProvider } from '../providers';
+import { getProvider } from '../providers/providerFactory';
+import { useSettingsStore } from '../state/settingsStore';
 
 export function useCategoryLoader() {
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
@@ -8,7 +9,8 @@ export function useCategoryLoader() {
   const load = async () => {
     setLoading(true);
     try {
-      setCategories(await new OpenTriviaDbProvider().fetchCategories());
+      const source = useSettingsStore.getState().questionSource;
+      setCategories(await getProvider(source).fetchCategories());
     } catch (e) {
       console.warn('Failed to load categories:', e);
     } finally {
