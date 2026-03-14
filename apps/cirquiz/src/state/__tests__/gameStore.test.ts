@@ -19,7 +19,7 @@ const mockProvider = {
   resetSession: jest.fn(),
 };
 
-beforeAll(() => setProviderForTesting('otdb', mockProvider));
+beforeAll(() => setProviderForTesting('the-trivia-api', mockProvider));
 
 const makeQuestion = (id: string, correctAnswer = 'A'): Question => ({
   id,

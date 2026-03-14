@@ -69,7 +69,7 @@ describe('TheTriviaApiProvider', () => {
       expect(q.text).toBe(apiQ.question.text);
       expect(q.correctAnswer).toBe(apiQ.correctAnswer);
       expect(q.type).toBe('multiple-choice');
-      expect(q.category).toBe(apiQ.category);
+      expect(q.category).toBe('General Knowledge');
       expect(q.difficulty).toBe(apiQ.difficulty);
       expect(q.options).toContain(apiQ.correctAnswer);
       apiQ.incorrectAnswers.forEach((a) => expect(q.options).toContain(a));
