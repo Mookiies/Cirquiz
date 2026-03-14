@@ -4,19 +4,13 @@ import { Alert } from 'react-native';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { getAvatar } from '../avatars';
-import { TriviaQuestionProvider } from '../providers/interface';
-import { OpenTriviaDbProvider } from '../providers/opentdb/OpenTriviaDbProvider';
+import { getProvider } from '../providers/providerFactory';
 import { TriviaProviderError } from '../providers/types';
+import { useSettingsStore } from './settingsStore';
 import { Game, GameConfig, Player, Round, Turn } from './types';
 
 const STORAGE_KEY = '@cirquiz/active_game';
 const CURRENT_SCHEMA_VERSION = 2;
-
-let provider: TriviaQuestionProvider = new OpenTriviaDbProvider();
-
-export function setProviderForTesting(p: TriviaQuestionProvider): void {
-  provider = p;
-}
 
 function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -63,6 +57,7 @@ export const useGameStore = create<GameStore>()(
 
       startGame: async (config: GameConfig) => {
         set({ isLoading: true, pendingConfig: config });
+        const provider = getProvider(useSettingsStore.getState().questionSource);
         provider.resetSession();
         try {
           const questions = await provider.fetchQuestions({
@@ -252,7 +247,9 @@ export const useGameStore = create<GameStore>()(
         try {
           const previousQuestionIds = game.rounds.flatMap((r) => r.questions.map((q) => q.id));
 
-          const questions = await provider.fetchQuestions({
+          const questions = await getProvider(
+            useSettingsStore.getState().questionSource
+          ).fetchQuestions({
             count: game.questionCount,
             category: game.category ?? undefined,
             difficulty: game.difficulty ?? undefined,

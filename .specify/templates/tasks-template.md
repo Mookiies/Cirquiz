@@ -95,10 +95,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T016 [US1] Add validation and error handling
 - [ ] T017 [US1] Add logging for user story 1 operations
 
-**Checkpoint**: User Story 1 complete — verify live with Maestro MCP:
-  1. `mcp__maestro__launch_app` → navigate to the relevant screen
-  2. `mcp__maestro__inspect_view_hierarchy` or `mcp__maestro__take_screenshot`
-  3. Save screenshot/flow result to `specs/[###-feature-name]/verification/us1/`
+**Checkpoint**: User Story 1 complete — verify independently per spec.md Independent Test.
 
 ---
 
@@ -120,8 +117,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T022 [US2] Implement [endpoint/feature] in src/[location]/[file].py
 - [ ] T023 [US2] Integrate with User Story 1 components (if needed)
 
-**Checkpoint**: User Story 2 complete — verify live with Maestro MCP and save result to
-`specs/[###-feature-name]/verification/us2/`
+**Checkpoint**: User Story 2 complete — verify independently per spec.md Independent Test.
 
 ---
 
@@ -142,8 +138,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T027 [US3] Implement [Service] in src/services/[service].py
 - [ ] T028 [US3] Implement [endpoint/feature] in src/[location]/[file].py
 
-**Checkpoint**: User Story 3 complete — verify live with Maestro MCP and save result to
-`specs/[###-feature-name]/verification/us3/`
+**Checkpoint**: User Story 3 complete — verify independently per spec.md Independent Test.
 
 ---
 
@@ -161,8 +156,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] TXXX [P] Additional unit tests (if requested) in tests/unit/
 - [ ] TXXX Security hardening
 - [ ] TXXX Run quickstart.md validation
-- [ ] TXXX [P] Maestro live verification — run all P1 story flows, save screenshots/results
-      to `specs/[###-feature-name]/verification/` before merge
+- [ ] TXXX Final validation — verify all P1 story acceptance scenarios pass
 
 ---
 

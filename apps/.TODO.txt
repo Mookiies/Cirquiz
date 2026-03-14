@@ -1,9 +1,8 @@
 This file is purely for notes and tracking things I want to implement going forward.
 
 - replace when going to the home screen
-- Cache and prefetch the categories. Categories shouldn't be changing while the app is running. We can just hard code these.
-- Add support for trivia API and a settings page to be able to change them.
-    - Along with this we should then support having multiple category selection because this api support that. also multiple difficulty
+- Instead of refresshing the session for otdb when we run out of questions we should show some sort of UI to reset the session or allow changing the category selection
+- On taking a long time to load for continue, if someone quits the game it should cancel the pending network request and navigaiton
 
 OFFLINE SUPPORT
 - Store the list of categories from otdb and return that

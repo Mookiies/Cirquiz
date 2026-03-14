@@ -13,6 +13,7 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../src/components/Button';
 import { GradientScreen } from '../src/components/GradientScreen';
+import { IconButton } from '../src/components/IconButton';
 import { ShineButton } from '../src/components/ShineButton';
 import { useGameStore } from '../src/state/gameStore';
 import { colors, fontSize, spacing } from '../src/theme';
@@ -156,6 +157,13 @@ export default function HomeScreen() {
   return (
     <GradientScreen>
       <View style={[styles.screen, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
+        <View style={styles.topBar}>
+          <IconButton
+            icon="settings-outline"
+            onPress={() => router.push('/settings')}
+            color={colors.text}
+          />
+        </View>
         <Animated.View style={[styles.hero, heroStyle]}>
           <View style={styles.logoWrapper}>
             <CirclequizLogo width={340} height={95} />
@@ -205,6 +213,10 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     flexDirection: 'column',
+  },
+  topBar: {
+    alignItems: 'flex-end',
+    paddingHorizontal: spacing.sm,
   },
   avatarRow: {
     flexDirection: 'row',
