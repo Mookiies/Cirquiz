@@ -10,7 +10,7 @@ interface Props {
   showBlobs?: boolean;
   mode?: keyof typeof GRADIENT_COLORS;
 }
-const LIGHTEN_AMMOUNT = 0.06;
+const LIGHTEN_AMMOUNT = 0.045;
 const GRADIENT_COLORS = {
   standard: [colors.primaryFaint, colors.white, colors.difficultyFaint] as const,
   lighter: [
