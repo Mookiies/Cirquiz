@@ -14,16 +14,17 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   version: '1.0.0',
   orientation: 'portrait',
   scheme: 'cirquiz',
-  icon: './assets/icon.png',
+  icon: './assets/icon/adaptive-icon.png',
   userInterfaceStyle: 'light',
   splash: {
-    image: './assets/splash-icon.png',
+    image: './assets/icon/splash-icon-light.png',
     resizeMode: 'contain',
     backgroundColor: '#ffffff',
   },
   ios: {
     supportsTablet: true,
     bundleIdentifier: `com.cirquiz.app${s.bundleId}`,
+    icon: './assets/icon/circlequiz.icon',
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
     },
@@ -31,15 +32,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   android: {
     package: `com.cirquiz.app${s.bundleId}`,
     adaptiveIcon: {
-      backgroundColor: '#EBF5FB',
-      foregroundImage: './assets/android-icon-foreground.png',
-      backgroundImage: './assets/android-icon-background.png',
-      monochromeImage: './assets/android-icon-monochrome.png',
+      backgroundColor: '#FFFFFF',
+      foregroundImage: './assets/icon/adaptive-icon.png',
+      monochromeImage: './assets/icon/adaptive-icon.png',
     },
     predictiveBackGestureEnabled: false,
   },
   web: {
-    favicon: './assets/favicon.png',
+    favicon: './assets/icon/favicon.png',
   },
   plugins: ['expo-router', 'expo-localization'],
   extra: {

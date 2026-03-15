@@ -1,5 +1,5 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { router } from 'expo-router';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -17,6 +17,7 @@ import { ShineButton } from '../../src/components/ShineButton';
 
 export default function StandingsScreen() {
   const { t } = useTranslation();
+  const { popAnimation } = useLocalSearchParams<{ popAnimation?: string }>();
   const insets = useSafeAreaInsets();
   const ordinalKeys = {
     one: 'game.standings.ordinal_ordinal_one',
@@ -98,6 +99,7 @@ export default function StandingsScreen() {
 
   return (
     <GradientScreen showBlobs={false} mode="no-white">
+      <Stack.Screen options={{ animationTypeForReplace: popAnimation ? 'pop' : 'push' }} />
       <ScrollView
         ref={scrollRef}
         style={styles.scrollView}
@@ -182,7 +184,7 @@ export default function StandingsScreen() {
               if (!showSettings && categories.length === 0) await loadCategories();
               setShowSettings((v) => !v);
             }}
-            color={colors.primary}
+            color={colors.textPrimary}
             style={{ alignSelf: 'center', marginTop: spacing.xl, marginBottom: spacing.xs }}
           />
         </View>
@@ -204,10 +206,18 @@ export default function StandingsScreen() {
             />
           </View>
         )}
+
+        <Button
+          variant="text"
+          label={t('game.standings.viewSummary')}
+          onPress={() => router.replace('/(game)/summary')}
+          color={colors.textPrimary}
+          style={{ alignSelf: 'center', marginTop: spacing.lg, marginBottom: spacing.sm }}
+        />
       </ScrollView>
 
       <View
-        style={[styles.stickyBottom, { paddingBottom: insets.bottom + spacing.md }]}
+        style={[styles.stickyBottom, { paddingBottom: insets.bottom + spacing.xs }]}
         onLayout={(e) => setStickyBottomHeight(e.nativeEvent.layout.height)}
       >
         <LinearGradient

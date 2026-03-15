@@ -1,6 +1,6 @@
 export const colors = {
   // Brand
-  primary: '#3498DB',
+  primary: '#3488db',
   success: '#28B463',
   error: '#E74C3C',
   difficulty: '#9B59B6',
@@ -16,6 +16,7 @@ export const colors = {
   textSecondary: '#555',
   textTertiary: '#888',
   textMuted: '#aaa',
+  textPrimary: '#3488DB',
 
   // UI
   border: '#ddd',

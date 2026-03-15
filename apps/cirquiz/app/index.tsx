@@ -17,7 +17,7 @@ import { IconButton } from '../src/components/IconButton';
 import { ShineButton } from '../src/components/ShineButton';
 import { useGameStore } from '../src/state/gameStore';
 import { colors, fontSize, spacing } from '../src/theme';
-import CirclequizLogo from '../assets/circlequiz.svg';
+import CirclequizLogo from '../assets/circlequiz-wordmark.svg';
 
 const DOT_COLORS = [
   colors.playerPalette.blue,
@@ -142,7 +142,7 @@ export default function HomeScreen() {
       <GradientScreen>
         <View style={styles.loadingContainer}>
           <View style={styles.logoWrapper}>
-            <CirclequizLogo width={300} height={84} />
+            <CirclequizLogo />
           </View>
           <View style={styles.dotsRow}>
             {DOT_COLORS.map((color, i) => (

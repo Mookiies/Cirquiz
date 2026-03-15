@@ -14,7 +14,7 @@ interface ModeCardProps {
 export function ModeCard({ icon, name, description, active, onPress }: ModeCardProps) {
   const { onPressIn, onPressOut, animatedStyle } = usePressAnimation({
     mode: 'scale',
-    haptic: 'none',
+    haptic: 'light',
   });
 
   return (

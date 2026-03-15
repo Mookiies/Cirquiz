@@ -264,7 +264,7 @@ export default function SetupScreen() {
                 variant="text"
                 label={`+ ${t('setup.addPlayer')}`}
                 onPress={addPlayer}
-                color={colors.primary}
+                color={colors.textPrimary}
               />
             )}
 
