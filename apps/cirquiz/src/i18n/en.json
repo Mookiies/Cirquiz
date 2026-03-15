@@ -80,7 +80,16 @@
       "roundsWon": "Rounds Won",
       "roundLabel": "R{{n}}",
       "hideSettings": "Hide Settings",
-      "changeSettings": "Change Category / Difficulty"
+      "changeSettings": "Change Category / Difficulty",
+      "viewSummary": "View Summary"
+    },
+    "summary": {
+      "title": "Game Summary",
+      "roundLabel": "Round {{n}}",
+      "questionLabel": "Q{{n}}",
+      "correctAnswer": "Correct: {{answer}}",
+      "playAnotherRound": "Play Another Round",
+      "endSession": "End Session"
     },
     "error": {
       "title": "Something went wrong",
@@ -88,6 +97,7 @@
       "retry": "Try Again",
       "backHome": "Back to Home"
     },
+    "back": "Back",
     "quit": {
       "title": "Quit Game",
       "message": "Are you sure you want to quit?",

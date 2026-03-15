@@ -4,15 +4,17 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, fontSize, fontWeight, spacing } from '../theme';
 import { AvatarIcon } from './AvatarIcon';
 import { Button } from './Button';
+import { IconButton } from './IconButton';
 
 interface GameHeaderProps {
   variant: 'player' | 'transparent';
   player?: { avatar: string; name: string; color: string };
   onQuit?: () => void;
+  onBack?: () => void;
   quitTextColor?: string;
 }
 
-export function GameHeader({ variant, player, onQuit, quitTextColor }: GameHeaderProps) {
+export function GameHeader({ variant, player, onQuit, onBack, quitTextColor }: GameHeaderProps) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
 
@@ -22,6 +24,14 @@ export function GameHeader({ variant, player, onQuit, quitTextColor }: GameHeade
 
   return (
     <View style={[styles.header, { paddingTop: insets.top, backgroundColor }]}>
+      {onBack && (
+        <IconButton
+          icon="arrow-back"
+          onPress={onBack}
+          color={colors.text}
+          style={styles.backButton}
+        />
+      )}
       {variant === 'player' && player && (
         <View style={[styles.banner, { backgroundColor: player.color }]}>
           <AvatarIcon avatarKey={player.avatar} size={32} />
@@ -58,5 +68,6 @@ const styles = StyleSheet.create({
     fontWeight: fontWeight.bold,
     fontSize: fontSize.base,
   },
+  backButton: { marginLeft: spacing.lg },
   quitButton: { marginLeft: 'auto', paddingRight: spacing.xl },
 });
