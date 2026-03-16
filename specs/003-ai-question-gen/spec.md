@@ -96,7 +96,7 @@ When a user first selects the AI question source, they are guided through downlo
 2. **Given** the user initiates the download, **Then** a progress indicator is visible until the download completes.
 3. **Given** the download completes successfully, **Then** the model's integrity is verified and the user is able to start a game with AI-generated questions immediately without additional steps.
 4a. **Given** the integrity check after download fails, **Then** the model is marked as unavailable and the user is prompted to re-download.
-4. **Given** the download is interrupted (e.g., connection lost), **Then** the user is informed and can retry without starting over from the beginning.
+4. **Given** the download is interrupted (e.g., connection lost), **Then** the user is informed and can retry. On iOS, the download resumes from the interrupted point; on Android it restarts from the beginning.
 5. **Given** insufficient device storage, **When** the user attempts the download, **Then** a clear message states that more storage is required.
 
 ---

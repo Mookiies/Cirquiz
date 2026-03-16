@@ -86,21 +86,26 @@ available      ──[file missing/corrupted*]──► not_downloaded
 ```ts
 interface ModelStoreState {
   status: ModelStatus;
-  downloadProgress: number;   // 0.0–1.0; runtime only, not persisted
-  modelPath: string | null;   // absolute path on device; persisted
+  downloadProgress: number;        // 0.0–1.0; runtime only, not persisted
+  modelPath: string | null;        // absolute path on device; persisted
+  isInitializing: boolean;         // true while initLlama() is in progress; runtime only
+  llamaContext: LlamaContext | null; // runtime only, not persisted
 }
 
 interface ModelStoreActions {
   startDownload: () => Promise<void>;
   cancelDownload: () => void;
   retryDownload: () => Promise<void>;
+  initModel: () => Promise<void>;  // called by settingsStore when 'ai-generated' selected
+  releaseModel: () => Promise<void>; // called by settingsStore when switching away from AI source
+  getContext: () => LlamaContext | null; // called by AIQuestionProvider.fetchQuestions
   _setProgress: (progress: number) => void;   // internal, called by download service
   _setStatus: (status: ModelStatus) => void;  // internal
   _setModelPath: (path: string | null) => void; // internal
 }
 ```
 
-**Persistence**: `status` and `modelPath` are persisted to AsyncStorage under `@cirquiz/model`. `downloadProgress` is excluded from persistence (it resets on app restart).
+**Persistence**: `status` and `modelPath` are persisted to AsyncStorage under `@cirquiz/model`. `downloadProgress`, `isInitializing`, and `llamaContext` are runtime-only and reset on app restart.
 
 ### `GeneratedQuestionRaw` (providers/aigen/questionParser.ts — internal)
 
@@ -160,21 +165,22 @@ Validation rules (enforced by `questionParser.ts`):
     "modelStatus": {
       "notDownloaded": "Model not downloaded",
       "downloading": "Downloading… {{percent}}%",
+      "initializing": "Loading model…",
       "available": "Model ready",
       "error": "Download failed"
     },
-    "downloadModel": "Download Model",
-    "downloadSize": "~2.4 GB",
+    "downloadModel": "Download Model (~2.4 GB)",
     "retryDownload": "Retry Download"
   },
   "setup": {
     "topicPrompt": "Topic",
     "topicPromptPlaceholder": "e.g. Ancient Rome, 80s pop music…",
-    "topicPromptTooShort": "Please enter a more specific topic",
-    "quickPlayDesc": "Any topic, jump right in!",
-    "chooseCategoriesDesc": "Pick topic & difficulty"
+    "topicPromptTooShort": "Please enter a more specific topic"
   },
   "game": {
+    "generatingQuestions": "Generating questions…",
+    "generatingQuestionsHint": "This may take up to 30 seconds",
+    "cancelGeneration": "Cancel",
     "error": {
       "aiNotReady": "AI model is not available. Please download it in Settings.",
       "aiGenerationFailed": "Could not generate questions. Try a more specific topic.",

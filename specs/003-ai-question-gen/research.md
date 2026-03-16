@@ -2,7 +2,7 @@
 
 **Feature**: 003-ai-question-gen
 **Date**: 2026-03-15
-**Status**: Complete — all NEEDS CLARIFICATION resolved
+**Status**: Complete — all NEEDS CLARIFICATION resolved; gaps 2–7 from 2026-03-15 review addressed
 
 ---
 
@@ -48,7 +48,11 @@
 | Gemma-2B | 2B | 57.8% | ~1.3 GB | Good |
 | Qwen2.5-1.5B | 1.5B | 53.6% | ~0.9 GB | Good |
 
-**Expected inference speed**: 10–20 tokens/second on iPhone 12 class device (CPU). A batch of 5 questions (~500–800 tokens output) should complete in 25–50 seconds, within the SC-001 30-second target for most rounds.
+**Expected inference speed**: 30–60 tokens/second on iPhone 12 (A14 Bionic) with Metal GPU acceleration enabled (`n_gpu_layers: 99`). A batch of 5 questions (~500–800 tokens output) completes in roughly 8–27 seconds — within the SC-001 30-second target with margin.
+
+**Critical**: Metal acceleration requires `n_gpu_layers: 99` in `initLlama()`. Metal is compiled in automatically on iOS but is a no-op if `n_gpu_layers` is 0 or absent. Without it, CPU-only speed is 10–20 tok/s and a 500–800 token batch takes 25–80 seconds, which risks exceeding SC-001. `n_gpu_layers: 99` must be set explicitly in `AIQuestionProvider.ts`.
+
+iPhone 12 ships with the A14 Bionic, which supports Metal GPU Family Apple7 — confirmed compatible with llama.rn's Metal backend. On Android, GPU acceleration depends on the device (OpenCL on Adreno GPUs); the 30-second target is a best-effort on Android and may not be met on all devices.
 
 **Fallback if 2.39 GB is too large for target users**: SmolLM2-1.7B at ~1.0 GB (Q4), accepting ~9% accuracy reduction.
 
@@ -132,6 +136,112 @@ interface ModelStoreState {
   modelPath: string | null;  // persisted
 }
 ```
+
+---
+
+## Decision 6: llama.rn `initLlama` Configuration
+
+**Decision**: Use the following configuration for all `initLlama()` calls:
+
+```ts
+const context = await initLlama({
+  model: modelPath,    // absolute file:// path from modelStore
+  n_ctx: 2048,         // prompt (~300 tok) + grammar output (~800 tok) + margin
+  n_gpu_layers: 99,    // offload all layers to Metal (iOS) / OpenCL (Android)
+  n_threads: 4,        // reasonable default; llama.rn picks optimal if omitted
+});
+```
+
+**Rationale**:
+- `n_ctx: 2048` — the system prompt + user prompt total ~300 tokens; a 5-question batch output is ~800 tokens. 2048 provides comfortable headroom without wasting RAM on a larger context.
+- `n_gpu_layers: 99` — this is what actually enables Metal on iOS. Metal is compiled in at build time but only activates when `n_gpu_layers > 0`. Setting 99 offloads all layers; llama.cpp clamps to the actual layer count if the model has fewer. This is the difference between hitting and missing SC-001 (see Decision 2 speed note).
+- `n_threads: 4` — safe default for iPhone 12 class; can be left unset to let llama.rn auto-detect.
+
+**`initLlama` is not a singleton**: each call returns a new `LlamaContext` with a unique internal ID. `AIQuestionProvider` holds the context as a module-level variable, initialized lazily on first `fetchQuestions` call and reused for the app session. `releaseAllLlama()` is called if `modelStore` transitions to `'not_downloaded'` or `'error'` (e.g., integrity failure on retry).
+
+---
+
+## Decision 7: llama.rn Completion API
+
+**Decision**: Use `context.completion()` with the `messages` array format and explicit `grammar` param:
+
+```ts
+const result = await context.completion({
+  messages: [
+    { role: 'system', content: SYSTEM_PROMPT },
+    { role: 'user', content: buildUserPrompt(topic, count, difficulty) },
+  ],
+  grammar: GBNF_GRAMMAR,
+  temperature: 0.2,
+  n_predict: 1024,
+  stop: ['<|end|>', '</s>'],
+});
+const jsonText = result.text;
+```
+
+**Chat template**: When `messages` is passed, llama.rn automatically applies the chat template embedded in the GGUF file (Phi-3.5-mini ships with its template in model metadata). Manual formatting of `<|system|>...<|end|><|user|>...` tokens is **not required** and should not be done — doing so would double-apply the template. Use `messages`, not `prompt`.
+
+**Why `temperature: 0.2`**: Low temperature reduces hallucination for factual trivia. Higher values increase variety but risk factual errors (SC-006 ≥95% accuracy target).
+
+**Why `n_predict: 1024`**: Upper bound to prevent runaway generation. 5 questions × ~150–200 tokens each ≈ 750–1000 tokens. 1024 is a safe ceiling; GBNF grammar will complete the array before this limit in normal operation.
+
+**`result.text`**: Returns the raw generated string. With the GBNF grammar active, this is always valid JSON matching the grammar schema — `questionParser.ts` still validates field-level constraints (non-empty strings, correct answer count, etc.) that grammar alone cannot enforce.
+
+---
+
+## Decision 8: iOS Entitlements for Large Model Loading
+
+**Decision**: Enable `enableEntitlements: true` in the llama.rn Expo config plugin in `app.json`.
+
+```json
+{
+  "plugins": [
+    ["llama.rn", { "enableEntitlements": true }]
+  ]
+}
+```
+
+This sets two iOS entitlements automatically:
+- `com.apple.developer.kernel.increased-memory-limit` — allows the app to use more than the default memory ceiling (required for a 2.39 GB model)
+- `com.apple.developer.kernel.extended-virtual-addressing` — enables extended virtual address space on 64-bit devices
+
+**Without these entitlements**: iOS will kill the app when it tries to load the model into RAM. This is a hard requirement for the feature to function on device.
+
+**Build note**: The plugin also sets `forceCxx20: true` in Xcode build settings (C++20 is required by llama.cpp). This is handled automatically by the plugin and requires no manual Podfile edits.
+
+**Android**: No equivalent entitlements required. GPU acceleration (OpenCL/Hexagon NPU) is opt-in via `enableOpenCLAndHexagon: true` in the plugin config — include this for best Android performance but it is not a hard requirement.
+
+---
+
+## Decision 9: Model Init Lifecycle
+
+**Decision**: `modelStore` owns the llama context. The model is loaded when the user selects "AI Generated" as their question source and released when they switch to any other source.
+
+```
+User selects 'ai-generated' in settings (modelStore.status === 'available')
+  └─ settings screen calls modelStore.initModel() directly
+  └─ await initLlama({ model: modelPath, n_ctx: 2048, n_gpu_layers: 99, ... })
+  └─ context stored in modelStore; a loading indicator is shown in settings during init
+
+User is on AI source
+  └─ same context reused for all rounds (model stays in RAM while AI source is active)
+
+User selects a different source in settings
+  └─ settings screen calls modelStore.releaseModel() directly
+  └─ releaseAllLlama() → context = null (~2.5 GB freed)
+
+modelStore transitions to 'not_downloaded' or 'error' (integrity failure / retry)
+  └─ modelStore.releaseModel() → releaseAllLlama()
+  └─ context = null
+```
+
+**Why load on source selection, not at game start**: Loading is tied to the user's explicit intent. When the user picks AI source, they are committing to the feature — paying the 5–15s load cost at settings time means the model is ready when they reach the game setup screen. It also avoids a confusing double-loading-indicator (model init + question generation) at round start.
+
+**Why release on source switch**: ~2.5 GB of RAM should not be held while the user is on a different source. The 5–15s reload cost if they switch back is acceptable — it happens at the settings screen, not mid-game.
+
+**Why keep model in RAM across rounds (while AI source is active)**: Releasing between rounds would make each round's start 35–45 seconds (5–15s reload + 8–27s generation), far exceeding SC-001. The model stays loaded for as long as AI source is selected.
+
+**`AIQuestionProvider` gets context from `modelStore`**: The provider does not own or init the context itself. `fetchQuestions` calls `modelStore.getContext()` and throws `PROVIDER_ERROR` if it returns null (model not loaded). This is a programming error guard — the UI prevents starting a game when AI source is not ready.
 
 ---
 

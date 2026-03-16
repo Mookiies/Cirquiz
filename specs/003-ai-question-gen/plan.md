@@ -118,12 +118,14 @@ apps/cirquiz/
 
 ## Implementation Sequence
 
+> **i18n rule**: All new user-visible strings use `t()` calls and are added to `en.json` inline as each phase is implemented. No hardcoded strings at any point — there is no separate i18n cleanup phase.
+
 ### Phase A — Foundation (no UI, no native)
 1. Add `'ai-generated'` to `QuestionSource`; bump `settingsStore` schema version (v2)
 2. Add `topicPrompt?: string` to `QuestionFetchParams`
 3. Add `aiTopicPrompt` to `GameConfig` and `Game` in `state/types.ts`
 4. Update `gameStore.startGame` and `startNextRound` to read + pass `aiTopicPrompt`
-5. Install `llama.rn` and `@dr.pogodin/react-native-fs`; verify native build
+5. Install `llama.rn` and `@dr.pogodin/react-native-fs`; add llama.rn Expo config plugin with `enableEntitlements: true` and `enableOpenCLAndHexagon: true` in `app.json`; verify native build compiles on iOS and Android
 
 ### Phase B — AI Provider (core logic, testable in isolation)
 6. Create `aiPrompts.ts` — GBNF grammar string + `buildPrompt(topic, count, difficulty)` function
@@ -132,26 +134,35 @@ apps/cirquiz/
 9. Add `'ai-generated'` case to `providerFactory.ts`
 
 ### Phase C — Model Download (state + service)
-10. Create `modelStore.ts` — Zustand store with `status`, `downloadProgress`, `modelPath`; persisted to `@cirquiz/model`
-11. Create `modelDownloadService.ts` — wraps background downloader; fires `modelStore` actions for progress + completion; runs SHA-256 integrity check on completion
+10. Create `modelStore.ts` — Zustand store with `status`, `downloadProgress`, `modelPath`, `isInitializing`, `llamaContext`; persisted fields: `status` + `modelPath` only; add `initModel()`, `releaseModel()`, `getContext()` actions
+11. Create `modelDownloadService.ts` — wraps `@dr.pogodin/react-native-fs`; fires `modelStore` actions for progress + completion; runs SHA-256 integrity check on completion; on retry checks `RNFS.isResumable(jobId)` first — resumes from byte offset on iOS, restarts from beginning on Android
 
 ### Phase D — Settings UI
-12. Add "AI Generated" `SelectableRow` to `settings.tsx`
-13. Add model status indicator below the AI row (badge: not downloaded / downloading with % / ready / error)
-14. Add Download / Retry button that calls `modelDownloadService`
-15. Add download size display (~2.4 GB) shown before first download
+> The settings screen (`settings.tsx`) owns all model lifecycle and download management UI. `settingsStore` is not involved in model init/release — the screen calls `modelStore` directly.
 
-### Phase E — Setup UI
+12. Add "AI Generated" `SelectableRow` to `settings.tsx`
+13. Add model status indicator below the AI row with all four states:
+    - `not_downloaded` → "Model not downloaded" + Download button (shows size)
+    - `downloading` → "Downloading… X%" progress text + Cancel button
+    - `initializing` (isInitializing flag) → "Loading model…" spinner; row is non-interactive
+    - `available` → "Model ready" indicator; selecting this row triggers `modelStore.initModel()`
+    - `error` → "Download failed" + Retry button
+14. When user selects the AI row and model is `available` but not yet initialized, call `modelStore.initModel()` and show the `initializing` state inline until `isInitializing` clears
+15. When user switches away from AI row, call `modelStore.releaseModel()`
+
+### Phase E — Setup UI + Generation Loading
 16. In `setup.tsx`, when `questionSource === 'ai-generated'`, replace the `CategorySelector` with a topic prompt `TextInput`
 17. Validate minimum prompt length (≥ 3 chars) before calling `startGame`; show inline error message
 18. Pre-fill last-used prompt from `settingsStore` or a dedicated persisted value
+19. During question generation (round start), show a loading state in place of the first question:
+    - Primary: "Generating questions…" (i18n: `game.generatingQuestions`)
+    - Secondary: "This may take up to 30 seconds" (i18n: `game.generatingQuestionsHint`)
+    - Use existing `ShineButton` / `isLoading` loading prop for the Continue button; keep it disabled until generation completes
+    - Show a "Cancel" button (i18n: `game.cancelGeneration`) that calls `context.stopCompletion()` and returns the user to the setup screen cleanly — no error screen shown on cancel
+    - This loading state only appears for the AI source; other providers show their existing loading behavior unchanged
 
-### Phase F — i18n + Polish
-19. Add all new i18n keys to `en.json`
-20. Replace any hardcoded strings from D/E with `t()` calls
-
-### Phase G — Testing
-21. Unit tests: `questionParser.ts` (valid input, malformed input, insufficient count)
-22. Unit tests: `aiPrompts.ts` (prompt shape, grammar string structure)
-23. Integration test: `AIQuestionProvider.fetchQuestions` with a mocked llama.rn context
-24. Happy-path tests for P1 journeys (settings selection persists, game starts with AI source, error screen on generation failure)
+### Phase F — Testing
+20. Unit tests: `questionParser.ts` (valid input, malformed input, insufficient count)
+21. Unit tests: `aiPrompts.ts` (prompt shape, grammar string structure)
+22. Integration test: `AIQuestionProvider.fetchQuestions` with a mocked llama.rn context
+23. Happy-path tests for P1 journeys (settings selection persists, game starts with AI source, error screen on generation failure)
