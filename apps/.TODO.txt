@@ -21,6 +21,8 @@ Questions:
     - Generating a backend that is able to handle it
     - embedding for offline
 - AI generated question (maybe embedding models and working with it that way)?
+    - https://github.com/a-ghorbani/pocketpal-ai?tab=readme-ov-file#downloading-a-model
+    - Monitization opportunity: make people watch an add before downloading a model as a "one-time fee", make it optional?
 
 - MUSIC INTEGRATION
 

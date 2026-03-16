@@ -18,6 +18,8 @@ interface Props {
   loading?: boolean;
   disabled?: boolean;
   compact?: boolean;
+  adjustsFontSizeToFit?: boolean;
+  fillHeight?: boolean;
   haptic?: 'strong' | 'light' | 'none';
   style?: ViewStyle;
   onLayout?: (e: LayoutChangeEvent) => void;
@@ -35,6 +37,8 @@ export function Button({
   loading = false,
   disabled = false,
   compact = false,
+  adjustsFontSizeToFit = false,
+  fillHeight = false,
   haptic,
   style,
   onLayout,
@@ -50,6 +54,9 @@ export function Button({
     <ActivityIndicator color={textColor ?? colors.white} />
   ) : (
     <Text
+      numberOfLines={adjustsFontSizeToFit ? 1 : undefined}
+      adjustsFontSizeToFit={adjustsFontSizeToFit}
+      minimumFontScale={adjustsFontSizeToFit ? 0.7 : undefined}
       style={[
         styles.text,
         variant === 'outlined' ? styles.textOutlined : styles.textSolid,
@@ -120,6 +127,7 @@ export function Button({
             ? [styles.outlined, { borderColor: color }, selected && { backgroundColor: color }]
             : { backgroundColor: color },
           compact && styles.compactBase,
+          fillHeight && styles.fillHeight,
         ]}
         onPress={onPress}
         onPressIn={onPressIn}
@@ -145,6 +153,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.lg,
   },
   compactBase: { paddingVertical: spacing.md, paddingHorizontal: spacing.md },
+  fillHeight: { flex: 1 },
   inactive: { opacity: opacity.inactive },
   shinePressable: { zIndex: 1 },
   raisedBase: { overflow: 'hidden' },

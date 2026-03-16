@@ -31,6 +31,8 @@ export function DifficultySelector({ value, onChange, style }: Props) {
             key={label}
             variant="outlined"
             compact
+            adjustsFontSizeToFit
+            fillHeight
             selected={active}
             color={colors.difficulty}
             label={label}
@@ -45,5 +47,5 @@ export function DifficultySelector({ value, onChange, style }: Props) {
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', gap: spacing.sm },
+  row: { flexDirection: 'row', gap: spacing.sm, flexWrap: 'wrap' },
 });
