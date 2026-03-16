@@ -22,6 +22,8 @@ specs/          # Feature specs and plans
 ## Active Technologies
 - TypeScript ~5.9 + React Native 0.83.2, Expo SDK ~55, Expo Router ~55, Zustand ^5, @react-native-async-storage/async-storage, react-native-reanimated, i18next + react-i18nex (002-provider-settings)
 - AsyncStorage — `@cirquiz/settings` (new) and `@cirquiz/active_game` (existing) (002-provider-settings)
+- TypeScript ~5.9, React Native 0.83.2, React 19.2.0 (003-ai-question-gen)
+- AsyncStorage (`@cirquiz/model` key for model state; existing `@cirquiz/settings` key for source preference) (003-ai-question-gen)
 
 - **Runtime**: React Native 0.83.2, React 19.2.0
 - **Framework**: Expo SDK ~55, Expo Router ~55
@@ -64,6 +66,7 @@ yarn workspace cirquiz typecheck
 - Zustand for global state (stores in `apps/cirquiz/src/state/`)
 
 ## Recent Changes
+- 003-ai-question-gen: Added TypeScript ~5.9, React Native 0.83.2, React 19.2.0
 - 002-provider-settings: Added TypeScript ~5.9 + React Native 0.83.2, Expo SDK ~55, Expo Router ~55, Zustand ^5, @react-native-async-storage/async-storage, react-native-reanimated, i18next + react-i18nex
 
 - 001-pass-and-play-trivia: Pass-and-play local multiplayer trivia game with player setup, question flow, handoff screens, reveal, and standings
