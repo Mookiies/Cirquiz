@@ -35,6 +35,7 @@ export interface Game {
   state: GameState;
   rounds: Round[];
   currentRoundIndex: number;
+  aiTopicPrompt: string | null;
 }
 
 export interface GameConfig {
@@ -43,4 +44,5 @@ export interface GameConfig {
   category?: string;
   difficulty?: Difficulty;
   mode: GameMode;
+  aiTopicPrompt?: string;
 }

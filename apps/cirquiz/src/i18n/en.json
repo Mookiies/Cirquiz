@@ -43,14 +43,28 @@
     "questionCount": "Number of Questions",
     "players": "Players",
     "nameEmpty": "Name cannot be empty",
-    "nameUnique": "Name must be unique"
+    "nameUnique": "Name must be unique",
+    "topicPrompt": "Topic",
+    "topicPromptPlaceholder": "e.g. Ancient Rome, 80s pop music…",
+    "topicPromptTooShort": "Please enter a more specific topic"
   },
   "settings": {
     "title": "Settings",
     "questionSource": "Question Source",
     "otdb": "Open Trivia Database",
     "theTriviaApi": "The Trivia API",
-    "categoryResetNotice": "Category selection was reset."
+    "aiGenerated": "AI Generated",
+    "categoryResetNotice": "Category selection was reset.",
+    "modelStatus": {
+      "notDownloaded": "Model not downloaded",
+      "downloading": "Downloading… {{percent}}%",
+      "initializing": "Loading model…",
+      "available": "Model ready",
+      "error": "Download failed"
+    },
+    "downloadModel": "Download Model (~2.4 GB)",
+    "retryDownload": "Retry Download",
+    "cancelDownload": "Cancel Download"
   },
   "game": {
     "handoff": {
@@ -91,11 +105,17 @@
       "playAnotherRound": "Play Another Round",
       "endSession": "End Session"
     },
+    "generatingQuestions": "Generating questions…",
+    "generatingQuestionsHint": "This may take up to 30 seconds",
+    "cancelGeneration": "Cancel",
     "error": {
       "title": "Something went wrong",
       "message": "Could not load questions. Please try again.",
       "retry": "Try Again",
-      "backHome": "Back to Home"
+      "backHome": "Back to Home",
+      "aiNotReady": "AI model is not available. Please download it in Settings.",
+      "aiGenerationFailed": "Could not generate questions. Try a more specific topic.",
+      "aiInsufficientQuestions": "Not enough questions could be generated. Try a different topic."
     },
     "back": "Back",
     "quit": {

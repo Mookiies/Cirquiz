@@ -17,6 +17,7 @@ const mockProvider = {
   supportsCategories: () => true,
   supportsDifficulty: () => true,
   resetSession: jest.fn(),
+  cancelFetch: jest.fn(),
 };
 
 beforeAll(() => setProviderForTesting('the-trivia-api', mockProvider));
@@ -61,6 +62,7 @@ const makeGame = (overrides: Partial<Game> = {}): Game => ({
   state: 'in-progress',
   rounds: [makeRound()],
   currentRoundIndex: 0,
+  aiTopicPrompt: null,
   ...overrides,
 });
 
@@ -493,6 +495,7 @@ describe('startGame uses provider matching active questionSource', () => {
       supportsCategories: () => true,
       supportsDifficulty: () => true,
       resetSession: jest.fn(),
+      cancelFetch: jest.fn(),
     };
     setProviderForTesting('the-trivia-api', ttaMockProvider);
     useSettingsStore.setState({ questionSource: 'the-trivia-api' });

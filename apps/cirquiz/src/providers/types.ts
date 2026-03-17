@@ -24,6 +24,7 @@ export interface QuestionFetchParams {
   category?: string;
   difficulty?: Difficulty;
   excludeIds?: string[];
+  topicPrompt?: string;
 }
 
 export enum TriviaProviderErrorCode {
@@ -31,6 +32,7 @@ export enum TriviaProviderErrorCode {
   NoResults = 'NO_RESULTS',
   InvalidParams = 'INVALID_PARAMS',
   ProviderError = 'PROVIDER_ERROR',
+  UserCancelled = 'USER_CANCELLED',
 }
 
 export class TriviaProviderError extends Error {

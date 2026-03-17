@@ -19,9 +19,9 @@
 
 **Purpose**: Install and configure native modules required by all subsequent phases.
 
-- [ ] T001 Install `llama.rn` and `@dr.pogodin/react-native-fs` by running `npx expo install llama.rn @dr.pogodin/react-native-fs` from `apps/cirquiz/`
-- [ ] T002 Configure the llama.rn Expo config plugin with `enableEntitlements: true` and `enableOpenCLAndHexagon: true` in the `plugins` array of `apps/cirquiz/app.json`
-- [ ] T003 Rebuild native modules: run `pod install` in `apps/cirquiz/ios/`; verify the native build compiles without errors on iOS and Android
+- [X] T001 Install `llama.rn` and `@dr.pogodin/react-native-fs` by running `npx expo install llama.rn @dr.pogodin/react-native-fs` from `apps/cirquiz/`
+- [X] T002 Configure the llama.rn Expo config plugin with `enableEntitlements: true` and `enableOpenCLAndHexagon: true` in the `plugins` array of `apps/cirquiz/app.json`
+- [X] T003 Rebuild native modules: run `pod install` in `apps/cirquiz/ios/`; verify the native build compiles without errors on iOS and Android
 
 ---
 
@@ -31,11 +31,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T004 [P] Add `'ai-generated'` to the `QuestionSource` union type and bump the schema version constant to v2 in `apps/cirquiz/src/state/settingsStore.ts`
-- [ ] T005 [P] Add `topicPrompt?: string` to the `QuestionFetchParams` interface in `apps/cirquiz/src/providers/types.ts`
-- [ ] T006 [P] Add `aiTopicPrompt?: string` to `GameConfig` and `aiTopicPrompt: string | null` to the `Game` interface in `apps/cirquiz/src/state/types.ts`
-- [ ] T007 Update `startGame` and `startNextRound` to read `aiTopicPrompt` from the config/game object and forward it in the `QuestionFetchParams` passed to the provider in `apps/cirquiz/src/state/gameStore.ts`
-- [ ] T008 [P] Create `modelStore.ts` with `ModelStatus` type (`'not_downloaded' | 'downloading' | 'available' | 'error'`), `ModelStoreState` and `ModelStoreActions` interfaces, and a Zustand store that persists `status` and `modelPath` to AsyncStorage under the `@cirquiz/model` key; `downloadProgress`, `isInitializing`, and `llamaContext` are runtime-only (not persisted); expose `initModel()`, `releaseModel()`, `getContext()`, `_setProgress()`, `_setStatus()`, and `_setModelPath()` actions in `apps/cirquiz/src/state/modelStore.ts`
+- [X] T004 [P] Add `'ai-generated'` to the `QuestionSource` union type and bump the schema version constant to v2 in `apps/cirquiz/src/state/settingsStore.ts`
+- [X] T005 [P] Add `topicPrompt?: string` to the `QuestionFetchParams` interface in `apps/cirquiz/src/providers/types.ts`
+- [X] T006 [P] Add `aiTopicPrompt?: string` to `GameConfig` and `aiTopicPrompt: string | null` to the `Game` interface in `apps/cirquiz/src/state/types.ts`
+- [X] T007 Update `startGame` and `startNextRound` to read `aiTopicPrompt` from the config/game object and forward it in the `QuestionFetchParams` passed to the provider in `apps/cirquiz/src/state/gameStore.ts`
+- [X] T008 [P] Create `modelStore.ts` with `ModelStatus` type (`'not_downloaded' | 'downloading' | 'available' | 'error'`), `ModelStoreState` and `ModelStoreActions` interfaces, and a Zustand store that persists `status` and `modelPath` to AsyncStorage under the `@cirquiz/model` key; `downloadProgress`, `isInitializing`, and `llamaContext` are runtime-only (not persisted); expose `initModel()`, `releaseModel()`, `getContext()`, `_setProgress()`, `_setStatus()`, and `_setModelPath()` actions in `apps/cirquiz/src/state/modelStore.ts`
 
 **Checkpoint**: Foundation ready — all type changes compile and modelStore is created.
 
@@ -49,10 +49,10 @@
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Add an "AI Generated" `SelectableRow` entry to the question source section in `apps/cirquiz/app/settings.tsx`
-- [ ] T010 [US1] Add a model status indicator below the AI Generated row in `apps/cirquiz/app/settings.tsx` displaying all five states driven by `modelStore.status` and `modelStore.isInitializing`: `not_downloaded` → "Model not downloaded" text, `downloading` → "Downloading… X%" progress text, `isInitializing === true` → "Loading model…" spinner (row non-interactive), `available` → "Model ready" text, `error` → "Download failed" text
-- [ ] T011 [US1] Implement model lifecycle in the settings screen in `apps/cirquiz/app/settings.tsx`: when the user selects the AI row and `modelStore.status === 'available'`, call `modelStore.initModel()` and show the `isInitializing` state until it clears; when the user selects any other source row, call `modelStore.releaseModel()`
-- [ ] T012 [P] [US1] Add settings i18n keys (`settings.aiGenerated`, `settings.modelStatus.notDownloaded`, `settings.modelStatus.downloading`, `settings.modelStatus.initializing`, `settings.modelStatus.available`, `settings.modelStatus.error`, `settings.downloadModel`, `settings.retryDownload`) to `apps/cirquiz/src/i18n/en.json`
+- [X] T009 [US1] Add an "AI Generated" `SelectableRow` entry to the question source section in `apps/cirquiz/app/settings.tsx`
+- [X] T010 [US1] Add a model status indicator below the AI Generated row in `apps/cirquiz/app/settings.tsx` displaying all five states driven by `modelStore.status` and `modelStore.isInitializing`: `not_downloaded` → "Model not downloaded" text, `downloading` → "Downloading… X%" progress text, `isInitializing === true` → "Loading model…" spinner (row non-interactive), `available` → "Model ready" text, `error` → "Download failed" text
+- [X] T011 [US1] Implement model lifecycle in the settings screen in `apps/cirquiz/app/settings.tsx`: when the user selects the AI row and `modelStore.status === 'available'`, call `modelStore.initModel()` and show the `isInitializing` state until it clears; when the user selects any other source row, call `modelStore.releaseModel()`
+- [X] T012 [P] [US1] Add settings i18n keys (`settings.aiGenerated`, `settings.modelStatus.notDownloaded`, `settings.modelStatus.downloading`, `settings.modelStatus.initializing`, `settings.modelStatus.available`, `settings.modelStatus.error`, `settings.downloadModel`, `settings.retryDownload`) to `apps/cirquiz/src/i18n/en.json`
 
 **Checkpoint**: User Story 1 complete — "AI Generated" source appears, persists, and shows model status badge in all states.
 
@@ -66,10 +66,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T013 [US2] Replace the `CategorySelector` component with a topic prompt `TextInput` (using `t('setup.topicPrompt')` as label and `t('setup.topicPromptPlaceholder')` as placeholder) when `questionSource === 'ai-generated'` in `apps/cirquiz/app/setup.tsx`
-- [ ] T014 [US2] Add minimum-length validation in `apps/cirquiz/app/setup.tsx`: before calling `startGame`, check that the topic prompt is ≥ 3 characters; if not, display the `t('setup.topicPromptTooShort')` error message inline and do not proceed
-- [ ] T015 [US2] Pre-fill the topic prompt `TextInput` on mount with the last-used prompt value (read from the store or AsyncStorage on mount; write the new value to the store before calling `startGame`) in `apps/cirquiz/app/setup.tsx`
-- [ ] T016 [P] [US2] Add setup i18n keys (`setup.topicPrompt`, `setup.topicPromptPlaceholder`, `setup.topicPromptTooShort`) to `apps/cirquiz/src/i18n/en.json`
+- [X] T013 [US2] Replace the `CategorySelector` component with a topic prompt `TextInput` (using `t('setup.topicPrompt')` as label and `t('setup.topicPromptPlaceholder')` as placeholder) when `questionSource === 'ai-generated'` in `apps/cirquiz/app/setup.tsx`
+- [X] T014 [US2] Add minimum-length validation in `apps/cirquiz/app/setup.tsx`: before calling `startGame`, check that the topic prompt is ≥ 3 characters; if not, display the `t('setup.topicPromptTooShort')` error message inline and do not proceed
+- [X] T015 [US2] Pre-fill the topic prompt `TextInput` on mount with the last-used prompt value (read from the store or AsyncStorage on mount; write the new value to the store before calling `startGame`) in `apps/cirquiz/app/setup.tsx`
+- [X] T016 [P] [US2] Add setup i18n keys (`setup.topicPrompt`, `setup.topicPromptPlaceholder`, `setup.topicPromptTooShort`) to `apps/cirquiz/src/i18n/en.json`
 
 **Checkpoint**: User Story 2 complete — topic prompt input replaces category selector, validates, and pre-fills on AI source.
 
@@ -83,18 +83,18 @@
 
 ### Tests for User Story 3
 
-- [ ] T017 [P] [US3] Write unit tests for `questionParser.ts` covering: valid `GeneratedQuestionRaw[]` input produces a correctly shaped `Question[]`; items with missing/empty fields are discarded; when the valid question count after filtering is below `params.count`, `TriviaProviderError(NO_RESULTS)` is thrown; true-false type requires exactly 1 incorrect answer in `apps/cirquiz/src/providers/aigen/__tests__/questionParser.test.ts`
-- [ ] T018 [P] [US3] Write unit tests for `aiPrompts.ts` covering: `buildPrompt(topic, count, difficulty)` returns strings containing the topic, count, and difficulty values; `GBNF_GRAMMAR` is a non-empty string that includes the `root`, `question`, `correct_answer`, and `incorrect_answers` rule names in `apps/cirquiz/src/providers/aigen/__tests__/aiPrompts.test.ts`
+- [X] T017 [P] [US3] Write unit tests for `questionParser.ts` covering: valid `GeneratedQuestionRaw[]` input produces a correctly shaped `Question[]`; items with missing/empty fields are discarded; when the valid question count after filtering is below `params.count`, `TriviaProviderError(NO_RESULTS)` is thrown; true-false type requires exactly 1 incorrect answer in `apps/cirquiz/src/providers/aigen/__tests__/questionParser.test.ts`
+- [X] T018 [P] [US3] Write unit tests for `aiPrompts.ts` covering: `buildPrompt(topic, count, difficulty)` returns strings containing the topic, count, and difficulty values; `GBNF_GRAMMAR` is a non-empty string that includes the `root`, `question`, `correct_answer`, and `incorrect_answers` rule names in `apps/cirquiz/src/providers/aigen/__tests__/aiPrompts.test.ts`
 
 ### Implementation for User Story 3
 
-- [ ] T019 [P] [US3] Create `aiPrompts.ts` with `GBNF_GRAMMAR` constant (root array of objects with `question`, `type`, `correct_answer`, `incorrect_answers` fields per the contract grammar) and `buildPrompt(topic: string, count: number, difficulty?: Difficulty): { system: string; user: string }` returning the static system prompt and the dynamic user prompt with topic/count/difficulty interpolated in `apps/cirquiz/src/providers/aigen/aiPrompts.ts`
-- [ ] T020 [P] [US3] Create `questionParser.ts` implementing `parse(rawJson: string, requestedCount: number): Question[]` that validates each `GeneratedQuestionRaw` item (non-empty question ≤ 300 chars, valid type enum, non-empty correct_answer, exactly 3 incorrect answers for multiple-choice or exactly 1 for true-false, no duplicate answer text), discards invalid items, converts valid items to `Question[]`, and throws `TriviaProviderError(NO_RESULTS)` if valid count is below `requestedCount` in `apps/cirquiz/src/providers/aigen/questionParser.ts`
-- [ ] T021 [US3] Create `AIQuestionProvider.ts` implementing the full `TriviaQuestionProvider` interface: `fetchQuestions` calls `modelStore.getContext()` (throws `TriviaProviderError(PROVIDER_ERROR)` if null), then calls `context.completion({ messages: [...], grammar: GBNF_GRAMMAR, temperature: 0.2, n_predict: 1024, stop: ['<|end|>', '</s>'] })` using the `messages` format (never `prompt`), passes `result.text` to `questionParser.parse()`, deduplicates against `params.excludeIds`; `cancelFetch` calls `context.stopCompletion()` and detects partial/empty output to throw `TriviaProviderError(USER_CANCELLED)`; `resetSession` clears the internal dedup Set; `fetchCategories` returns `[]`; `supportsCategories` returns `false`; `supportsDifficulty` returns `true` in `apps/cirquiz/src/providers/aigen/AIQuestionProvider.ts`
-- [ ] T022 [P] [US3] Add the `'ai-generated'` case to the `getProvider()` factory function, returning an `AIQuestionProvider` instance in `apps/cirquiz/src/providers/providerFactory.ts`
-- [ ] T023 [P] [US3] Add the generation loading state to the game round question display screen (locate via Expo Router from `app/setup.tsx`): when `questionSource === 'ai-generated'` and questions are loading at round start, show `t('game.generatingQuestions')` text, `t('game.generatingQuestionsHint')` subtext, and a Cancel button that calls `provider.cancelFetch()`; use the existing `isLoading`/`ShineButton` pattern to disable the Continue button until generation completes; ensure `gameStore` handles `USER_CANCELLED` by navigating back to setup without showing an error screen
-- [ ] T024 [P] [US3] Add game i18n keys (`game.generatingQuestions`, `game.generatingQuestionsHint`, `game.cancelGeneration`, `game.error.aiNotReady`, `game.error.aiGenerationFailed`, `game.error.aiInsufficientQuestions`) to `apps/cirquiz/src/i18n/en.json`
-- [ ] T025 [P] [US3] Write integration test for `AIQuestionProvider.fetchQuestions` with a mocked llama.rn context: success path with a valid JSON fixture returns a `Question[]` of the correct length; a fixture with too few valid items throws `TriviaProviderError(NO_RESULTS)`; calling with a null context (mock `modelStore.getContext()` returning null) throws `TriviaProviderError(PROVIDER_ERROR)` in `apps/cirquiz/src/providers/aigen/__tests__/AIQuestionProvider.test.ts`
+- [X] T019 [P] [US3] Create `aiPrompts.ts` with `GBNF_GRAMMAR` constant (root array of objects with `question`, `type`, `correct_answer`, `incorrect_answers` fields per the contract grammar) and `buildPrompt(topic: string, count: number, difficulty?: Difficulty): { system: string; user: string }` returning the static system prompt and the dynamic user prompt with topic/count/difficulty interpolated in `apps/cirquiz/src/providers/aigen/aiPrompts.ts`
+- [X] T020 [P] [US3] Create `questionParser.ts` implementing `parse(rawJson: string, requestedCount: number): Question[]` that validates each `GeneratedQuestionRaw` item (non-empty question ≤ 300 chars, valid type enum, non-empty correct_answer, exactly 3 incorrect answers for multiple-choice or exactly 1 for true-false, no duplicate answer text), discards invalid items, converts valid items to `Question[]`, and throws `TriviaProviderError(NO_RESULTS)` if valid count is below `requestedCount` in `apps/cirquiz/src/providers/aigen/questionParser.ts`
+- [X] T021 [US3] Create `AIQuestionProvider.ts` implementing the full `TriviaQuestionProvider` interface: `fetchQuestions` calls `modelStore.getContext()` (throws `TriviaProviderError(PROVIDER_ERROR)` if null), then calls `context.completion({ messages: [...], grammar: GBNF_GRAMMAR, temperature: 0.2, n_predict: 1024, stop: ['<|end|>', '</s>'] })` using the `messages` format (never `prompt`), passes `result.text` to `questionParser.parse()`, deduplicates against `params.excludeIds`; `cancelFetch` calls `context.stopCompletion()` and detects partial/empty output to throw `TriviaProviderError(USER_CANCELLED)`; `resetSession` clears the internal dedup Set; `fetchCategories` returns `[]`; `supportsCategories` returns `false`; `supportsDifficulty` returns `true` in `apps/cirquiz/src/providers/aigen/AIQuestionProvider.ts`
+- [X] T022 [P] [US3] Add the `'ai-generated'` case to the `getProvider()` factory function, returning an `AIQuestionProvider` instance in `apps/cirquiz/src/providers/providerFactory.ts`
+- [X] T023 [P] [US3] Add the generation loading state to the game round question display screen (locate via Expo Router from `app/setup.tsx`): when `questionSource === 'ai-generated'` and questions are loading at round start, show `t('game.generatingQuestions')` text, `t('game.generatingQuestionsHint')` subtext, and a Cancel button that calls `provider.cancelFetch()`; use the existing `isLoading`/`ShineButton` pattern to disable the Continue button until generation completes; ensure `gameStore` handles `USER_CANCELLED` by navigating back to setup without showing an error screen
+- [X] T024 [P] [US3] Add game i18n keys (`game.generatingQuestions`, `game.generatingQuestionsHint`, `game.cancelGeneration`, `game.error.aiNotReady`, `game.error.aiGenerationFailed`, `game.error.aiInsufficientQuestions`) to `apps/cirquiz/src/i18n/en.json`
+- [X] T025 [P] [US3] Write integration test for `AIQuestionProvider.fetchQuestions` with a mocked llama.rn context: success path with a valid JSON fixture returns a `Question[]` of the correct length; a fixture with too few valid items throws `TriviaProviderError(NO_RESULTS)`; calling with a null context (mock `modelStore.getContext()` returning null) throws `TriviaProviderError(PROVIDER_ERROR)` in `apps/cirquiz/src/providers/aigen/__tests__/AIQuestionProvider.test.ts`
 
 **Checkpoint**: User Story 3 complete — AI questions generate and flow through the game loop; all unit tests and integration test pass.
 
@@ -108,8 +108,8 @@
 
 ### Implementation for User Story 4
 
-- [ ] T026 [US4] Add a pre-game guard in `apps/cirquiz/app/setup.tsx` that disables the start button and shows a `t('game.error.aiNotReady')` inline error when `questionSource === 'ai-generated'` and `modelStore.status !== 'available'`, preventing game start when the model is not ready (FR-012)
-- [ ] T027 [P] [US4] Write a happy-path test verifying that a full multi-round AI-source game (mocked llama.rn context, no network calls) completes all rounds with correct scoring and no errors in `apps/cirquiz/src/__tests__/aiOfflineGame.test.ts`
+- [X] T026 [US4] Add a pre-game guard in `apps/cirquiz/app/setup.tsx` that disables the start button and shows a `t('game.error.aiNotReady')` inline error when `questionSource === 'ai-generated'` and `modelStore.status !== 'available'`, preventing game start when the model is not ready (FR-012)
+- [X] T027 [P] [US4] Write a happy-path test verifying that a full multi-round AI-source game (mocked llama.rn context, no network calls) completes all rounds with correct scoring and no errors in `apps/cirquiz/src/__tests__/aiOfflineGame.test.ts`
 
 **Checkpoint**: User Story 4 complete — offline game completes without network; setup screen blocks game start when model unavailable.
 
@@ -123,14 +123,14 @@
 
 ### Tests for User Story 5
 
-- [ ] T028 [P] [US5] Write a happy-path test verifying that selecting "AI Generated" in settings persists the `questionSource` value to AsyncStorage so that after a simulated app restart, `settingsStore` restores `questionSource === 'ai-generated'` in `apps/cirquiz/src/__tests__/aiSourcePersistence.test.ts`
-- [ ] T029 [P] [US5] Write a happy-path test verifying that with `modelStore.status === 'available'`, a valid topic prompt, and a mocked provider, calling `gameStore.startGame(config)` transitions the game to the loading/generation state in `apps/cirquiz/src/__tests__/aiGameStart.test.ts`
+- [X] T028 [P] [US5] Write a happy-path test verifying that selecting "AI Generated" in settings persists the `questionSource` value to AsyncStorage so that after a simulated app restart, `settingsStore` restores `questionSource === 'ai-generated'` in `apps/cirquiz/src/__tests__/aiSourcePersistence.test.ts`
+- [X] T029 [P] [US5] Write a happy-path test verifying that with `modelStore.status === 'available'`, a valid topic prompt, and a mocked provider, calling `gameStore.startGame(config)` transitions the game to the loading/generation state in `apps/cirquiz/src/__tests__/aiGameStart.test.ts`
 
 ### Implementation for User Story 5
 
-- [ ] T030 [US5] Create `modelDownloadService.ts` wrapping `RNFS.downloadFile` with: 500ms progress interval calling `modelStore._setProgress(bytesWritten / contentLength)`; on completion, compute SHA-256 of the downloaded file and compare against the published Hugging Face checksum — on mismatch, delete the file and call `modelStore._setStatus('not_downloaded')`; on match, call `modelStore._setStatus('available')` and `modelStore._setModelPath(path)`; on retry, call `RNFS.isResumable(jobId)` first and use `RNFS.resumeDownload(jobId)` on iOS or restart from the beginning on Android; check available device storage before initiating download and surface a clear error if storage is insufficient in `apps/cirquiz/src/services/modelDownloadService.ts`
-- [ ] T031 [US5] Wire the Download button (visible when `modelStore.status === 'not_downloaded'`) and progress display in `apps/cirquiz/app/settings.tsx` to `modelDownloadService.startDownload()` and bind the progress text to `modelStore.downloadProgress`
-- [ ] T032 [US5] Wire the Cancel button (visible when `modelStore.status === 'downloading'`) to `modelDownloadService.cancelDownload()` and the Retry button (visible when `modelStore.status === 'error'`) to `modelDownloadService.retryDownload()` in `apps/cirquiz/app/settings.tsx`
+- [X] T030 [US5] Create `modelDownloadService.ts` wrapping `RNFS.downloadFile` with: 500ms progress interval calling `modelStore._setProgress(bytesWritten / contentLength)`; on completion, compute SHA-256 of the downloaded file and compare against the published Hugging Face checksum — on mismatch, delete the file and call `modelStore._setStatus('not_downloaded')`; on match, call `modelStore._setStatus('available')` and `modelStore._setModelPath(path)`; on retry, call `RNFS.isResumable(jobId)` first and use `RNFS.resumeDownload(jobId)` on iOS or restart from the beginning on Android; check available device storage before initiating download and surface a clear error if storage is insufficient in `apps/cirquiz/src/services/modelDownloadService.ts`
+- [X] T031 [US5] Wire the Download button (visible when `modelStore.status === 'not_downloaded'`) and progress display in `apps/cirquiz/app/settings.tsx` to `modelDownloadService.startDownload()` and bind the progress text to `modelStore.downloadProgress`
+- [X] T032 [US5] Wire the Cancel button (visible when `modelStore.status === 'downloading'`) to `modelDownloadService.cancelDownload()` and the Retry button (visible when `modelStore.status === 'error'`) to `modelDownloadService.retryDownload()` in `apps/cirquiz/app/settings.tsx`
 
 **Checkpoint**: User Story 5 complete — download progress is visible, cancel/retry work, model transitions to available after successful verified download.
 
@@ -140,7 +140,7 @@
 
 **Purpose**: Quality gate validation and final acceptance verification across all user stories.
 
-- [ ] T033 Run `yarn workspace cirquiz lint`, `yarn workspace cirquiz format:check`, and `yarn workspace cirquiz typecheck` from the monorepo root and resolve all violations across every modified and created file
+- [X] T033 Run `yarn workspace cirquiz lint`, `yarn workspace cirquiz format:check`, and `yarn workspace cirquiz typecheck` from the monorepo root and resolve all violations across every modified and created file
 - [ ] T034 Validate all acceptance scenarios from `specs/003-ai-question-gen/spec.md` against the implementation: US1 scenarios 1–3, US2 scenarios 1–4, US3 scenarios 1–4, US4 scenarios 1–3, US5 scenarios 1–5
 - [ ] T035 Run quickstart.md validation: fresh dependency install, `pod install`, manual model file placement, and verify the full AI source flow (settings → setup → game) works on a physical device or simulator
 

@@ -41,7 +41,19 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   web: {
     favicon: './assets/icon/favicon.png',
   },
-  plugins: ['expo-router', 'expo-localization'],
+  plugins: [
+    'expo-router',
+    'expo-localization',
+    [
+      'llama.rn',
+      {
+        enableEntitlements: true,
+        entitlementsProfile: 'production',
+        forceCxx20: true,
+        enableOpenCLAndHexagon: true,
+      },
+    ],
+  ],
   extra: {
     appEnv: env,
     eas: {

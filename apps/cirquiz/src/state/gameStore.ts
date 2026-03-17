@@ -5,7 +5,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { getAvatar } from '../avatars';
 import { getProvider } from '../providers/providerFactory';
-import { TriviaProviderError } from '../providers/types';
+import { TriviaProviderError, TriviaProviderErrorCode } from '../providers/types';
 import { useSettingsStore } from './settingsStore';
 import { Game, GameConfig, Player, Round, Turn } from './types';
 
@@ -31,6 +31,7 @@ interface GameStoreActions {
   submitAnswer: (selectedAnswer: string) => void;
   advanceAfterReveal: () => void;
   startNextRound: () => Promise<void>;
+  cancelFetch: () => void;
   quitGame: () => void;
   updateRoundConfig: (config: {
     category?: GameConfig['category'] | null;
@@ -64,6 +65,7 @@ export const useGameStore = create<GameStore>()(
             count: config.questionCount,
             category: config.category,
             difficulty: config.difficulty,
+            topicPrompt: config.aiTopicPrompt,
           });
 
           const players: Player[] = config.players.map((p) => ({
@@ -94,6 +96,7 @@ export const useGameStore = create<GameStore>()(
             state: 'in-progress',
             rounds: [round],
             currentRoundIndex: 0,
+            aiTopicPrompt: config.aiTopicPrompt ?? null,
           };
 
           set({ game, isLoading: false, pendingConfig: null, savedAt: new Date().toISOString() });
@@ -117,11 +120,14 @@ export const useGameStore = create<GameStore>()(
           }
         } catch (e) {
           set({ isLoading: false });
-          if (e instanceof TriviaProviderError) {
-            router.replace('/(game)/error');
-          } else {
-            router.replace('/(game)/error');
+          if (
+            e instanceof TriviaProviderError &&
+            e.code === TriviaProviderErrorCode.UserCancelled
+          ) {
+            // User cancelled AI generation — stay on setup, no error screen
+            return;
           }
+          router.replace('/(game)/error');
         }
       },
 
@@ -254,6 +260,7 @@ export const useGameStore = create<GameStore>()(
             category: game.category ?? undefined,
             difficulty: game.difficulty ?? undefined,
             excludeIds: previousQuestionIds,
+            topicPrompt: game.aiTopicPrompt ?? undefined,
           });
 
           const resetPlayers = game.players.map((p) => ({
@@ -287,12 +294,20 @@ export const useGameStore = create<GameStore>()(
           }
         } catch (e) {
           set({ isLoading: false });
-          if (e instanceof TriviaProviderError) {
-            router.replace('/(game)/error');
-          } else {
-            router.replace('/(game)/error');
+          if (
+            e instanceof TriviaProviderError &&
+            e.code === TriviaProviderErrorCode.UserCancelled
+          ) {
+            // User cancelled AI generation — return to standings, no error screen
+            return;
           }
+          router.replace('/(game)/error');
         }
+      },
+
+      cancelFetch: () => {
+        const { questionSource } = useSettingsStore.getState();
+        getProvider(questionSource).cancelFetch();
       },
 
       quitGame: () => {

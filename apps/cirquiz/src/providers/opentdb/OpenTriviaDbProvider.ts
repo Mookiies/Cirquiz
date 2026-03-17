@@ -137,6 +137,10 @@ export class OpenTriviaDbProvider implements TriviaQuestionProvider {
     this.token = null;
   }
 
+  cancelFetch(): void {
+    // no-op — network fetch is not cancellable for this provider
+  }
+
   private buildUrl(params: QuestionFetchParams, token: string): string {
     const url = new URL(`${BASE_URL}/api.php`);
     url.searchParams.set('amount', String(params.count));

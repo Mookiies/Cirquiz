@@ -87,4 +87,8 @@ export class TheTriviaApiProvider implements TriviaQuestionProvider {
   resetSession(): void {
     // no-op — stateless API on the free tier
   }
+
+  cancelFetch(): void {
+    // no-op — network fetch is not cancellable for this provider
+  }
 }

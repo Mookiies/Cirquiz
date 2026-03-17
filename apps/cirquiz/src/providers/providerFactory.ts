@@ -1,4 +1,5 @@
 import type { QuestionSource } from '../state/settingsStore';
+import { AIQuestionProvider } from './aigen/AIQuestionProvider';
 import { TriviaQuestionProvider } from './interface';
 import { OpenTriviaDbProvider } from './opentdb/OpenTriviaDbProvider';
 import { TheTriviaApiProvider } from './thetriviaapi/TheTriviaApiProvider';
@@ -20,6 +21,9 @@ export function getProvider(source: QuestionSource): TriviaQuestionProvider {
       break;
     case 'the-trivia-api':
       provider = new TheTriviaApiProvider();
+      break;
+    case 'ai-generated':
+      provider = new AIQuestionProvider();
       break;
   }
   instances.set(source, provider);

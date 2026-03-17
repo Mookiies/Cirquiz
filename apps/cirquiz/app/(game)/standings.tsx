@@ -10,6 +10,7 @@ import { CategorySelector } from '../../src/components/CategorySelector';
 import { DifficultySelector } from '../../src/components/DifficultySelector';
 import { useCategoryLoader } from '../../src/hooks/useCategoryLoader';
 import { useGameStore } from '../../src/state/gameStore';
+import { useSettingsStore } from '../../src/state/settingsStore';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, spacing, fontSize, fontWeight, radius } from '../../src/theme';
 import { GradientScreen } from '../../src/components/GradientScreen';
@@ -39,8 +40,11 @@ export default function StandingsScreen() {
   const game = useGameStore((s) => s.game);
   const quitGame = useGameStore((s) => s.quitGame);
   const startNextRound = useGameStore((s) => s.startNextRound);
+  const cancelFetch = useGameStore((s) => s.cancelFetch);
   const isLoading = useGameStore((s) => s.isLoading);
   const updateRoundConfig = useGameStore((s) => s.updateRoundConfig);
+  const questionSource = useSettingsStore((s) => s.questionSource);
+  const isAiLoading = isLoading && questionSource === 'ai-generated';
 
   const scrollRef = useRef<ScrollView>(null);
   const settingsButtonY = useRef(0);
@@ -233,6 +237,18 @@ export default function StandingsScreen() {
           onPress={startNextRound}
           style={styles.roundButton}
         />
+        {isAiLoading && (
+          <View style={styles.aiLoadingRow}>
+            <Text style={styles.aiLoadingText}>{t('game.generatingQuestions')}</Text>
+            <Button
+              variant="text"
+              label={t('game.cancelGeneration')}
+              color={colors.error}
+              onPress={cancelFetch}
+              haptic="light"
+            />
+          </View>
+        )}
         <Button
           variant="text"
           label={t('game.standings.endSession')}
@@ -307,6 +323,15 @@ const styles = StyleSheet.create({
   },
   roundButton: {
     marginBottom: spacing.md,
+  },
+  aiLoadingRow: {
+    alignItems: 'center',
+    marginTop: spacing.xs,
+  },
+  aiLoadingText: {
+    fontSize: fontSize.sm,
+    color: colors.textSecondary,
+    marginBottom: spacing.xs,
   },
   settingsPanel: { marginBottom: spacing.xs },
   settingsLabel: {

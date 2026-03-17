@@ -2,7 +2,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import Animated, { interpolate, LinearTransition, useAnimatedStyle } from 'react-native-reanimated';
 import {
   KeyboardAwareScrollView,
@@ -24,6 +24,7 @@ import { type Difficulty } from '../src/providers';
 import { useCategoryLoader } from '../src/hooks/useCategoryLoader';
 import { useToast } from '../src/hooks/useToast';
 import { useGameStore } from '../src/state/gameStore';
+import { useModelStore } from '../src/state/modelStore';
 import { useSettingsStore } from '../src/state/settingsStore';
 import { colors, fontSize, fontWeight, radius, spacing } from '../src/theme';
 import { IconButton } from '../src/components/IconButton';
@@ -82,6 +83,11 @@ export default function SetupScreen() {
   const questionSource = useSettingsStore((s) => s.questionSource);
   const isFirstRender = useRef(true);
   const { showToast, ToastNode } = useToast();
+  const cancelFetch = useGameStore((s) => s.cancelFetch);
+
+  const modelStatus = useModelStore((s) => s.status);
+  const [topicPrompt, setTopicPrompt] = useState('');
+  const [topicError, setTopicError] = useState('');
 
   // Refs let us read latest values in the effect without adding them as deps
   const categoryRef = useRef(category);
@@ -162,11 +168,31 @@ export default function SetupScreen() {
     return Object.keys(errors).length === 0;
   };
 
+  const isAiSource = questionSource === 'ai-generated';
+
   const handleStart = () => {
     const count = parseInt(questionCount, 10);
     if (isNaN(count) || count < 1) return;
     if (players.length === 0) return;
     if (!validateNames()) return;
+
+    if (isAiSource) {
+      if (modelStatus !== 'available') return; // guard: model not ready
+      const trimmed = topicPrompt.trim();
+      if (trimmed.length < 3) {
+        setTopicError(t('setup.topicPromptTooShort'));
+        return;
+      }
+      setTopicError('');
+      startGame({
+        players: players.map((p) => ({ name: p.name || 'Player', avatar: p.avatar })),
+        questionCount: count,
+        difficulty: quickPlay ? undefined : difficulty,
+        mode: quickPlay ? 'quick' : 'configured',
+        aiTopicPrompt: trimmed,
+      });
+      return;
+    }
 
     startGame({
       players: players.map((p) => ({ name: p.name || 'Player', avatar: p.avatar })),
@@ -193,7 +219,8 @@ export default function SetupScreen() {
     paddingBottom: interpolate(progress.value, [0, 1], [insets.bottom + spacing.md, spacing.md]),
   }));
 
-  const canStart = players.length > 0 && !isLoading;
+  const aiNotReady = isAiSource && modelStatus !== 'available';
+  const canStart = players.length > 0 && !isLoading && !aiNotReady;
   const pickerPlayer = pickerIndex !== null ? players[pickerIndex] : null;
 
   return (
@@ -298,13 +325,36 @@ export default function SetupScreen() {
                 <Text style={styles.sectionLabel}>{t('common.difficulty')}</Text>
                 <DifficultySelector value={difficulty} onChange={setDifficulty} />
 
-                <Text style={styles.sectionLabel}>{t('common.category')}</Text>
-                <CategorySelector
-                  categories={categories}
-                  value={category}
-                  onChange={setCategory}
-                  loading={loadingCategories}
-                />
+                {isAiSource ? (
+                  <View>
+                    <Text style={styles.sectionLabel}>{t('setup.topicPrompt')}</Text>
+                    <TextInput
+                      style={[styles.topicInput, topicError ? styles.topicInputError : null]}
+                      value={topicPrompt}
+                      onChangeText={(text) => {
+                        setTopicPrompt(text);
+                        if (topicError) setTopicError('');
+                      }}
+                      placeholder={t('setup.topicPromptPlaceholder')}
+                      placeholderTextColor={colors.textMuted}
+                      returnKeyType="done"
+                    />
+                    {topicError ? <Text style={styles.topicErrorText}>{topicError}</Text> : null}
+                    {aiNotReady ? (
+                      <Text style={styles.aiNotReadyText}>{t('game.error.aiNotReady')}</Text>
+                    ) : null}
+                  </View>
+                ) : (
+                  <View>
+                    <Text style={styles.sectionLabel}>{t('common.category')}</Text>
+                    <CategorySelector
+                      categories={categories}
+                      value={category}
+                      onChange={setCategory}
+                      loading={loadingCategories}
+                    />
+                  </View>
+                )}
               </View>
             )}
 
@@ -332,6 +382,16 @@ export default function SetupScreen() {
           />
         </Animated.View>
       </View>
+
+      {isAiSource && isLoading && (
+        <View style={styles.aiLoadingOverlay}>
+          <Text style={styles.aiLoadingTitle}>{t('game.generatingQuestions')}</Text>
+          <Text style={styles.aiLoadingHint}>{t('game.generatingQuestionsHint')}</Text>
+          <Pressable style={styles.aiCancelButton} onPress={cancelFetch}>
+            <Text style={styles.aiCancelText}>{t('game.cancelGeneration')}</Text>
+          </Pressable>
+        </View>
+      )}
 
       <Modal
         visible={pickerIndex !== null}
@@ -432,5 +492,65 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     width: 64 * 5 + spacing.sm * 4,
     gap: spacing.sm,
+  },
+  topicInput: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    fontSize: fontSize.base,
+    color: colors.text,
+    backgroundColor: colors.white,
+  },
+  topicInputError: {
+    borderColor: colors.error,
+  },
+  topicErrorText: {
+    fontSize: fontSize.sm,
+    color: colors.error,
+    marginTop: spacing.xs,
+  },
+  aiNotReadyText: {
+    fontSize: fontSize.sm,
+    color: colors.error,
+    marginTop: spacing.xs,
+  },
+  aiLoadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(255,255,255,0.95)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing['2xl'],
+  },
+  aiLoadingTitle: {
+    fontSize: fontSize.xl,
+    fontWeight: fontWeight.bold,
+    color: colors.text,
+    textAlign: 'center',
+    marginBottom: spacing.sm,
+  },
+  aiLoadingHint: {
+    fontSize: fontSize.base,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginBottom: spacing.xl,
+  },
+  aiCancelButton: {
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xl,
+    backgroundColor: colors.white,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  aiCancelText: {
+    fontSize: fontSize.base,
+    color: colors.text,
+    fontWeight: fontWeight.semibold,
   },
 });

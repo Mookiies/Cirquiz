@@ -11,4 +11,9 @@ export interface TriviaQuestionProvider {
    * between rounds so the session persists across rounds within the same game.
    */
   resetSession(): void;
+  /**
+   * Cancels an in-progress fetchQuestions call. No-op if no fetch is active.
+   * AIQuestionProvider throws TriviaProviderError(UserCancelled) when interrupted.
+   */
+  cancelFetch(): void;
 }

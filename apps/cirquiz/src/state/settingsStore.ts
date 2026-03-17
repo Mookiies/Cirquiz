@@ -4,7 +4,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 
 const STORAGE_KEY = '@cirquiz/settings';
 
-export type QuestionSource = 'otdb' | 'the-trivia-api';
+export type QuestionSource = 'otdb' | 'the-trivia-api' | 'ai-generated';
 
 interface SettingsStoreState {
   questionSource: QuestionSource;
@@ -26,7 +26,7 @@ export const useSettingsStore = create<SettingsStore>()(
     }),
     {
       name: STORAGE_KEY,
-      version: 1,
+      version: 2,
       storage: createJSONStorage(() => AsyncStorage),
       partialize: ({ isHydrated, ...rest }) => rest,
       migrate: (persistedState, fromVersion) => {
@@ -34,6 +34,7 @@ export const useSettingsStore = create<SettingsStore>()(
         if (fromVersion < 1) {
           return { questionSource: 'the-trivia-api' as QuestionSource };
         }
+        // v1 → v2: 'ai-generated' added; existing values remain valid
         return persistedState as SettingsStoreState;
       },
       onRehydrateStorage: () => (state) => {
