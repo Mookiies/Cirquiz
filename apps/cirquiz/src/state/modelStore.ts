@@ -46,7 +46,7 @@ export const useModelStore = create<ModelStore>()(
             model: modelPath,
             n_ctx: 2048,
             n_gpu_layers: 99,
-            n_threads: 4,
+            n_threads: 6,
           });
           set({ llamaContext: context, isInitializing: false });
         } catch {

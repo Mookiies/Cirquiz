@@ -9,12 +9,13 @@ function makeRaw(overrides: Record<string, unknown> = {}) {
     type: 'multiple-choice',
     correct_answer: '4',
     incorrect_answers: ['1', '2', '3'],
+    difficulty: 'easy',
     ...overrides,
   };
 }
 
 function makeJson(items: unknown[]): string {
-  return JSON.stringify(items);
+  return JSON.stringify({ questions: items });
 }
 
 // ─── Tests ─────────────────────────────────────────────────────────────────────
@@ -99,9 +100,15 @@ describe('questionParser.parse', () => {
   });
 
   describe('insufficient results', () => {
-    it('throws TriviaProviderError(NoResults) when valid count < requestedCount', () => {
+    it('returns available questions when valid count < requestedCount', () => {
       const json = makeJson([makeRaw()]);
-      expect(() => parse(json, 5)).toThrow(
+      const questions = parse(json, 5);
+      expect(questions).toHaveLength(1);
+    });
+
+    it('throws TriviaProviderError(NoResults) when no valid questions exist', () => {
+      const json = makeJson([makeRaw({ question: '' })]);
+      expect(() => parse(json, 1)).toThrow(
         expect.objectContaining({ code: TriviaProviderErrorCode.NoResults })
       );
     });
@@ -120,7 +127,7 @@ describe('questionParser.parse', () => {
       );
     });
 
-    it('throws TriviaProviderError(NoResults) when root is not an array', () => {
+    it('throws TriviaProviderError(NoResults) when root has no questions array', () => {
       expect(() => parse('{"question":"x"}', 1)).toThrow(
         expect.objectContaining({ code: TriviaProviderErrorCode.NoResults })
       );

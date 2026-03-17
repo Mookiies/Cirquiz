@@ -1,26 +1,18 @@
-import { buildPrompt, GBNF_GRAMMAR } from '../aiPrompts';
+import { buildPrompt, JSON_SCHEMA } from '../aiPrompts';
 
 describe('aiPrompts', () => {
-  describe('GBNF_GRAMMAR', () => {
-    it('is a non-empty string', () => {
-      expect(typeof GBNF_GRAMMAR).toBe('string');
-      expect(GBNF_GRAMMAR.length).toBeGreaterThan(0);
+  describe('JSON_SCHEMA', () => {
+    it('is an object', () => {
+      expect(typeof JSON_SCHEMA).toBe('object');
+      expect(JSON_SCHEMA).not.toBeNull();
     });
 
-    it('contains root rule', () => {
-      expect(GBNF_GRAMMAR).toContain('root');
-    });
-
-    it('contains question field rule', () => {
-      expect(GBNF_GRAMMAR).toContain('question');
-    });
-
-    it('contains correct_answer field rule', () => {
-      expect(GBNF_GRAMMAR).toContain('correct_answer');
-    });
-
-    it('contains incorrect_answers field rule', () => {
-      expect(GBNF_GRAMMAR).toContain('incorrect_answers');
+    it('contains required fields inside a questions wrapper', () => {
+      const str = JSON.stringify(JSON_SCHEMA);
+      expect(str).toContain('questions');
+      expect(str).toContain('question');
+      expect(str).toContain('correct_answer');
+      expect(str).toContain('incorrect_answers');
     });
   });
 
@@ -40,9 +32,9 @@ describe('aiPrompts', () => {
       expect(user).toContain('hard');
     });
 
-    it('uses "mixed" difficulty label when difficulty is omitted', () => {
+    it('mixes difficulties when difficulty is omitted', () => {
       const { user } = buildPrompt('Geography', 5);
-      expect(user).toContain('mixed');
+      expect(user).toContain('Mix difficulties');
     });
 
     it('returns a non-empty system prompt', () => {

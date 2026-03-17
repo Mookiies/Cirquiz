@@ -1,10 +1,13 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ErrorBoundaryProps, Stack } from 'expo-router';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 import { Button } from '../src/components/Button';
 import { useGameStore } from '../src/state/gameStore';
+import { useModelStore } from '../src/state/modelStore';
+import { useSettingsStore } from '../src/state/settingsStore';
 import '../src/i18n';
 import { colors, spacing, fontSize, fontWeight } from '../src/theme';
 
@@ -53,6 +56,16 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
 }
 
 export default function RootLayout() {
+  const questionSource = useSettingsStore((s) => s.questionSource);
+  const modelStatus = useModelStore((s) => s.status);
+  const initModel = useModelStore((s) => s.initModel);
+
+  useEffect(() => {
+    if (questionSource === 'ai-generated' && modelStatus === 'available') {
+      initModel();
+    }
+  }, [questionSource, modelStatus, initModel]);
+
   return (
     <KeyboardProvider>
       <Stack screenOptions={{ headerShown: false }} />
