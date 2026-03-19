@@ -1,10 +1,6 @@
 This file is purely for notes and tracking things I want to implement going forward. May not be up to date.
 
-Make it so you can swipe back on the standings screen and that the android back button takes you to that screen when you go there.
-The back button to quit only works when you're on the index
-
 BUGS
-- replace when going to the home screen
 - Instead of refresshing the session for otdb when we run out of questions we should show some sort of UI to reset the session or allow changing the category selection
 - On taking a long time to load for continue, if someone quits the game it should cancel the pending network request and navigaiton
 
