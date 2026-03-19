@@ -17,7 +17,7 @@ import { IconButton } from '../src/components/IconButton';
 import { ShineButton } from '../src/components/ShineButton';
 import { useGameStore } from '../src/state/gameStore';
 import { colors, fontSize, spacing } from '../src/theme';
-import CirclequizLogo from '../assets/circlequiz-wordmark.svg';
+import CircleQLogo from '../assets/circleq-wordmark.svg';
 
 const DOT_COLORS = [
   colors.playerPalette.blue,
@@ -142,7 +142,7 @@ export default function HomeScreen() {
       <GradientScreen>
         <View style={styles.loadingContainer}>
           <View style={styles.logoWrapper}>
-            <CirclequizLogo />
+            <CircleQLogo />
           </View>
           <View style={styles.dotsRow}>
             {DOT_COLORS.map((color, i) => (
@@ -166,7 +166,7 @@ export default function HomeScreen() {
         </View>
         <Animated.View style={[styles.hero, heroStyle]}>
           <View style={styles.logoWrapper}>
-            <CirclequizLogo width={340} height={95} />
+            <CircleQLogo width={340} height={95} />
           </View>
           <Text style={styles.subtitle}>{t('home.subtitle', 'Challenge your friends!')}</Text>
         </Animated.View>
