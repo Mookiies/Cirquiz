@@ -1,5 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
@@ -49,6 +50,7 @@ export default function SummaryScreen() {
   const quitGame = useGameStore((s) => s.quitGame);
   const isLoading = useGameStore((s) => s.isLoading);
   const handleQuit = useQuitGame();
+  const navigation = useNavigation();
   const [stickyBottomHeight, setStickyBottomHeight] = useState(0);
 
   const scrollY = useSharedValue(0);
@@ -88,18 +90,14 @@ export default function SummaryScreen() {
 
   const handleEndSession = () => {
     quitGame();
-    router.replace('/');
+    navigation
+      .getParent()
+      ?.dispatch(CommonActions.reset({ index: 0, routes: [{ name: 'index' }] }));
   };
 
   return (
     <GradientScreen showBlobs={false} mode="no-white">
-      <GameHeader
-        variant="transparent"
-        onBack={() =>
-          router.replace({ pathname: '/(game)/standings', params: { popAnimation: '1' } })
-        }
-        onQuit={handleQuit}
-      />
+      <GameHeader variant="transparent" onBack={() => router.back()} onQuit={handleQuit} />
       <View style={styles.scrollContainer}>
         <AnimatedFlatList
           data={items}
@@ -181,7 +179,10 @@ export default function SummaryScreen() {
           color={colors.success}
           loading={isLoading}
           onPress={() => {
-            startNextRound();
+            startNextRound((path) => {
+              const name = path.replace('/(game)/', '');
+              navigation.dispatch(CommonActions.reset({ index: 0, routes: [{ name }] }));
+            });
           }}
           style={styles.roundButton}
         />
