@@ -19,5 +19,12 @@
       "autoIncrement": true,
       "env": { "APP_ENV": "production" }
     }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "ascAppId": "6760278898"
+      }
+    }
   }
 }
