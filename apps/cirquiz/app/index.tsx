@@ -122,18 +122,18 @@ export default function HomeScreen() {
   const handleResume = () => {
     if (!game) return;
     if (game.state === 'completed') {
-      router.replace('/(game)/standings');
+      router.push('/(game)/standings');
       return;
     }
     const round = game.rounds[game.currentRoundIndex];
     const currentQuestion = round.questions[round.currentQuestionIndex];
     const turnsForQuestion = round.turns.filter((t) => t.questionId === currentQuestion.id);
     if (turnsForQuestion.length === game.players.length) {
-      router.replace('/(game)/reveal');
+      router.push('/(game)/reveal');
     } else if (game.players.length > 1) {
-      router.replace('/(game)/handoff');
+      router.push('/(game)/handoff');
     } else {
-      router.replace('/(game)/question');
+      router.push('/(game)/question');
     }
   };
 
