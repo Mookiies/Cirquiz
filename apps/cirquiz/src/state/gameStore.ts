@@ -30,7 +30,7 @@ interface GameStoreActions {
   retryFetch: () => Promise<void>;
   submitAnswer: (selectedAnswer: string) => void;
   advanceAfterReveal: () => void;
-  startNextRound: () => Promise<void>;
+  startNextRound: (onNavigate?: (path: string) => void) => Promise<void>;
   quitGame: () => void;
   updateRoundConfig: (config: {
     category?: GameConfig['category'] | null;
@@ -239,9 +239,17 @@ export const useGameStore = create<GameStore>()(
         }
       },
 
-      startNextRound: async () => {
+      startNextRound: async (onNavigate?: (path: string) => void) => {
         const { game } = get();
         if (!game) return;
+
+        const navigate = (path: string) => {
+          if (onNavigate) {
+            onNavigate(path);
+          } else {
+            router.replace(path as Parameters<typeof router.replace>[0]);
+          }
+        };
 
         set({ isLoading: true });
         try {
@@ -281,17 +289,13 @@ export const useGameStore = create<GameStore>()(
           set({ game: updatedGame, isLoading: false, savedAt: new Date().toISOString() });
 
           if (game.players.length > 1) {
-            router.replace('/(game)/handoff');
+            navigate('/(game)/handoff');
           } else {
-            router.replace('/(game)/question');
+            navigate('/(game)/question');
           }
-        } catch (e) {
+        } catch {
           set({ isLoading: false });
-          if (e instanceof TriviaProviderError) {
-            router.replace('/(game)/error');
-          } else {
-            router.replace('/(game)/error');
-          }
+          navigate('/(game)/error');
         }
       },
 

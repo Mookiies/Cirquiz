@@ -1,11 +1,12 @@
-import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Alert } from 'react-native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { useGameStore } from '../state/gameStore';
 
 export function useQuitGame() {
   const { t } = useTranslation();
   const quitGame = useGameStore((s) => s.quitGame);
+  const navigation = useNavigation();
 
   return () => {
     Alert.alert(t('game.quit.title'), t('game.quit.message'), [
@@ -15,7 +16,9 @@ export function useQuitGame() {
         style: 'destructive',
         onPress: () => {
           quitGame();
-          router.replace('/');
+          navigation
+            .getParent()
+            ?.dispatch(CommonActions.reset({ index: 0, routes: [{ name: 'index' }] }));
         },
       },
     ]);

@@ -1,6 +1,6 @@
-import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Button } from '../../src/components/Button';
 import { useGameStore } from '../../src/state/gameStore';
 import { colors, spacing, fontSize, fontWeight } from '../../src/theme';
@@ -10,10 +10,13 @@ export default function ErrorScreen() {
   const quitGame = useGameStore((s) => s.quitGame);
   const retryFetch = useGameStore((s) => s.retryFetch);
   const isLoading = useGameStore((s) => s.isLoading);
+  const navigation = useNavigation();
 
   const handleBack = () => {
     quitGame();
-    router.replace('/');
+    navigation
+      .getParent()
+      ?.dispatch(CommonActions.reset({ index: 0, routes: [{ name: 'index' }] }));
   };
 
   return (

@@ -1,8 +1,9 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { router, Stack, useLocalSearchParams } from 'expo-router';
+import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Difficulty } from '../../src/providers/types';
 import { AvatarIcon } from '../../src/components/AvatarIcon';
 import { Button } from '../../src/components/Button';
@@ -17,7 +18,7 @@ import { ShineButton } from '../../src/components/ShineButton';
 
 export default function StandingsScreen() {
   const { t } = useTranslation();
-  const { popAnimation } = useLocalSearchParams<{ popAnimation?: string }>();
+  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const ordinalKeys = {
     one: 'game.standings.ordinal_ordinal_one',
@@ -94,12 +95,13 @@ export default function StandingsScreen() {
 
   const handleEndSession = () => {
     quitGame();
-    router.replace('/');
+    navigation
+      .getParent()
+      ?.dispatch(CommonActions.reset({ index: 0, routes: [{ name: 'index' }] }));
   };
 
   return (
     <GradientScreen showBlobs={false} mode="no-white">
-      <Stack.Screen options={{ animationTypeForReplace: popAnimation ? 'pop' : 'push' }} />
       <ScrollView
         ref={scrollRef}
         style={styles.scrollView}
@@ -210,7 +212,7 @@ export default function StandingsScreen() {
         <Button
           variant="text"
           label={t('game.standings.viewSummary')}
-          onPress={() => router.replace('/(game)/summary')}
+          onPress={() => router.push('/(game)/summary')}
           color={colors.textPrimary}
           style={{ alignSelf: 'center', marginTop: spacing.lg, marginBottom: spacing.sm }}
         />
@@ -230,7 +232,7 @@ export default function StandingsScreen() {
           label={t('game.standings.playAnotherRound')}
           color={colors.success}
           loading={isLoading}
-          onPress={startNextRound}
+          onPress={() => startNextRound()}
           style={styles.roundButton}
         />
         <Button
