@@ -9,7 +9,7 @@ const suffixes = {
 const s = suffixes[env as keyof typeof suffixes] ?? suffixes.development;
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
-  name: `Circle Quiz${s.name}`,
+  name: `Circle Q${s.name}`,
   slug: 'cirquiz',
   version: '1.0.0',
   orientation: 'portrait',
