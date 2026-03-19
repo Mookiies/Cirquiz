@@ -4,6 +4,7 @@ import { StyleSheet, View } from 'react-native';
 export default function GameLayout() {
   return (
     <View style={styles.container}>
+      <Stack.Screen options={{ gestureEnabled: false }} />
       <Stack
         screenOptions={{
           headerShown: false,

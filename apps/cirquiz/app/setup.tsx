@@ -30,7 +30,7 @@ import { IconButton } from '../src/components/IconButton';
 import LightningSVG from '../assets/lightning.svg';
 import SliderSVG from '../assets/slider.svg';
 
-const QUESTION_COUNTS = [1, 5, 10, 15, 20] as const;
+const QUESTION_COUNTS = [5, 10, 15, 20] as const;
 
 interface PlayerEntry {
   id: number;

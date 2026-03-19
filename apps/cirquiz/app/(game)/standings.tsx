@@ -232,7 +232,7 @@ export default function StandingsScreen() {
           label={t('game.standings.playAnotherRound')}
           color={colors.success}
           loading={isLoading}
-          onPress={startNextRound}
+          onPress={() => startNextRound()}
           style={styles.roundButton}
         />
         <Button
