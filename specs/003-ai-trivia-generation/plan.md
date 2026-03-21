@@ -14,7 +14,7 @@ Build two deliverables: (1) a Python pipeline that generates a SQLite database o
 
 ### Pipeline (Python developer tool)
 
-**Language/Version**: Python 3.14.3
+**Language/Version**: Python 3.12.3 (3.14 is incompatible with outlines/sentence-transformers)
 **Primary Dependencies**: mlx-lm ~0.22, outlines[mlxlm] ~0.2, sentence-transformers ~3.0 (`all-MiniLM-L6-v2`), datasets ~2.18 (HuggingFace), python-mwxml ~0.4, SQLModel, rich, tqdm
 **Storage**: SQLite — generation DB (internal, full schema) + export DB (minimal schema for app bundle)
 **Testing**: pytest

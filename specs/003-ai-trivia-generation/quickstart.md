@@ -6,7 +6,7 @@
 
 ## Prerequisites
 
-- Python 3.14.3
+- Python 3.12 (managed via asdf — `pipeline/.tool-versions` pins it automatically)
 - MLX-LM downloads models to `~/.cache/huggingface/hub` — ensure ~10GB free disk space
 - Node / Yarn already set up for the app workspace
 

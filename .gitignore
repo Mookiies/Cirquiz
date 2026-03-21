@@ -61,6 +61,15 @@ coverage/
 .env.*.local
 *.pem
 
+# ─── Python pipeline ─────────────────────────────────────────────────────────
+pipeline/.venv/
+pipeline/venv/
+pipeline/**/__pycache__/
+pipeline/**/*.pyc
+pipeline/generation.db
+pipeline/logs/*.log
+pipeline/export/*.db
+
 # ─── Misc ────────────────────────────────────────────────────────────────────
 *.log
 .cache/
