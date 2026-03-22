@@ -38,6 +38,7 @@ class Question(SQLModel, table=True):
     grounded: bool = Field(default=True)
     verified: bool = Field(default=False)
     rejected: bool = Field(default=False)
+    flag_reason: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 
@@ -71,6 +72,13 @@ def init_db(db_path: str) -> "Engine":  # noqa: F821
     SQLModel.metadata.create_all(engine)
 
     with Session(engine) as session:
+        # Migrate: add flag_reason column if not present (SQLite does not support IF NOT EXISTS)
+        try:
+            session.exec(text("ALTER TABLE questions ADD COLUMN flag_reason TEXT"))
+            session.commit()
+        except Exception:
+            pass  # column already exists
+
         session.exec(
             text(
                 "CREATE INDEX IF NOT EXISTS idx_chunks_category_processed "

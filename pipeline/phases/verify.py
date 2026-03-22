@@ -85,12 +85,6 @@ def _run_confidence_scoring(
     queued = 0
 
     for q in track(questions, description="Scoring confidence…"):
-        if q.source_type == "seed":
-            # Seed questions are already trusted
-            if not q.verified:
-                q.verified = True
-                session.add(q)
-            continue
 
         if q.is_duplicate or q.verified or q.rejected:
             continue
@@ -142,12 +136,12 @@ def run_verify(db_path: str, threshold: Optional[float] = None) -> None:
         state = session.exec(
             select(PipelineState).where(PipelineState.phase == "verify")
         ).first()
-        if state and state.status == "complete":
-            console.print("[green]Verify phase already complete — skipping.")
-            return
-
         if not state:
             state = PipelineState(phase="verify", status="running")
+            session.add(state)
+            session.commit()
+        elif state.status == "complete":
+            state.status = "running"
             session.add(state)
             session.commit()
 

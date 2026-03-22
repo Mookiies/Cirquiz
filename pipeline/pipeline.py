@@ -6,21 +6,20 @@ import argparse
 from config import CONFIDENCE_THRESHOLD, DB_PATH, EXPORT_PATH, MODEL_NAME
 
 
-def cmd_seed(args: argparse.Namespace) -> None:
-    from phases.seed import run_seed
-
-    run_seed(db_path=args.db, limit=args.limit)
-
-
 def cmd_generate(args: argparse.Namespace) -> None:
     from phases.generate import run_generate
 
     run_generate(
         db_path=args.db,
-        category=args.category,
         limit=args.limit,
         model_name=args.model,
     )
+
+
+def cmd_validate(args: argparse.Namespace) -> None:
+    from phases.validate import run_validate
+
+    run_validate(db_path=args.db, model_name=args.model, limit=args.limit)
 
 
 def cmd_verify(args: argparse.Namespace) -> None:
@@ -54,17 +53,17 @@ def main() -> None:
 
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    # ── seed ────────────────────────────────────────────────────────────────
-    seed_p = subparsers.add_parser("seed", help="Load seed datasets (Jeopardy, etc.)")
-    seed_p.add_argument("--limit", type=int, default=None, help="Max questions to load")
-    seed_p.set_defaults(func=cmd_seed)
-
     # ── generate ────────────────────────────────────────────────────────────
     gen_p = subparsers.add_parser("generate", help="Generate questions via LLM")
-    gen_p.add_argument("--category", default=None, help="Limit to one category")
     gen_p.add_argument("--limit", type=int, default=None, help="Max source chunks to process")
     gen_p.add_argument("--model", default=MODEL_NAME, help="MLX model name or path")
     gen_p.set_defaults(func=cmd_generate)
+
+    # ── validate ────────────────────────────────────────────────────────────
+    val_p = subparsers.add_parser("validate", help="LLM self-validation of generated questions")
+    val_p.add_argument("--model", default=MODEL_NAME, help="MLX model name or path")
+    val_p.add_argument("--limit", type=int, default=None, help="Max questions to validate")
+    val_p.set_defaults(func=cmd_validate)
 
     # ── verify ──────────────────────────────────────────────────────────────
     ver_p = subparsers.add_parser("verify", help="Deduplicate and score confidence")

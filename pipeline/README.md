@@ -18,8 +18,8 @@ pip install -r requirements.txt
 ## Running
 
 ```sh
-python pipeline.py seed        # load Jeopardy seed data (~217k questions)
 python pipeline.py generate    # generate questions from Wikipedia (hours–days; resumable)
+python pipeline.py validate    # LLM self-validation: filter bad questions, correct difficulty/category
 python pipeline.py verify      # deduplicate + score confidence
 python pipeline.py review      # adjudicate low-confidence questions (optional)
 python pipeline.py export      # write export DB, prints db_version
@@ -31,6 +31,7 @@ Each phase is resumable — re-run after interruption and it picks up from the l
 
 ```sh
 python pipeline.py generate --category history --limit 20
+python pipeline.py validate
 python pipeline.py verify
 python pipeline.py export --output /tmp/test.db
 sqlite3 /tmp/test.db "SELECT COUNT(*) FROM questions;"

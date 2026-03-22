@@ -21,7 +21,7 @@ from models.db import Question, ReviewQueue, SourceChunk, init_db
 
 console = Console()
 
-HELP_TEXT = "[a]pprove  [e]dit  [r]eject  [s]kip  [q]uit"
+HELP_TEXT = "  a) approve    y) accept suggestion    e) edit    r) reject    s) skip    q) quit"
 
 
 def _get_key() -> str:
@@ -42,7 +42,7 @@ def _display_question(
 ) -> None:
     console.clear()
     header = (
-        f"Question {index}/{total} — "
+        f"Question {index}/{total} (id={question.id}) — "
         f"Confidence: {question.confidence_score:.2f} — "
         f"Category: {question.category} — "
         f"Difficulty: {question.difficulty}"
@@ -60,14 +60,15 @@ def _display_question(
     )
 
     if chunk:
-        source_preview = chunk.text[:400].replace("\n", " ")
         body.append("\nSource: ", style="bold dim")
-        body.append(source_preview + "…\n", style="dim")
+        body.append(chunk.text.replace("\n", " ") + "\n", style="dim")
 
     body.append(f"\nReason: {entry.reason}\n", style="yellow")
+    if question.flag_reason:
+        body.append(f"Flag: {question.flag_reason}\n", style="bold yellow")
 
     console.print(Panel(body, expand=False))
-    console.print(f"\n{HELP_TEXT}\n")
+    console.print(f"\n[bold]{HELP_TEXT}[/bold]\n")
 
 
 def _edit_question(question: Question) -> Question:
@@ -78,6 +79,7 @@ def _edit_question(question: Question) -> Question:
         "distractor_1": question.distractor_1,
         "distractor_2": question.distractor_2,
         "distractor_3": question.distractor_3,
+        "category": question.category,
         "difficulty": question.difficulty,
     }
     with tempfile.NamedTemporaryFile(
@@ -97,6 +99,7 @@ def _edit_question(question: Question) -> Question:
         question.distractor_1 = updated.get("distractor_1", question.distractor_1)
         question.distractor_2 = updated.get("distractor_2", question.distractor_2)
         question.distractor_3 = updated.get("distractor_3", question.distractor_3)
+        question.category = updated.get("category", question.category)
         question.difficulty = updated.get("difficulty", question.difficulty)
     except (json.JSONDecodeError, KeyError) as exc:
         console.print(f"[red]Failed to parse edited JSON: {exc} — changes discarded.")
@@ -152,6 +155,37 @@ def run_review(db_path: str) -> None:
                     console.print("[green]✓ Approved")
                     break
 
+                elif key == "y":
+                    import re
+                    applied = []
+                    if question.flag_reason:
+                        diff_match = re.search(
+                            r"difficulty suggested: '([^']+)'", question.flag_reason
+                        )
+                        cat_match = re.search(
+                            r"category suggested: '([^']+)'", question.flag_reason
+                        )
+                        if diff_match:
+                            old = question.difficulty
+                            question.difficulty = diff_match.group(1)
+                            applied.append(f"difficulty {old} → {question.difficulty}")
+                        if cat_match:
+                            old = question.category
+                            question.category = cat_match.group(1)
+                            applied.append(f"category {old} → {question.category}")
+                        if applied:
+                            console.print(f"[cyan]  {', '.join(applied)}")
+                        else:
+                            console.print("[yellow]  no suggestion found in flag reason")
+                    question.verified = True
+                    entry.status = "approved"
+                    entry.reviewed_at = datetime.utcnow()
+                    session.add(question)
+                    session.add(entry)
+                    session.commit()
+                    console.print("[green]✓ Approved with suggestion")
+                    break
+
                 elif key == "r":
                     question.rejected = True
                     entry.status = "rejected"
@@ -182,6 +216,6 @@ def run_review(db_path: str) -> None:
                     return
 
                 else:
-                    console.print(f"Unknown key '{key}'. {HELP_TEXT}")
+                    console.print(f"[yellow]Unknown key '{key}'.[/yellow] [bold]{HELP_TEXT}[/bold]")
 
     console.print(f"\n[green]Review complete.[/green] {total} questions processed.")

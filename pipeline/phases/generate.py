@@ -25,32 +25,61 @@ from models.schemas import GeneratedQuestionBatch
 
 console = Console()
 
-# ── Category keyword mapping for Wikipedia articles ────────────────────────
-_WIKI_KEYWORDS: dict[str, list[str]] = {
-    "History": ["history", "war", "empire", "dynasty", "revolution", "ancient", "medieval", "historical"],
-    "Science": ["science", "physics", "chemistry", "biology", "astronomy", "mathematics", "geology", "quantum"],
-    "Geography": ["geography", "country", "capital", "continent", "mountain", "river", "ocean", "city", "region"],
-    "Music": ["music", "song", "album", "band", "composer", "symphony", "opera", "musician", "jazz", "rock"],
-    "Film & TV": ["film", "movie", "television", "actor", "director", "cinema", "series", "episode"],
-    "Arts & Literature": ["literature", "novel", "poetry", "author", "painting", "sculpture", "art", "writer"],
-    "Sport & Leisure": ["sport", "football", "basketball", "tennis", "olympic", "championship", "athlete"],
-    "Society & Culture": ["religion", "culture", "mythology", "tradition", "language", "festival", "philosophy"],
-    "Food & Drink": ["food", "cuisine", "recipe", "drink", "wine", "beer", "cooking", "restaurant", "dish"],
-    "General Knowledge": [],  # catch-all
-}
+
+_PLACEHOLDER_FRAGMENTS = [
+    "there is no correct answer",
+    "no correct answer",
+    "no answer in the passage",
+    "cannot be determined",
+    "not mentioned in the passage",
+    "not provided in the passage",
+    "the passage does not",
+]
+
+_SOURCE_REF_FRAGMENTS = [
+    "the passage",
+    "this passage",
+    "in the passage",
+    "the text",
+    "the article",
+    "as mentioned",
+    "as described",
+    "as stated",
+    "listed in",
+    "according to",
+    "based on the",
+    "this image",
+    "the image",
+    "in this image",
+    "this photo",
+    "the photo",
+    "this picture",
+    "the picture",
+    "this diagram",
+    "the diagram",
+    "this map",
+    "the map",
+    "shown here",
+    "pictured here",
+    "depicted here",
+    "featured in this",
+]
 
 
-def _classify_article(title: str, text: str) -> str:
-    combined = (title + " " + text[:500]).lower()
-    for category, keywords in _WIKI_KEYWORDS.items():
-        if category == "General Knowledge":
-            continue
-        if any(kw in combined for kw in keywords):
-            return category
-    return "General Knowledge"
+def _is_placeholder(value: str) -> bool:
+    """Return True if the model produced a non-answer instead of real content."""
+    lower = (value or "").lower().strip()
+    return not lower or any(frag in lower for frag in _PLACEHOLDER_FRAGMENTS)
 
 
-def _chunk_text(text: str, chunk_size: int = 300) -> list[str]:
+def _references_source(text: str) -> bool:
+    """Return True if the question text references the source passage."""
+    lower = (text or "").lower()
+    return any(frag in lower for frag in _SOURCE_REF_FRAGMENTS)
+
+
+
+def _chunk_text(text: str, chunk_size: int = 450) -> list[str]:
     """Split text into ~chunk_size word passages at sentence boundaries."""
     sentences = text.replace("\n", " ").split(". ")
     chunks: list[str] = []
@@ -82,20 +111,27 @@ def _download_dump() -> None:
     console.print("[green]Download complete.")
 
 
-def _parse_and_store_chunks(engine, category_filter: Optional[str] = None) -> int:
+def _parse_and_store_chunks(engine) -> int:
     """Parse Wikipedia XML dump, extract chunks, write to source_chunks table."""
     import mwxml  # type: ignore
 
-    stored = 0
     with Session(engine) as session:
-        already_parsed = session.exec(
-            select(PipelineState).where(PipelineState.phase == "generate")
+        parse_state = session.exec(
+            select(PipelineState).where(PipelineState.phase == "parse")
         ).first()
-        if already_parsed and already_parsed.status == "complete":
-            return session.exec(select(SourceChunk)).all().__len__()
+        if parse_state and parse_state.status == "complete":
+            count = len(session.exec(select(SourceChunk)).all())
+            console.print(f"[dim]Wikipedia already parsed — {count} chunks in DB, skipping.")
+            return count
+
+        if not parse_state:
+            parse_state = PipelineState(phase="parse", status="running")
+            session.add(parse_state)
+            session.commit()
 
     console.print("Parsing Wikipedia dump and extracting source chunks…")
 
+    stored = 0
     opener = bz2.open if str(WIKIPEDIA_DUMP_PATH).endswith(".bz2") else open
     with opener(WIKIPEDIA_DUMP_PATH, "rb") as f:
         dump = mwxml.Dump.from_file(f)
@@ -109,16 +145,12 @@ def _parse_and_store_chunks(engine, category_filter: Optional[str] = None) -> in
                     title = page.title or ""
                     text = revision.text
 
-                    category = _classify_article(title, text)
-                    if category_filter and category != category_filter:
-                        break
-
                     for chunk_text in _chunk_text(text):
                         chunk = SourceChunk(
                             source_type="wikipedia",
                             source_url=f"https://simple.wikipedia.org/wiki/{title.replace(' ', '_')}",
                             source_title=title,
-                            category=category,
+                            category="general_knowledge",
                             text=chunk_text,
                             processed=False,
                         )
@@ -131,6 +163,15 @@ def _parse_and_store_chunks(engine, category_filter: Optional[str] = None) -> in
 
             session.commit()
 
+    with Session(engine) as session:
+        parse_state = session.exec(
+            select(PipelineState).where(PipelineState.phase == "parse")
+        ).first()
+        parse_state.status = "complete"
+        parse_state.items_processed = stored
+        session.add(parse_state)
+        session.commit()
+
     console.print(f"[green]{stored} source chunks stored.")
     return stored
 
@@ -139,9 +180,41 @@ def _build_generation_prompt(chunk_text: str, n: int) -> str:
     return f"""You are a trivia question writer. Given the following passage, generate exactly {n} multiple-choice trivia questions.
 
 For each question:
-- The question must be answerable solely from the passage
+- The question must be about a specific fact from the passage, but written as a standalone question \
+that makes complete sense to someone who has never seen the passage. \
+NEVER reference "the passage", "the text", "the article", "as mentioned", or any image, \
+photo, diagram, or map in the question — a player will only see the question and answer \
+choices, not the source material or any media.
+- The question text must be ONLY the question itself — a single sentence ending in "?". \
+NEVER embed answer options (A/B/C/D, 1/2/3/4, or any list) inside the question text. \
+Answer options are provided separately in the structured fields.
+- Questions must be timeless — NEVER use temporally relative language like "current", \
+"currently", "today", "recent", "latest", "modern", "ongoing", or "now". \
+A question like "Which areas are threatened by the current fire?" becomes wrong the moment \
+the fire ends. Ask about permanent, historical facts only.
+- The question must be fully self-contained. A player must be able to answer it using only \
+general knowledge — NEVER require the player to know specific values, names, or data that \
+only appeared in the source passage. Ask about facts that exist in the world independently \
+of the passage (e.g. "What year did X happen?" not "What year did X happen given the timeline above?"). \
+NEVER generate math, calculation, or word-problem questions — trivia answers must be \
+recalled facts, not computed results. If a passage contains a math problem or fictional \
+scenario with made-up values, skip it entirely.
+- If the passage does not contain enough clear, verifiable facts to produce a good question, \
+return an empty list. Do NOT invent answers, use placeholder text, or force a question \
+from a passage that does not support one.
 - The correct answer must appear in or be directly derivable from the passage
-- The three distractors must be plausible but clearly wrong given the passage
+- The three distractors must be plausible but clearly incorrect
+- All four answer options (correct + 3 distractors) MUST be the same type and format. \
+If the correct answer is a single country, all options must be single countries. \
+If the correct answer is a person's name, all options must be person names. \
+If the correct answer is a date in BC/AD notation, all options must use BC/AD notation — never mix \
+"4200 BC" with "10,500 years ago". Never mix formats (e.g., one compound answer like "Bolivia and Peru" \
+with three single-item answers).
+- The correct answer must NOT be identifiable by its format or length alone — \
+a player should not be able to guess the correct answer without knowing the content
+- Assign the single most accurate category from exactly this list: \
+arts_and_literature, film_and_tv, general_knowledge, geography, history, music, science, \
+sport_and_leisure, society_and_culture, food_and_drink. No other values are allowed.
 - Assign difficulty: easy (commonly known), medium (requires knowledge), hard (obscure/nuanced)
 - Assign confidence_score (0.0–1.0) reflecting how certain you are the question is factually correct
 
@@ -155,7 +228,6 @@ Generate {n} questions."""
 
 def run_generate(
     db_path: str,
-    category: Optional[str] = None,
     limit: Optional[int] = None,
     model_name: str = MODEL_NAME,
 ) -> None:
@@ -163,16 +235,14 @@ def run_generate(
 
     engine = init_db(db_path)
     _download_dump()
-    _parse_and_store_chunks(engine, category_filter=category)
+    _parse_and_store_chunks(engine)
 
     # Load model
     console.print(f"Loading model [bold]{model_name}[/bold] via MLX-LM…")
     try:
         import outlines  # type: ignore
-        from mlx_lm import load  # type: ignore
 
-        model, tokenizer = load(model_name)
-        generator = outlines.models.mlxlm(model, tokenizer)
+        generator = outlines.models.mlxlm(model_name)
         structured = outlines.generate.json(generator, GeneratedQuestionBatch)
     except ImportError as exc:
         console.print(f"[red]Missing dependency: {exc}. Run: pip install -r requirements.txt")
@@ -181,8 +251,6 @@ def run_generate(
     # Fetch unprocessed chunks
     with Session(engine) as session:
         query = select(SourceChunk).where(SourceChunk.processed == False)  # noqa: E712
-        if category:
-            query = query.where(SourceChunk.category == category)
         chunks = session.exec(query).all()
 
     if limit:
@@ -214,6 +282,20 @@ def run_generate(
                 continue
 
             for q in batch.questions:
+                # Drop questions where the model couldn't produce a real answer
+                if _is_placeholder(q.correct_answer) or _is_placeholder(q.text):
+                    console.print(
+                        f"[yellow]Chunk {chunk.id} — skipping question with placeholder content"
+                    )
+                    continue
+
+                # Drop questions that reference the source passage
+                if _references_source(q.text):
+                    console.print(
+                        f"[yellow]Chunk {chunk.id} — skipping question referencing source material"
+                    )
+                    continue
+
                 question = Question(
                     source_chunk_id=chunk.id,
                     source_type="generated",
@@ -222,7 +304,7 @@ def run_generate(
                     distractor_1=q.distractor_1,
                     distractor_2=q.distractor_2,
                     distractor_3=q.distractor_3,
-                    category=chunk.category,
+                    category=q.category,
                     difficulty=q.difficulty,
                     confidence_score=q.confidence_score,
                 )

@@ -2,6 +2,7 @@
 
 import os
 from pathlib import Path
+from typing import Literal
 
 # ── Paths ──────────────────────────────────────────────────────────────────
 PIPELINE_DIR = Path(__file__).parent
@@ -28,34 +29,24 @@ WIKIPEDIA_DUMP_PATH = PIPELINE_DIR / "simplewiki-latest-pages-articles.xml.bz2"
 
 # ── Generation ─────────────────────────────────────────────────────────────
 # Number of questions to generate per Wikipedia source chunk.
-QUESTIONS_PER_CHUNK: int = 3
+QUESTIONS_PER_CHUNK: int = 1
 
 # Checkpoint write frequency (every N processed chunks).
 CHECKPOINT_INTERVAL: int = 10
 
 # ── Categories ─────────────────────────────────────────────────────────────
-CATEGORIES: list[str] = [
-    "Arts & Literature",
-    "Film & TV",
-    "General Knowledge",
-    "Geography",
-    "History",
-    "Music",
-    "Science",
-    "Sport & Leisure",
-    "Society & Culture",
-    "Food & Drink",
+# Single source of truth. Slugs are used everywhere — pipeline DB, export DB, and app.
+CategoryLiteral = Literal[
+    "arts_and_literature",
+    "film_and_tv",
+    "general_knowledge",
+    "geography",
+    "history",
+    "music",
+    "science",
+    "sport_and_leisure",
+    "society_and_culture",
+    "food_and_drink",
 ]
 
-CATEGORY_SLUGS: dict[str, str] = {
-    "Arts & Literature": "arts_and_literature",
-    "Film & TV": "film_and_tv",
-    "General Knowledge": "general_knowledge",
-    "Geography": "geography",
-    "History": "history",
-    "Music": "music",
-    "Science": "science",
-    "Sport & Leisure": "sport_and_leisure",
-    "Society & Culture": "society_and_culture",
-    "Food & Drink": "food_and_drink",
-}
+CATEGORIES: list[str] = list(CategoryLiteral.__args__)  # type: ignore[attr-defined]

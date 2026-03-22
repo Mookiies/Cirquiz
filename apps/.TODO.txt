@@ -1,11 +1,32 @@
 This file is purely for notes and tracking things I want to implement going forward. May not be up to date.
 
+App store review prompt. https://docs.expo.dev/versions/latest/sdk/storereview/
+Shuffle questions per person answering so you can't see what position the person before you typed
+
 BUGS
 - Instead of refresshing the session for otdb when we run out of questions we should show some sort of UI to reset the session or allow changing the category selection
 - On taking a long time to load for continue, if someone quits the game it should cancel the pending network request and navigaiton
 
-OFFLINE SUPPORT
-- Store the list of categories from otdb and return that
+====== OFFLINE SUPPORT =======
+https://docs.expo.dev/versions/latest/sdk/sqlite/#import-an-existing-database -- seems better than this whole initializing flow?
+
+  enwiki-latest-pages-articles1.xml.bz2 (and 2, 3, etc.)
+  The full English Wikipedia dump is split into numbered chunks. You could download just the first few. Each file is ~200-300MB and covers a alphabetical slice of articles. Not ideal since you'd get A-C
+  heavily and miss later letters.
+
+  DBpedia or Wikipedia article subsets
+  There are pre-filtered HuggingFace datasets that are subsets of English Wikipedia, curated by topic or quality. For example:
+  - wikimedia/wikipedia on HuggingFace — the full English Wikipedia as a streaming dataset, no download required, and you can filter by category/length before processing
+  - Much easier than downloading a raw XML dump
+
+  simplewiki + targeted enwiki categories
+  Keep simplewiki as the base, then pull specific enwiki article dumps for categories where you want more depth (e.g. Science, History).
+
+  The HuggingFace streaming approach is probably the best middle ground for your use case — you'd replace the dump download + mwxml parsing in generate.py with a load_dataset("wikimedia/wikipedia",
+  "20231101.en", streaming=True) call, filter articles by length and keyword, and feed them into the same chunking/generation loop. No multi-GB download sitting on disk, and you can stop whenever you have
+  enough questions.
+
+=======================================
 
 Music
 

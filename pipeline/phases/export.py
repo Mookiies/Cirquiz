@@ -12,12 +12,12 @@ from sqlmodel import Session, select
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from config import CATEGORIES, CATEGORY_SLUGS, EXPORT_PATH
+from config import CATEGORIES, EXPORT_PATH
 from models.db import Question, init_db
 
 console = Console()
 
-CATEGORY_ROWS = [(CATEGORY_SLUGS[name], name) for name in CATEGORIES]
+CATEGORY_ROWS = [(cat, cat) for cat in CATEGORIES]
 
 
 def _get_current_db_version(export_path: str) -> int:
@@ -119,20 +119,68 @@ def run_export(db_path: str, output_path: str | None = None) -> None:
         console.print("[red]No verified questions to export. Run verify phase first.")
         return
 
-    # Convert to dicts for export
-    export_rows = [
-        {
+    # Hard gate: validate every question before export
+    PLACEHOLDER = "[distractor pending]"
+    VALID_DIFFICULTIES = {"easy", "medium", "hard"}
+    VALID_CATEGORIES = set(CATEGORIES)
+
+    skipped_placeholders = 0
+    skipped_invalid = 0
+    export_rows = []
+
+    for q in questions:
+        # Placeholder distractors
+        if any(
+            (d or "").strip() == PLACEHOLDER
+            for d in (q.distractor_1, q.distractor_2, q.distractor_3)
+        ):
+            skipped_placeholders += 1
+            console.print(f"[yellow]  skip id={q.id}: placeholder distractors")
+            continue
+
+        # Empty required fields
+        if not all([
+            (q.text or "").strip(),
+            (q.correct_answer or "").strip(),
+            (q.distractor_1 or "").strip(),
+            (q.distractor_2 or "").strip(),
+            (q.distractor_3 or "").strip(),
+        ]):
+            skipped_invalid += 1
+            console.print(f"[red]  skip id={q.id}: empty required field")
+            continue
+
+        # Difficulty must be one of the three valid values
+        if q.difficulty not in VALID_DIFFICULTIES:
+            skipped_invalid += 1
+            console.print(f"[red]  skip id={q.id}: invalid difficulty '{q.difficulty}'")
+            continue
+
+        # Category must be a recognised category
+        if q.category not in VALID_CATEGORIES:
+            skipped_invalid += 1
+            console.print(f"[red]  skip id={q.id}: invalid category '{q.category}'")
+            continue
+
+        export_rows.append({
             "id": str(q.id),
             "text": q.text,
             "correct_answer": q.correct_answer,
             "distractor_1": q.distractor_1,
             "distractor_2": q.distractor_2,
             "distractor_3": q.distractor_3,
-            "category": CATEGORY_SLUGS.get(q.category, q.category.lower().replace(" ", "_")),
+            "category": q.category,
             "difficulty": q.difficulty,
-        }
-        for q in questions
-    ]
+        })
+
+    if skipped_placeholders:
+        console.print(
+            f"[yellow]⚠ Skipped {skipped_placeholders} questions with placeholder distractors."
+        )
+    if skipped_invalid:
+        console.print(
+            f"[red]⚠ Skipped {skipped_invalid} questions with invalid difficulty, category, or empty fields."
+        )
 
     _validate_distribution(export_rows, len(export_rows))
 
