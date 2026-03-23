@@ -18,14 +18,13 @@ MODEL_NAME = os.environ.get("PIPELINE_MODEL", "mlx-community/Mistral-7B-Instruct
 CONFIDENCE_THRESHOLD: float = 0.85
 
 # Cosine similarity at or above this value marks a question as a near-duplicate.
-DEDUP_THRESHOLD: float = 0.92
+DEDUP_THRESHOLD: float = 0.83
 
 # ── Source data ────────────────────────────────────────────────────────────
-WIKIPEDIA_DUMP_URL = (
-    "https://dumps.wikimedia.org/simplewiki/latest/"
-    "simplewiki-latest-pages-articles.xml.bz2"
-)
-WIKIPEDIA_DUMP_PATH = PIPELINE_DIR / "simplewiki-latest-pages-articles.xml.bz2"
+# HuggingFace wikipedia dataset config string. Options:
+#   "20220301.simple"  — Simple English Wikipedia (~200k articles, cleaner prose)
+#   "20220301.en"      — Full English Wikipedia (~6M articles)
+WIKIPEDIA_DATASET: str = os.environ.get("WIKIPEDIA_DATASET", "20220301.simple")
 
 # ── Generation ─────────────────────────────────────────────────────────────
 # Number of questions to generate per Wikipedia source chunk.

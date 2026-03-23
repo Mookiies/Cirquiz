@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-import bz2
+import concurrent.futures
 import sys
-import urllib.request
 from pathlib import Path
 from typing import Optional
 
 from rich.console import Console
+from rich.progress import BarColumn, MofNCompleteColumn, Progress, TextColumn, TimeElapsedColumn
 from sqlmodel import Session, select
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -17,11 +17,11 @@ from config import (
     CHECKPOINT_INTERVAL,
     MODEL_NAME,
     QUESTIONS_PER_CHUNK,
-    WIKIPEDIA_DUMP_PATH,
-    WIKIPEDIA_DUMP_URL,
+    WIKIPEDIA_DATASET,
 )
 from models.db import PipelineState, Question, SourceChunk, init_db
 from models.schemas import GeneratedQuestionBatch
+from phases.feedback import build_feedback_retriever
 
 console = Console()
 
@@ -102,18 +102,9 @@ def _chunk_text(text: str, chunk_size: int = 450) -> list[str]:
     return [c for c in chunks if len(c.split()) >= 50]  # skip tiny chunks
 
 
-def _download_dump() -> None:
-    if WIKIPEDIA_DUMP_PATH.exists():
-        console.print(f"[dim]Wikipedia dump already present at {WIKIPEDIA_DUMP_PATH}")
-        return
-    console.print(f"Downloading Wikipedia dump from {WIKIPEDIA_DUMP_URL} …")
-    urllib.request.urlretrieve(WIKIPEDIA_DUMP_URL, WIKIPEDIA_DUMP_PATH)
-    console.print("[green]Download complete.")
-
-
-def _parse_and_store_chunks(engine) -> int:
-    """Parse Wikipedia XML dump, extract chunks, write to source_chunks table."""
-    import mwxml  # type: ignore
+def _load_and_store_chunks(engine) -> int:
+    """Stream the HuggingFace Wikipedia dataset and write chunks to source_chunks table."""
+    from datasets import load_dataset  # type: ignore
 
     with Session(engine) as session:
         parse_state = session.exec(
@@ -121,7 +112,7 @@ def _parse_and_store_chunks(engine) -> int:
         ).first()
         if parse_state and parse_state.status == "complete":
             count = len(session.exec(select(SourceChunk)).all())
-            console.print(f"[dim]Wikipedia already parsed — {count} chunks in DB, skipping.")
+            console.print(f"[dim]Wikipedia already loaded — {count} chunks in DB, skipping.")
             return count
 
         if not parse_state:
@@ -129,39 +120,32 @@ def _parse_and_store_chunks(engine) -> int:
             session.add(parse_state)
             session.commit()
 
-    console.print("Parsing Wikipedia dump and extracting source chunks…")
+    console.print(f"Loading Wikipedia dataset [bold]{WIKIPEDIA_DATASET}[/bold] from HuggingFace…")
+    dataset = load_dataset("wikipedia", WIKIPEDIA_DATASET, split="train", trust_remote_code=True)
+    console.print(f"[green]{len(dataset)} articles loaded. Chunking and storing…")
 
     stored = 0
-    opener = bz2.open if str(WIKIPEDIA_DUMP_PATH).endswith(".bz2") else open
-    with opener(WIKIPEDIA_DUMP_PATH, "rb") as f:
-        dump = mwxml.Dump.from_file(f)
-        with Session(engine) as session:
-            for page in dump.pages:
-                if page.namespace != 0:
-                    continue
-                for revision in page:
-                    if not revision.text:
-                        continue
-                    title = page.title or ""
-                    text = revision.text
+    with Session(engine) as session:
+        for article in dataset:
+            title = article["title"] or ""
+            text = article["text"] or ""
+            url = article["url"] or ""
 
-                    for chunk_text in _chunk_text(text):
-                        chunk = SourceChunk(
-                            source_type="wikipedia",
-                            source_url=f"https://simple.wikipedia.org/wiki/{title.replace(' ', '_')}",
-                            source_title=title,
-                            category="general_knowledge",
-                            text=chunk_text,
-                            processed=False,
-                        )
-                        session.add(chunk)
-                        stored += 1
+            for chunk_text in _chunk_text(text):
+                session.add(SourceChunk(
+                    source_type="wikipedia",
+                    source_url=url,
+                    source_title=title,
+                    category="general_knowledge",
+                    text=chunk_text,
+                    processed=False,
+                ))
+                stored += 1
 
-                    if stored % 500 == 0:
-                        session.commit()
-                    break  # only process latest revision
+            if stored % 500 == 0:
+                session.commit()
 
-            session.commit()
+        session.commit()
 
     with Session(engine) as session:
         parse_state = session.exec(
@@ -176,54 +160,87 @@ def _parse_and_store_chunks(engine) -> int:
     return stored
 
 
-def _build_generation_prompt(chunk_text: str, n: int) -> str:
-    return f"""You are a trivia question writer. Given the following passage, generate exactly {n} multiple-choice trivia questions.
+def _build_generation_prompt(chunk_text: str, n: int, feedback_block: str = "") -> str:
+    return f"""{feedback_block}You are a trivia question writer. Your goal is to write questions that feel at home in a pub quiz — \
+questions that a curious, well-read adult might know, might half-know, or might be surprised by. \
+A great trivia question has an "aha" moment: the answer is satisfying to get right and genuinely \
+interesting to learn if you got it wrong.
 
-For each question:
-- The question must be about a specific fact from the passage, but written as a standalone question \
-that makes complete sense to someone who has never seen the passage. \
-NEVER reference "the passage", "the text", "the article", "as mentioned", or any image, \
-photo, diagram, or map in the question — a player will only see the question and answer \
-choices, not the source material or any media.
-- The question text must be ONLY the question itself — a single sentence ending in "?". \
-NEVER embed answer options (A/B/C/D, 1/2/3/4, or any list) inside the question text. \
-Answer options are provided separately in the structured fields.
-- Questions must be timeless — NEVER use temporally relative language like "current", \
-"currently", "today", "recent", "latest", "modern", "ongoing", or "now". \
-A question like "Which areas are threatened by the current fire?" becomes wrong the moment \
-the fire ends. Ask about permanent, historical facts only.
-- The question must be fully self-contained. A player must be able to answer it using only \
-general knowledge — NEVER require the player to know specific values, names, or data that \
-only appeared in the source passage. Ask about facts that exist in the world independently \
-of the passage (e.g. "What year did X happen?" not "What year did X happen given the timeline above?"). \
-NEVER generate math, calculation, or word-problem questions — trivia answers must be \
-recalled facts, not computed results. If a passage contains a math problem or fictional \
-scenario with made-up values, skip it entirely.
-- If the passage does not contain enough clear, verifiable facts to produce a good question, \
-return an empty list. Do NOT invent answers, use placeholder text, or force a question \
-from a passage that does not support one.
-- The correct answer must appear in or be directly derivable from the passage
-- The three distractors must be plausible but clearly incorrect
-- All four answer options (correct + 3 distractors) MUST be the same type and format. \
-If the correct answer is a single country, all options must be single countries. \
-If the correct answer is a person's name, all options must be person names. \
-If the correct answer is a date in BC/AD notation, all options must use BC/AD notation — never mix \
-"4200 BC" with "10,500 years ago". Never mix formats (e.g., one compound answer like "Bolivia and Peru" \
-with three single-item answers).
-- The correct answer must NOT be identifiable by its format or length alone — \
-a player should not be able to guess the correct answer without knowing the content
-- Assign the single most accurate category from exactly this list: \
+=== WHAT MAKES A GOOD QUESTION ===
+- The answer is something a smart person COULD know but might not — not something everyone knows \
+immediately, and not something only a specialist would ever encounter.
+- Prefer asking WHAT someone did, discovered, or created over WHEN they did it. \
+"Which scientist first described natural selection?" is better than "In what year did Darwin \
+publish On the Origin of Species?" — the what teaches you something, the date rarely does.
+- Date questions are only acceptable when the date itself is famous (moon landing, D-Day, etc.). \
+For any niche or obscure topic, never ask a date question — it rewards nothing.
+- The fact being tested should be notable or surprising in its own right. If knowing the answer \
+feels arbitrary — if it's just a detail that happens to appear in the passage — skip it.
+- Distractors must feel like real guesses to someone who doesn't know the answer. Wrong options \
+that are obviously wrong (wrong continent, wrong century, wildly different field) make the \
+question trivially easy. Each distractor should be something a reasonable person might plausibly \
+believe is correct.
+- Connections and surprising facts make the best questions: "Which two things are linked by X?" \
+or "What unexpected property does X have?" These create genuine engagement.
+
+=== WHEN TO SKIP THIS PASSAGE — return an empty list ===
+Ask yourself: could a typical pub quiz use this passage as a source? If the answer is no, skip it.
+Skip the passage if ANY of the following are true:
+- It is primarily a list (discography, bibliography, roster, timeline of dates) with no narrative \
+context — lists produce trivial or arbitrary questions.
+- It is a Wikipedia stub, disambiguation page, or meta-article about editing.
+- Every interesting fact in the passage is too niche or local to be general knowledge — \
+if a reasonably well-read adult would have no realistic chance of knowing the answer, skip it.
+- The only extractable facts are dates or numbers for obscure events.
+- The passage is about fictional characters, made-up scenarios, or contains math problems \
+with invented values.
+- You cannot write a distractor that would fool anyone — the wrong answers would be obvious \
+to anyone who reads the question.
+Do NOT force a question from a bad passage. An empty list is the correct output when the \
+passage doesn't support a good question.
+
+=== STRICT RULES ===
+- The question must be fully self-contained — a player sees ONLY the question and four answer \
+options, never the passage. NEVER reference "the passage", "the text", "the article", \
+"as mentioned", or any image, photo, diagram, or map.
+- The question text must be a single sentence ending in "?". No embedded options, no lists, \
+no multiple sentences.
+- Questions must be timeless — NEVER use "current", "currently", "today", "recent", "latest", \
+"modern", "ongoing", "since", or "now". Ask about permanent historical facts only.
+- NEVER ask questions based on subjective judgement — "greatest", "best", "reached its peak", \
+"finest of all time" have no single correct answer. Every question must have one verifiable fact.
+- NEVER generate math or calculation questions. Trivia answers are recalled facts, not computed results.
+- Each answer option must be a single item, never a comma-separated list. If the passage lists \
+several things sharing a property, ask about ONE of them with three plausible distractors.
+- All four options must be the same type and format — never mix "4200 BC" with "10,500 years ago", \
+or a compound answer with single-item answers.
+- The correct answer must NOT be identifiable by format or length alone.
+
+=== CATEGORY & DIFFICULTY ===
+Assign the single most accurate category from exactly this list: \
 arts_and_literature, film_and_tv, general_knowledge, geography, history, music, science, \
-sport_and_leisure, society_and_culture, food_and_drink. No other values are allowed.
-- Assign difficulty: easy (commonly known), medium (requires knowledge), hard (obscure/nuanced)
-- Assign confidence_score (0.0–1.0) reflecting how certain you are the question is factually correct
+sport_and_leisure, society_and_culture, food_and_drink.
+- Use "science" for scientific discoveries, inventions, concepts, and scientists — even with a \
+historical angle. "Who discovered penicillin?" is science, not history.
+- Use "history" only for political, military, or social history — wars, rulers, empires, \
+revolutions, treaties.
+- When uncertain between two categories, default to "general_knowledge".
+
+Difficulty reflects how likely a typical pub quiz player is to know the answer:
+- easy: most players would know this
+- medium: maybe half of players would know this
+- hard: only well-informed players would know this — but it's still a fair question, not an \
+arbitrary one. A hard question should feel hard because the subject is specialised, not because \
+the fact is trivially obscure.
+
+Assign confidence_score (0.0–1.0) reflecting how certain you are the question is factually correct.
 
 Passage:
 \"\"\"
 {chunk_text}
 \"\"\"
 
-Generate {n} questions."""
+Generate {n} questions, or return an empty list if the passage does not support a good question."""
 
 
 def run_generate(
@@ -234,8 +251,7 @@ def run_generate(
     console.rule("[bold blue]Phase: Generate")
 
     engine = init_db(db_path)
-    _download_dump()
-    _parse_and_store_chunks(engine)
+    _load_and_store_chunks(engine)
 
     # Load model
     console.print(f"Loading model [bold]{model_name}[/bold] via MLX-LM…")
@@ -260,11 +276,25 @@ def run_generate(
         console.print("[yellow]No unprocessed source chunks found.")
         return
 
+    feedback = build_feedback_retriever(db_path, "generate")
+    console.print("[dim]Feedback retriever ready (embeddings loaded).")
+
     console.print(f"Generating questions for {len(chunks)} source chunks…")
     generated_total = 0
     checkpoint_count = 0
 
-    with Session(engine) as session:
+    progress = Progress(
+        TextColumn("[bold blue]{task.description}"),
+        BarColumn(),
+        MofNCompleteColumn(),
+        TextColumn("•"),
+        TimeElapsedColumn(),
+        console=console,
+    )
+
+    with progress, Session(engine) as session:
+        task = progress.add_task("Generating — 0 questions", total=len(chunks))
+
         state = session.exec(
             select(PipelineState).where(PipelineState.phase == "generate")
         ).first()
@@ -274,9 +304,19 @@ def run_generate(
             session.commit()
 
         for i, chunk in enumerate(chunks):
-            prompt = _build_generation_prompt(chunk.text, QUESTIONS_PER_CHUNK)
+            prompt = _build_generation_prompt(chunk.text, QUESTIONS_PER_CHUNK, feedback(chunk.text))
             try:
-                batch: GeneratedQuestionBatch = structured(prompt)
+                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+                    future = executor.submit(structured, prompt)
+                    batch: GeneratedQuestionBatch = future.result(timeout=180)
+            except concurrent.futures.TimeoutError:
+                console.print(f"[yellow]Chunk {chunk.id} timed out after 180s — skipping")
+                chunk_record = session.get(SourceChunk, chunk.id)
+                if chunk_record:
+                    chunk_record.processed = True
+                    session.add(chunk_record)
+                session.commit()
+                continue
             except Exception as exc:
                 console.print(f"[yellow]Chunk {chunk.id} generation failed: {exc} — skipping")
                 continue
@@ -307,6 +347,13 @@ def run_generate(
                     category=q.category,
                     difficulty=q.difficulty,
                     confidence_score=q.confidence_score,
+                    original_text=q.text,
+                    original_correct_answer=q.correct_answer,
+                    original_distractor_1=q.distractor_1,
+                    original_distractor_2=q.distractor_2,
+                    original_distractor_3=q.distractor_3,
+                    original_category=q.category,
+                    original_difficulty=q.difficulty,
                 )
                 session.add(question)
                 generated_total += 1
@@ -315,6 +362,9 @@ def run_generate(
             if chunk_record:
                 chunk_record.processed = True
                 session.add(chunk_record)
+
+            progress.advance(task)
+            progress.update(task, description=f"Generating — {generated_total} questions")
 
             checkpoint_count += 1
             if checkpoint_count % CHECKPOINT_INTERVAL == 0:

@@ -69,6 +69,7 @@ pipeline/**/*.pyc
 pipeline/generation.db
 pipeline/logs/*.log
 pipeline/export/*.db
+/pipeline/simplewiki-latest-pages-articles.xml.bz2
 
 # ─── Misc ────────────────────────────────────────────────────────────────────
 *.log

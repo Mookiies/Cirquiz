@@ -34,6 +34,12 @@ def cmd_review(args: argparse.Namespace) -> None:
     run_review(db_path=args.db)
 
 
+def cmd_curate(args: argparse.Namespace) -> None:
+    from phases.curate import run_curate
+
+    run_curate(db_path=args.db)
+
+
 def cmd_export(args: argparse.Namespace) -> None:
     from phases.export import run_export
 
@@ -78,6 +84,10 @@ def main() -> None:
     # ── review ──────────────────────────────────────────────────────────────
     rev_p = subparsers.add_parser("review", help="Interactively review low-confidence questions")
     rev_p.set_defaults(func=cmd_review)
+
+    # ── curate ──────────────────────────────────────────────────────────────
+    cur_p = subparsers.add_parser("curate", help="Human review of all unreviewed valid questions")
+    cur_p.set_defaults(func=cmd_curate)
 
     # ── export ──────────────────────────────────────────────────────────────
     exp_p = subparsers.add_parser("export", help="Export verified questions to app DB")

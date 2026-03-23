@@ -2,11 +2,7 @@
 
 from __future__ import annotations
 
-import json
-import os
-import subprocess
 import sys
-import tempfile
 from datetime import datetime
 from pathlib import Path
 
@@ -18,19 +14,14 @@ from sqlmodel import Session, select
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from models.db import Question, ReviewQueue, SourceChunk, init_db
+from phases._common import CATEGORY_KEYS, CATEGORY_LEGEND, DIFFICULTY_KEYS, edit_question, get_key
 
 console = Console()
 
-HELP_TEXT = "  a) approve    y) accept suggestion    e) edit    r) reject    s) skip    q) quit"
-
-
-def _get_key() -> str:
-    try:
-        import readchar  # type: ignore
-
-        return readchar.readkey().lower()
-    except ImportError:
-        return input("Action (a/e/r/s/q): ").strip().lower()[:1]
+HELP_TEXT = (
+    "  1-0) category   e/m/h) difficulty   a) approve   y) accept suggestion"
+    "   x) edit   r) reject   s) skip   g) google   q) quit"
+)
 
 
 def _display_question(
@@ -39,6 +30,8 @@ def _display_question(
     chunk: SourceChunk | None,
     index: int,
     total: int,
+    staged_category: str | None,
+    staged_difficulty: str | None,
 ) -> None:
     console.clear()
     header = (
@@ -67,46 +60,34 @@ def _display_question(
     if question.flag_reason:
         body.append(f"Flag: {question.flag_reason}\n", style="bold yellow")
 
+    body.append("\n")
+    body.append("Category:   ", style="bold")
+    body.append(question.category)
+    if staged_category is not None:
+        body.append(f"  →  [{staged_category}]", style="bold yellow")
+    body.append("\n")
+
+    body.append("Difficulty: ", style="bold")
+    body.append(question.difficulty)
+    if staged_difficulty is not None:
+        body.append(f"  →  [{staged_difficulty}]", style="bold yellow")
+    body.append("\n")
+
     console.print(Panel(body, expand=False))
+    console.print(f"\n[dim]{CATEGORY_LEGEND}[/dim]")
     console.print(f"\n[bold]{HELP_TEXT}[/bold]\n")
 
 
-def _edit_question(question: Question) -> Question:
-    """Open $EDITOR with the question JSON; return updated question on save."""
-    data = {
-        "text": question.text,
-        "correct_answer": question.correct_answer,
-        "distractor_1": question.distractor_1,
-        "distractor_2": question.distractor_2,
-        "distractor_3": question.distractor_3,
-        "category": question.category,
-        "difficulty": question.difficulty,
-    }
-    with tempfile.NamedTemporaryFile(
-        mode="w", suffix=".json", delete=False, encoding="utf-8"
-    ) as f:
-        json.dump(data, f, indent=2)
-        tmp_path = f.name
+def _apply_staged(
+    question: Question,
+    staged_category: str | None,
+    staged_difficulty: str | None,
+) -> None:
+    if staged_category is not None:
+        question.category = staged_category
+    if staged_difficulty is not None:
+        question.difficulty = staged_difficulty
 
-    editor = os.environ.get("EDITOR", "nano")
-    subprocess.call([editor, tmp_path])
-
-    try:
-        with open(tmp_path, encoding="utf-8") as f:
-            updated = json.load(f)
-        question.text = updated.get("text", question.text)
-        question.correct_answer = updated.get("correct_answer", question.correct_answer)
-        question.distractor_1 = updated.get("distractor_1", question.distractor_1)
-        question.distractor_2 = updated.get("distractor_2", question.distractor_2)
-        question.distractor_3 = updated.get("distractor_3", question.distractor_3)
-        question.category = updated.get("category", question.category)
-        question.difficulty = updated.get("difficulty", question.difficulty)
-    except (json.JSONDecodeError, KeyError) as exc:
-        console.print(f"[red]Failed to parse edited JSON: {exc} — changes discarded.")
-    finally:
-        os.unlink(tmp_path)
-
-    return question
 
 
 def run_review(db_path: str) -> None:
@@ -140,15 +121,36 @@ def run_review(db_path: str) -> None:
                 else None
             )
 
-            _display_question(entry, question, chunk, index, total)
+            staged_category: str | None = None
+            staged_difficulty: str | None = None
+            has_validator_suggestion = (
+                entry.reason in ("difficulty_mismatch", "category_mismatch", "field_mismatch")
+            )
+            suggestion_accepted = False  # tracks whether human pressed 'y'
+
+            _display_question(entry, question, chunk, index, total, staged_category, staged_difficulty)
 
             while True:
-                key = _get_key()
+                key = get_key()
 
-                if key == "a":
+                if key in CATEGORY_KEYS:
+                    staged_category = CATEGORY_KEYS[key]
+                    _display_question(entry, question, chunk, index, total, staged_category, staged_difficulty)
+
+                elif key in DIFFICULTY_KEYS:
+                    staged_difficulty = DIFFICULTY_KEYS[key]
+                    _display_question(entry, question, chunk, index, total, staged_category, staged_difficulty)
+
+                elif key == "a":
+                    if staged_category is not None or staged_difficulty is not None:
+                        question.edited = True
+                    _apply_staged(question, staged_category, staged_difficulty)
                     question.verified = True
+                    question.human_approved = True
                     entry.status = "approved"
                     entry.reviewed_at = datetime.utcnow()
+                    if has_validator_suggestion:
+                        entry.validator_suggestion_accepted = suggestion_accepted
                     session.add(question)
                     session.add(entry)
                     session.commit()
@@ -157,7 +159,7 @@ def run_review(db_path: str) -> None:
 
                 elif key == "y":
                     import re
-                    applied = []
+
                     if question.flag_reason:
                         diff_match = re.search(
                             r"difficulty suggested: '([^']+)'", question.flag_reason
@@ -165,29 +167,32 @@ def run_review(db_path: str) -> None:
                         cat_match = re.search(
                             r"category suggested: '([^']+)'", question.flag_reason
                         )
-                        if diff_match:
-                            old = question.difficulty
-                            question.difficulty = diff_match.group(1)
-                            applied.append(f"difficulty {old} → {question.difficulty}")
-                        if cat_match:
-                            old = question.category
-                            question.category = cat_match.group(1)
-                            applied.append(f"category {old} → {question.category}")
-                        if applied:
-                            console.print(f"[cyan]  {', '.join(applied)}")
-                        else:
-                            console.print("[yellow]  no suggestion found in flag reason")
+                        if diff_match and staged_difficulty is None:
+                            staged_difficulty = diff_match.group(1)
+                        if cat_match and staged_category is None:
+                            staged_category = cat_match.group(1)
+                    suggestion_accepted = True
+                    _display_question(entry, question, chunk, index, total, staged_category, staged_difficulty)
+
+                elif key == "x":
+                    question = edit_question(question, staged_category, staged_difficulty)
+                    staged_category = None
+                    staged_difficulty = None
                     question.verified = True
+                    question.human_approved = True
                     entry.status = "approved"
                     entry.reviewed_at = datetime.utcnow()
+                    if has_validator_suggestion:
+                        entry.validator_suggestion_accepted = suggestion_accepted
                     session.add(question)
                     session.add(entry)
                     session.commit()
-                    console.print("[green]✓ Approved with suggestion")
+                    console.print("[green]✓ Edited and approved")
                     break
 
                 elif key == "r":
                     question.rejected = True
+                    question.rejection_source = "human"
                     entry.status = "rejected"
                     entry.reviewed_at = datetime.utcnow()
                     session.add(question)
@@ -196,16 +201,11 @@ def run_review(db_path: str) -> None:
                     console.print("[red]✗ Rejected")
                     break
 
-                elif key == "e":
-                    question = _edit_question(question)
-                    question.verified = True
-                    entry.status = "approved"
-                    entry.reviewed_at = datetime.utcnow()
-                    session.add(question)
-                    session.add(entry)
-                    session.commit()
-                    console.print("[green]✓ Edited and approved")
-                    break
+                elif key == "g":
+                    import subprocess
+                    import urllib.parse
+                    url = "https://www.google.com/search?q=" + urllib.parse.quote_plus(question.text)
+                    subprocess.run(["open", url], check=False)
 
                 elif key == "s":
                     console.print("[dim]Skipped")

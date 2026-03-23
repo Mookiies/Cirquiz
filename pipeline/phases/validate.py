@@ -16,32 +16,96 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from config import MODEL_NAME
 from models.db import PipelineState, Question, ReviewQueue, init_db
 from models.schemas import QuestionValidation
+from phases.feedback import build_feedback_retriever
 
 console = Console()
 
+# Matches markup or encoding artifacts that leak from Wikipedia source parsing.
+_MARKUP_RE = re.compile(
+    r":[a-z]+:[A-Za-z_{]"  # RST role syntax: :math:Phi, :ref:target
+    r"|%[0-9A-Fa-f]{2}"  # Percent-encoded characters: %26, %3A
+    r"|&[a-zA-Z]{2,};"  # HTML named entities: &tau;, &amp;
+    r"|&#[0-9]{1,5};"  # HTML numeric entities: &#960;
+    r"|\[\[|\]\]"  # MediaWiki link syntax: [[...]]
+    r"|\{\{|\}\}"  # MediaWiki template syntax: {{...}}
+    r'|"/>'  # XML/HTML self-closing tag fragment: "/>
+    r'|">'  # HTML attribute close fragment: ">
+)
+
+_MAX_ANSWER_LENGTH = 60
+
+
+_STOP_WORDS = frozenset({
+    "a", "an", "the", "is", "are", "was", "were", "be", "been", "being",
+    "of", "in", "on", "at", "to", "for", "with", "by", "from", "and", "or",
+    "but", "that", "this", "it", "its", "which", "who", "what", "where",
+    "when", "how", "did", "do", "does", "had", "has", "have", "he", "she",
+    "they", "we", "you", "i", "my", "his", "her", "their", "our", "your",
+    "as", "if", "so", "not", "no", "nor", "yet", "both", "either", "neither",
+    "each", "than", "then", "into", "onto", "about", "above", "after",
+    "before", "between", "during", "through", "under", "over", "up", "down",
+    "out", "off", "again", "once",
+})
+
+
+def _significant_words(text: str) -> set[str]:
+    return {
+        w.strip("'\".,!?;:()[]{}") for w in text.lower().split()
+        if w not in _STOP_WORDS and len(w) > 2
+    }
+
 
 def _answer_in_question(q: Question) -> bool:
-    """Fast pre-check: does the correct answer appear verbatim in the question text?"""
+    """Pre-check: is the correct answer revealed by the question text?
+
+    Catches verbatim matches and word-overlap leakage, e.g.:
+    "Which event marks the beginning of World War I?" / "World War I begins"
+    → 'world' and 'war' from the answer both appear in the question (67% overlap → flagged).
+    """
     answer = q.correct_answer.lower().strip()
     question = q.text.lower().strip()
-    # Only flag if answer is non-trivial (skip single chars, articles, etc.)
-    return len(answer) > 3 and answer in question
+
+    if len(answer) <= 3:
+        return False
+
+    # Full answer appears verbatim in question
+    if answer in question:
+        return True
+
+    # Significant word overlap: if ≥60% of the answer's meaningful words appear in
+    # the question, the answer is substantially leaked by the question text.
+    ans_words = _significant_words(answer)
+    if len(ans_words) >= 2:
+        q_words = _significant_words(question)
+        overlap = ans_words & q_words
+        if len(overlap) / len(ans_words) >= 0.6:
+            return True
+
+    return False
 
 
 def _malformed_question(q: Question) -> str | None:
     """Fast pre-check: return a rejection reason if the question text is obviously malformed."""
     text = (q.text or "").strip()
+    lower = text.lower()
 
     # Too short or empty to be a real question
     if len(text) < 10:
         return f"question text too short: {repr(text)}"
 
+    # Too long — overly verbose questions are usually malformed or compound
+    if len(text) > 200:
+        return f"question text too long: {len(text)} characters"
+
     # Must end with a question mark
     if not text.endswith("?"):
         return "question text does not end with '?'"
 
+    # Markup or encoding artifacts leaked from source parsing
+    if _MARKUP_RE.search(text):
+        return "question text contains markup or encoding artifacts"
+
     # Math/calculation questions — answers must be recalled facts, not computed
-    import re
     calc_patterns = [
         r"\bin total\b", r"\bthe sum\b", r"\bhow many .{0,30}\b(total|altogether|combined)\b",
         r"\bwhat is the (total|sum|product|difference|distance|speed|rate|cost|price|value)\b",
@@ -49,17 +113,27 @@ def _malformed_question(q: Question) -> str | None:
         r"\bin (meters?|kilometres?|kilometers?|miles?|kg|pounds?|seconds?|minutes?|hours?)\b",
     ]
     for pattern in calc_patterns:
-        if re.search(pattern, text.lower()):
+        if re.search(pattern, lower):
             return f"question appears to require calculation: matched '{pattern}'"
 
     # Contains embedded options (A), B), 1., 2., etc.)
     if re.search(r"\b[A-Da-d]\)", text) or re.search(r"\b[1-4]\.", text):
         return "question text contains embedded answer options"
 
+    # Subjective superlative framing — no objectively correct answer
+    subjective_patterns = [
+        r"\breached?\s+(its|the)\s+(best|peak|height|zenith|apex|pinnacle)\b",
+        r"\bat\s+(its|the)\s+(best|peak|height|zenith|apex|pinnacle)\b",
+        r"\b(greatest|finest|best)\s+\w+\s+of\s+all\s+time\b",
+    ]
+    for pattern in subjective_patterns:
+        if re.search(pattern, lower):
+            return f"question relies on subjective judgement: matched '{pattern}'"
+
     # Temporally relative language — questions must be timeless facts
     temporal_refs = [
         "current", "currently", "today", "now", "at present", "at the moment",
-        "recent", "recently", "latest", "modern", "ongoing", "this year",
+        "recent", "recently", "latest", "modern", "ongoing", "since", "this year",
         "last year", "next year", "this month", "this week", "right now",
     ]
     for ref in temporal_refs:
@@ -95,7 +169,6 @@ def _malformed_question(q: Question) -> str | None:
         "depicted here",
         "featured in this",
     ]
-    lower = text.lower()
     for ref in source_refs:
         if ref in lower:
             return f"question references source material: '{ref}'"
@@ -103,8 +176,34 @@ def _malformed_question(q: Question) -> str | None:
     return None
 
 
-def _build_validation_prompt(q: Question) -> str:
-    return f"""You are a trivia quality reviewer. Evaluate the following multiple-choice trivia question.
+def _malformed_answers(q: Question) -> str | None:
+    """Fast pre-check: return a rejection reason if any answer or distractor is malformed."""
+    options = [
+        ("correct_answer", q.correct_answer or ""),
+        ("distractor_1", q.distractor_1 or ""),
+        ("distractor_2", q.distractor_2 or ""),
+        ("distractor_3", q.distractor_3 or ""),
+    ]
+    for field, text in options:
+        text = text.strip()
+        if len(text) > _MAX_ANSWER_LENGTH:
+            return f"{field} exceeds {_MAX_ANSWER_LENGTH} characters ({len(text)} chars)"
+        if _MARKUP_RE.search(text):
+            return f"{field} contains markup or encoding artifacts: {repr(text)}"
+
+    # All four options must be distinct (case-insensitive)
+    seen: set[str] = set()
+    for field, text in options:
+        normalised = text.strip().lower()
+        if normalised in seen:
+            return f"duplicate answer option: '{text.strip()}' appears more than once"
+        seen.add(normalised)
+
+    return None
+
+
+def _build_validation_prompt(q: Question, feedback_block: str = "") -> str:
+    return f"""{feedback_block}You are a trivia quality reviewer. Evaluate the following multiple-choice trivia question.
 
 Question: {q.text}
 Correct Answer: {q.correct_answer}
@@ -120,9 +219,14 @@ Reject if any of the following are true: \
 - The question references "the passage", "the text", "the article", "as mentioned", or similar — \
 it must stand alone without source material. \
 - The question uses temporally relative language ("current", "currently", "today", "recent", \
-"latest", "modern", "ongoing", "now", "this year", etc.) — questions must be timeless facts \
+"latest", "modern", "ongoing", "since", "now", "this year", etc.) — questions must be timeless facts \
 that will remain accurate indefinitely. "Which areas are threatened by the current fire?" \
 is invalid because it goes out of date immediately. Reject these. \
+- The question relies on subjective judgement rather than objective fact — e.g. \
+"In which century did French literature reach its best?", "Who is the greatest novelist \
+of all time?", "When did jazz reach its peak?" These have no single verifiable correct answer \
+because they depend on opinion. Reject any question whose answer requires a value judgement \
+rather than a documented fact. \
 - The question references an image, photo, diagram, map, or any visual media the player cannot see \
 (e.g. "featured in this image", "shown here", "pictured here", "this photo") — reject these. \
 - The question text is not a plain question. It must be a single sentence ending in "?". \
@@ -151,7 +255,13 @@ fictional characters from a word problem); \
 (b) the correct answer must be computed or calculated rather than recalled as a known fact; \
 (c) the question is a math or word problem — trivia must test memory of real-world facts, \
 not arithmetic.
-8. Is the category correct?
+8. Is the category correct? \
+Use "science" for questions about scientific discoveries, inventions, scientific concepts, \
+scientists, and the history of science — even if the question has a historical angle. \
+"Who discovered penicillin?" is science, not history. \
+Use "history" only for questions primarily about political, military, or social history — \
+wars, rulers, empires, revolutions, treaties, civilisations. \
+When uncertain between two categories, prefer "general_knowledge" over a specific one.
 
 Return your verdict."""
 
@@ -182,10 +292,11 @@ def run_validate(
             session.add(state)
             session.commit()
 
-        # Fetch unvalidated questions: not rejected, not duplicate, id > last checkpoint
+        # Fetch unvalidated questions: not rejected, not duplicate, not seed, id > last checkpoint
         query = select(Question).where(
             Question.rejected == False,  # noqa: E712
             Question.is_duplicate == False,  # noqa: E712
+            Question.source_type != "seed",
         )
         if last_id:
             query = query.where(Question.id > last_id)
@@ -199,6 +310,9 @@ def run_validate(
     if not questions:
         console.print("[yellow]No questions to validate.")
         return
+
+    feedback = build_feedback_retriever(db_path, "validate")
+    console.print("[dim]Feedback retriever ready (embeddings loaded).")
 
     console.print(f"Validating {len(questions)} questions via LLM…")
 
@@ -226,6 +340,18 @@ def run_validate(
             if malformed_reason:
                 db_q.rejected = True
                 db_q.flag_reason = malformed_reason
+                db_q.rejection_source = "validator"
+                rejected += 1
+                console.print(f"[red]  reject id={q.id}: {malformed_reason}")
+                session.add(db_q)
+                continue
+
+            # Fast pre-check: malformed answers or distractors (saves LLM call)
+            malformed_reason = _malformed_answers(q)
+            if malformed_reason:
+                db_q.rejected = True
+                db_q.flag_reason = malformed_reason
+                db_q.rejection_source = "validator"
                 rejected += 1
                 console.print(f"[red]  reject id={q.id}: {malformed_reason}")
                 session.add(db_q)
@@ -243,7 +369,7 @@ def run_validate(
                 session.add(db_q)
                 continue
 
-            prompt = _build_validation_prompt(q)
+            prompt = _build_validation_prompt(q, feedback(q.text))
             try:
                 verdict: QuestionValidation = structured(prompt)
             except Exception as exc:
@@ -252,6 +378,7 @@ def run_validate(
 
             if not verdict.is_valid or verdict.answer_in_question:
                 db_q.rejected = True
+                db_q.rejection_source = "validator"
                 reason = verdict.rejection_reason or (
                     "answer revealed in question text"
                     if verdict.answer_in_question
