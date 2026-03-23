@@ -1,11 +1,18 @@
 #!/usr/bin/env python3
-"""Generate capital city trivia questions and insert into trivia.db."""
+"""Generate capital city trivia questions and insert into generation.db.
 
+Distractors are a mix of:
+  - 1–2 cities from within the same country (makes wrong answers plausible)
+  - Remaining slots filled from other country capitals
+"""
+
+import json
+import os
 import random
 import sqlite3
 
-import os
 DB_PATH = os.path.join(os.path.dirname(__file__), "generation.db")
+CITIES_PATH = os.path.join(os.path.dirname(__file__), "seed-data", "country-by-cities.json")
 CATEGORY = "geography"
 
 # Fix truncated/localized city names to their common English names
@@ -33,42 +40,53 @@ CITY_OVERRIDES = {
 }
 
 # Difficulty classification
+# Easy: capitals a typical adult knows without studying geography —
+# major Western European nations, household-name world powers, and countries
+# whose capitals are famous from decades of news coverage.
 EASY_COUNTRIES = {
-    "Afghanistan", "Argentina", "Australia", "Austria", "Belgium", "Bolivia",
-    "Brazil", "Cambodia", "Canada", "Chile", "China", "Colombia", "Cuba",
-    "Czech Republic", "Denmark", "Ecuador", "Egypt", "Ethiopia", "Finland",
-    "France", "Germany", "Ghana", "Greece", "Hungary", "Iceland", "India",
-    "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica",
-    "Japan", "Jordan", "Kenya", "Mexico", "Mongolia", "Morocco", "Myanmar",
-    "Nepal", "Netherlands", "New Zealand", "Nigeria", "North Korea", "Norway",
-    "Pakistan", "Panama", "Peru", "Philippines", "Poland", "Portugal",
-    "Qatar", "Romania", "Russia", "Saudi Arabia", "Serbia", "Singapore",
-    "Somalia", "South Africa", "South Korea", "Spain", "Sri Lanka", "Sudan",
-    "Sweden", "Switzerland", "Syria", "Thailand", "Turkey", "Uganda",
-    "Ukraine", "United Arab Emirates", "United Kingdom", "United States",
-    "Venezuela", "Vietnam", "Yemen", "Zimbabwe",
+    # Western Europe — universally taught
+    "France", "Germany", "Italy", "Spain", "United Kingdom",
+    "Portugal", "Ireland", "Netherlands", "Belgium",
+    "Sweden", "Norway", "Denmark", "Greece", "Austria", "Finland",
+    # Eastern Europe — well-known capitals
+    "Hungary", "Czech Republic", "Poland",
+    # Major world powers
+    "United States", "Russia", "China", "Japan",
+    # Famous capitals from decades of news coverage
+    "Egypt", "Iraq", "Iran", "Israel", "Afghanistan", "Ukraine",
+    # Americas — capitals most people know by name
+    "Mexico", "Cuba", "Argentina",
+    # Asia-Pacific
+    "India", "South Korea", "North Korea", "Thailand", "Singapore",
 }
 
+# Medium: recognisable countries but capital is non-obvious, often confused with
+# a more famous city (Sydney/Canberra, Rio/Brasília, Istanbul/Ankara, etc.),
+# or countries where most adults would have to think carefully.
 MEDIUM_COUNTRIES = {
+    # Capital commonly confused with a more famous city
+    "Australia", "Brazil", "Canada", "New Zealand", "Switzerland",
+    "Turkey", "Morocco", "South Africa", "Nigeria", "Pakistan",
+    # Recognisable countries, capitals require some knowledge
     "Albania", "Algeria", "Angola", "Armenia", "Azerbaijan", "Bahamas",
     "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belize", "Benin",
-    "Bhutan", "Bosnia and Herzegovina", "Botswana", "Brunei", "Bulgaria",
-    "Burkina Faso", "Burundi", "Cameroon", "Cape Verde", "Chad", "Comoros",
-    "Congo", "Costa Rica", "Croatia", "Cyprus", "Djibouti", "Dominica",
-    "Dominican Republic", "East Timor", "El Salvador", "Equatorial Guinea",
-    "Eritrea", "Estonia", "Eswatini", "Fiji Islands", "Gabon", "Gambia",
-    "Georgia", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti",
-    "Honduras", "Ivory Coast", "Kazakhstan", "Kiribati", "Kuwait",
-    "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia",
-    "Libya", "Liechtenstein", "Lithuania", "Madagascar", "Malawi",
-    "Malaysia", "Maldives", "Mali", "Malta", "Mauritania", "Mauritius",
-    "Moldova", "Monaco", "Montenegro", "Mozambique", "Namibia", "Nicaragua",
-    "Niger", "North Macedonia", "Oman", "Papua New Guinea", "Paraguay",
-    "Rwanda", "Senegal", "Sierra Leone", "Slovakia", "Slovenia",
-    "Solomon Islands", "South Sudan", "Suriname", "Tajikistan", "Tanzania",
-    "The Democratic Republic of Congo", "Togo", "Trinidad and Tobago",
-    "Tunisia", "Turkmenistan", "Tuvalu", "Uruguay", "Uzbekistan", "Vanuatu",
-    "Zambia",
+    "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brunei", "Bulgaria",
+    "Burkina Faso", "Burundi", "Cambodia", "Cameroon", "Cape Verde", "Chad",
+    "Chile", "Colombia", "Congo", "Costa Rica", "Croatia", "Cuba",
+    "Cyprus", "Dominican Republic", "Ecuador", "El Salvador", "Eritrea",
+    "Estonia", "Ethiopia", "Gabon", "Gambia", "Georgia", "Ghana",
+    "Guatemala", "Guinea", "Guyana", "Haiti", "Honduras", "Iceland",
+    "Indonesia", "Ivory Coast", "Jamaica", "Jordan", "Kazakhstan", "Kenya",
+    "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Liberia",
+    "Libya", "Lithuania", "Madagascar", "Malawi", "Malaysia", "Mali",
+    "Malta", "Mauritania", "Mauritius", "Moldova", "Monaco", "Mozambique",
+    "Myanmar", "Namibia", "Nepal", "Nicaragua", "Niger", "North Macedonia",
+    "Oman", "Panama", "Paraguay", "Peru", "Philippines", "Qatar",
+    "Romania", "Rwanda", "Saudi Arabia", "Senegal", "Serbia", "Sierra Leone",
+    "Slovakia", "Slovenia", "Somalia", "Sudan", "Suriname", "Syria",
+    "Tajikistan", "Tanzania", "The Democratic Republic of Congo",
+    "Trinidad and Tobago", "Tunisia", "Uganda", "United Arab Emirates",
+    "Uruguay", "Uzbekistan", "Venezuela", "Vietnam", "Zambia", "Zimbabwe",
 }
 
 CAPITALS_DATA = [
@@ -313,6 +331,28 @@ CAPITALS_DATA = [
 ]
 
 
+# Cities commonly mistaken for the capital — always include as distractors.
+CAPITAL_TRAPS: dict[str, list[str]] = {
+    "Australia":   ["Sydney", "Melbourne"],
+    "Brazil":      ["Rio de Janeiro", "São Paulo"],
+    "Canada":      ["Toronto", "Vancouver"],
+    "India":       ["Mumbai"],
+    "Ivory Coast": ["Abidjan"],
+    "Kazakhstan":  ["Almaty"],
+    "Morocco":     ["Casablanca"],
+    "Myanmar":     ["Yangon"],
+    "New Zealand": ["Auckland"],
+    "Nigeria":     ["Lagos"],
+    "Pakistan":    ["Karachi"],
+    "South Africa":["Cape Town", "Johannesburg"],
+    "Switzerland": ["Zurich", "Geneva"],
+    "Tanzania":    ["Dar es Salaam"],
+    "Turkey":      ["Istanbul"],
+    "United States":["New York", "Los Angeles"],
+    "Vietnam":     ["Ho Chi Minh City"],
+}
+
+
 def get_difficulty(country: str) -> str:
     if country in EASY_COUNTRIES:
         return "easy"
@@ -321,24 +361,85 @@ def get_difficulty(country: str) -> str:
     return "hard"
 
 
+def build_distractors(
+    capital: str,
+    country: str,
+    all_capitals: list[str],
+    cities_by_country: dict[str, list[str]],
+) -> list[str]:
+    """Pick 3 distractors.
+
+    Priority order:
+    1. Trap cities (famous cities commonly mistaken for the capital) — always included
+    2. Other in-country cities — adds plausibility
+    3. Other country capitals — fills any remaining slots
+    """
+    used: set[str] = {capital.lower()}
+
+    # 1. Trap cities — include all of them (up to 3)
+    traps = [c for c in CAPITAL_TRAPS.get(country, []) if c.lower() not in used]
+    selected = traps[:3]
+    used.update(c.lower() for c in selected)
+
+    # 2. Fill remaining slots with in-country cities
+    remaining = 3 - len(selected)
+    if remaining > 0:
+        local_pool = [
+            c for c in cities_by_country.get(country, [])
+            if c.lower() not in used
+        ]
+        n_local = min(len(local_pool), remaining)
+        local = random.sample(local_pool, n_local) if local_pool else []
+        selected += local
+        used.update(c.lower() for c in local)
+
+    # 3. Fill any still-remaining slots with other capitals
+    remaining = 3 - len(selected)
+    if remaining > 0:
+        other_caps = [c for c in all_capitals if c.lower() not in used]
+        selected += random.sample(other_caps, remaining)
+
+    random.shuffle(selected)
+    return selected
+
+
 def main():
     random.seed(42)
+
+    with open(CITIES_PATH) as f:
+        cities_data = json.load(f)
+
+    cities_by_country: dict[str, list[str]] = {}
+    for entry in cities_data:
+        if "cities" in entry:
+            cities_by_country[entry["country"]] = entry["cities"]
+        elif "states" in entry:
+            # US entry uses {state: [cities]} — flatten to a single list
+            all_cities: list[str] = []
+            for city_list in entry["states"].values():
+                all_cities.extend(city_list)
+            cities_by_country[entry["country"]] = all_cities
 
     all_capitals = [d["city"] for d in CAPITALS_DATA]
 
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
 
-    inserted = 0
-    skipped = 0
+    # Remove existing capital seed questions so we can re-insert with better distractors
+    cur.execute(
+        "DELETE FROM questions WHERE source_type = 'seed' AND text LIKE 'What is the capital of %'"
+    )
+    deleted = cur.rowcount
+    if deleted:
+        print(f"Removed {deleted} existing capital questions.")
+
+    inserted = skipped = 0
 
     for entry in CAPITALS_DATA:
         country = entry["country"]
         capital = entry["city"]
 
-        # Pick 3 distractors from other capitals
-        other_capitals = [c for c in all_capitals if c != capital]
-        distractors = random.sample(other_capitals, 3)
+        distractors = build_distractors(capital, country, all_capitals, cities_by_country)
 
         text = f"What is the capital of {country}?"
         difficulty = get_difficulty(country)

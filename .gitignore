@@ -76,3 +76,4 @@ pipeline/export/*.db
 .cache/
 tmp/
 temp/
+/pipeline/seed-data/
