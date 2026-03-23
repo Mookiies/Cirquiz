@@ -22,6 +22,7 @@ cd pipeline && source .venv/bin/activate
 python pipeline.py generate    # generate questions from Wikipedia (hours–days; resumable)
 python pipeline.py validate    # LLM self-validation: filter bad questions, correct difficulty/category
 python pipeline.py verify      # deduplicate + score confidence
+python pipeline.py dupes       # override false-positive duplicates (optional)
 python pipeline.py review      # adjudicate low-confidence questions (optional)
 python pipeline.py curate      # human sweep of all remaining valid questions (optional)
 python pipeline.py export      # write export DB, prints db_version

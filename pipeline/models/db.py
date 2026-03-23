@@ -66,6 +66,15 @@ class ReviewQueue(SQLModel, table=True):
     reviewed_at: Optional[datetime] = None
 
 
+class DuplicateExemption(SQLModel, table=True):
+    __tablename__ = "duplicate_exemptions"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    question_id: int = Field(foreign_key="questions.id")
+    exempt_from_id: int = Field(foreign_key="questions.id")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
 class PipelineState(SQLModel, table=True):
     __tablename__ = "pipeline_state"
 
@@ -126,6 +135,12 @@ def init_db(db_path: str) -> "Engine":  # noqa: F821
         )
         session.exec(
             text("CREATE INDEX IF NOT EXISTS idx_review_status ON review_queue(status)")
+        )
+        session.exec(
+            text(
+                "CREATE UNIQUE INDEX IF NOT EXISTS idx_dedup_exemptions "
+                "ON duplicate_exemptions(question_id, exempt_from_id)"
+            )
         )
         session.commit()
 

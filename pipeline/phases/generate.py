@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import concurrent.futures
+import re
 import sys
 from pathlib import Path
 from typing import Optional
@@ -34,7 +35,19 @@ _PLACEHOLDER_FRAGMENTS = [
     "not mentioned in the passage",
     "not provided in the passage",
     "the passage does not",
+    # Template literals the model emits when degrading
+    "question goes here",
+    "your question here",
+    "question text here",
+    "insert question",
+    "answer goes here",
+    "your answer here",
 ]
+
+# Matches angle-bracket placeholders: <Your_Question>, <answer>, <Option 1>, etc.
+_ANGLE_BRACKET_RE = re.compile(r"<[A-Za-z_\s]+>")
+# Matches bare template names: "Question1", "Question 2", "Answer1", "Option A", "Distractor 1"
+_NUMERIC_TEMPLATE_RE = re.compile(r"^(question|answer|option|distractor)\s*[\d]+$", re.IGNORECASE)
 
 _SOURCE_REF_FRAGMENTS = [
     "the passage",
@@ -69,7 +82,18 @@ _SOURCE_REF_FRAGMENTS = [
 def _is_placeholder(value: str) -> bool:
     """Return True if the model produced a non-answer instead of real content."""
     lower = (value or "").lower().strip()
-    return not lower or any(frag in lower for frag in _PLACEHOLDER_FRAGMENTS)
+    if not lower:
+        return True
+    if any(frag in lower for frag in _PLACEHOLDER_FRAGMENTS):
+        return True
+    if _ANGLE_BRACKET_RE.search(value):
+        return True
+    if _NUMERIC_TEMPLATE_RE.match(lower):
+        return True
+    # Degenerate output: string is only punctuation/ellipsis with no real content
+    if not re.sub(r"[.…?!\s]", "", lower):
+        return True
+    return False
 
 
 def _references_source(text: str) -> bool:
@@ -243,26 +267,44 @@ Passage:
 Generate {n} questions, or return an empty list if the passage does not support a good question."""
 
 
+def _init_model(model_name: str):
+    """Load the MLX model and return (generator, structured) — call again to restart."""
+    try:
+        import outlines  # type: ignore
+    except ImportError as exc:
+        console.print(f"[red]Missing dependency: {exc}. Run: pip install -r requirements.txt")
+        raise
+    console.print(f"Loading model [bold]{model_name}[/bold] via MLX-LM…")
+    generator = outlines.models.mlxlm(model_name)
+    structured = outlines.generate.json(generator, GeneratedQuestionBatch)
+    return generator, structured
+
+
+def _restart_model(model_name: str, generator, structured):
+    """Tear down the current model, clear Metal cache, and reload fresh."""
+    console.print("[yellow]Restarting model to clear accumulated state…")
+    del generator, structured
+    try:
+        import mlx.core as mx  # type: ignore
+        mx.metal.clear_cache()
+    except Exception:
+        import gc
+        gc.collect()
+    return _init_model(model_name)
+
+
 def run_generate(
     db_path: str,
     limit: Optional[int] = None,
     model_name: str = MODEL_NAME,
+    restart_every: Optional[int] = None,
 ) -> None:
     console.rule("[bold blue]Phase: Generate")
 
     engine = init_db(db_path)
     _load_and_store_chunks(engine)
 
-    # Load model
-    console.print(f"Loading model [bold]{model_name}[/bold] via MLX-LM…")
-    try:
-        import outlines  # type: ignore
-
-        generator = outlines.models.mlxlm(model_name)
-        structured = outlines.generate.json(generator, GeneratedQuestionBatch)
-    except ImportError as exc:
-        console.print(f"[red]Missing dependency: {exc}. Run: pip install -r requirements.txt")
-        raise
+    generator, structured = _init_model(model_name)
 
     # Fetch unprocessed chunks
     with Session(engine) as session:
@@ -304,6 +346,9 @@ def run_generate(
             session.commit()
 
         for i, chunk in enumerate(chunks):
+            if restart_every and i > 0 and i % restart_every == 0:
+                generator, structured = _restart_model(model_name, generator, structured)
+
             prompt = _build_generation_prompt(chunk.text, QUESTIONS_PER_CHUNK, feedback(chunk.text))
             try:
                 with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:

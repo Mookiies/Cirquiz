@@ -15,7 +15,7 @@ from sqlmodel import Session, select
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from config import CONFIDENCE_THRESHOLD, DEDUP_THRESHOLD
-from models.db import PipelineState, Question, ReviewQueue, init_db
+from models.db import DuplicateExemption, PipelineState, Question, ReviewQueue, init_db
 
 console = Console()
 
@@ -35,6 +35,11 @@ def _run_dedup(session: Session, questions: list[Question]) -> int:
 
     model = SentenceTransformer("all-MiniLM-L6-v2")
 
+    rows = session.exec(select(DuplicateExemption)).all()
+    exemptions: set[frozenset[int]] = {
+        frozenset({r.question_id, r.exempt_from_id}) for r in rows
+    }
+
     texts = [q.text for q in questions]
     console.print(f"Embedding {len(texts)} questions…")
     embeddings = model.encode(texts, batch_size=64, show_progress_bar=True)
@@ -48,7 +53,7 @@ def _run_dedup(session: Session, questions: list[Question]) -> int:
             if q_j.is_duplicate:
                 continue
             sim = _cosine_similarity(embeddings[i], embeddings[j])
-            if sim >= DEDUP_THRESHOLD:
+            if sim >= DEDUP_THRESHOLD and frozenset({q_i.id, q_j.id}) not in exemptions:
                 # Keep the one with higher confidence; mark the other as duplicate
                 if (q_i.confidence_score or 0.0) >= (q_j.confidence_score or 0.0):
                     canonical_id = q_i.id
@@ -131,6 +136,29 @@ def run_verify(db_path: str, threshold: Optional[float] = None) -> None:
         threshold = CONFIDENCE_THRESHOLD
 
     engine = init_db(db_path)
+
+    with Session(engine) as session:
+        validate_state = session.exec(
+            select(PipelineState).where(PipelineState.phase == "validate")
+        ).first()
+        last_validated_id = validate_state.last_processed_id if validate_state else None
+        unvalidated_query = select(Question).where(
+            Question.source_type != "seed",
+            Question.rejected == False,  # noqa: E712
+        )
+        if last_validated_id is not None:
+            unvalidated_query = unvalidated_query.where(Question.id > last_validated_id)
+        unvalidated_count = len(session.exec(unvalidated_query).all())
+
+        if unvalidated_count > 0:
+            console.print(
+                f"[bold yellow]Warning:[/bold yellow] {unvalidated_count} generated question(s) "
+                "have not been through validate yet."
+            )
+            answer = input("Continue anyway? [y/N] ").strip().lower()
+            if answer != "y":
+                console.print("Aborted.")
+                return
 
     with Session(engine) as session:
         state = session.exec(

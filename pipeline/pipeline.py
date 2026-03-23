@@ -13,6 +13,7 @@ def cmd_generate(args: argparse.Namespace) -> None:
         db_path=args.db,
         limit=args.limit,
         model_name=args.model,
+        restart_every=args.restart_every,
     )
 
 
@@ -40,6 +41,12 @@ def cmd_curate(args: argparse.Namespace) -> None:
     run_curate(db_path=args.db)
 
 
+def cmd_dupes(args: argparse.Namespace) -> None:
+    from phases.dupes import run_dupes
+
+    run_dupes(db_path=args.db)
+
+
 def cmd_export(args: argparse.Namespace) -> None:
     from phases.export import run_export
 
@@ -63,6 +70,7 @@ def main() -> None:
     gen_p = subparsers.add_parser("generate", help="Generate questions via LLM")
     gen_p.add_argument("--limit", type=int, default=None, help="Max source chunks to process")
     gen_p.add_argument("--model", default=MODEL_NAME, help="MLX model name or path")
+    gen_p.add_argument("--restart-every", type=int, default=None, metavar="N", help="Reload model every N chunks to prevent degradation")
     gen_p.set_defaults(func=cmd_generate)
 
     # ── validate ────────────────────────────────────────────────────────────
@@ -84,6 +92,10 @@ def main() -> None:
     # ── review ──────────────────────────────────────────────────────────────
     rev_p = subparsers.add_parser("review", help="Interactively review low-confidence questions")
     rev_p.set_defaults(func=cmd_review)
+
+    # ── dupes ───────────────────────────────────────────────────────────────
+    dup_p = subparsers.add_parser("dupes", help="Review and override false-positive duplicates")
+    dup_p.set_defaults(func=cmd_dupes)
 
     # ── curate ──────────────────────────────────────────────────────────────
     cur_p = subparsers.add_parser("curate", help="Human review of all unreviewed valid questions")
