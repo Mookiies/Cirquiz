@@ -112,6 +112,7 @@ def run_export(db_path: str, output_path: str | None = None) -> None:
                 Question.verified == True,  # noqa: E712
                 Question.rejected == False,  # noqa: E712
                 Question.is_duplicate == False,  # noqa: E712
+                Question.human_approved == True,
             )
         ).all()
 
