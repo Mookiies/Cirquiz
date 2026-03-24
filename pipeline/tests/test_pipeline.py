@@ -314,6 +314,181 @@ def test_export_increments_db_version(tmp_db, tmp_export):
     assert int(version) == 2
 
 
+# ── Validate: distractor quality checks ────────────────────────────────────
+
+def _make_question(**kwargs):
+    """Build a minimal Question-like object for validate pre-checks."""
+    from models.db import Question
+    defaults = dict(
+        id=1,
+        source_type="generated",
+        text="What is the capital of France?",
+        correct_answer="Paris",
+        distractor_1="London",
+        distractor_2="Berlin",
+        distractor_3="Madrid",
+        category="geography",
+        difficulty="easy",
+        confidence_score=0.9,
+    )
+    defaults.update(kwargs)
+    return Question(**defaults)
+
+
+def test_malformed_answers_passes_clean_question():
+    from phases.validate import _malformed_answers
+    q = _make_question()
+    assert _malformed_answers(q) is None
+
+
+def test_malformed_answers_rejects_distractor_superset_of_answer():
+    """Distractor words are a superset of the correct answer words."""
+    from phases.validate import _malformed_answers
+    q = _make_question(
+        correct_answer="Battle of Hastings",
+        distractor_1="The Famous Battle of Hastings England",  # superset
+        distractor_2="Battle of Agincourt",
+        distractor_3="Battle of Waterloo",
+    )
+    assert _malformed_answers(q) is not None
+
+
+def test_malformed_answers_rejects_answer_superset_of_distractor():
+    """Correct answer words are a superset of a distractor's words."""
+    from phases.validate import _malformed_answers
+    q = _make_question(
+        correct_answer="The Grand Battle of Hastings England",
+        distractor_1="Battle of Hastings",  # subset of answer
+        distractor_2="Battle of Agincourt",
+        distractor_3="Battle of Waterloo",
+    )
+    assert _malformed_answers(q) is not None
+
+
+def test_malformed_answers_rejects_distractors_same_word_set():
+    """Two distractors that reduce to the same word set (e.g. roman numerals stripped)."""
+    from phases.validate import _malformed_answers
+    q = _make_question(
+        correct_answer="Battle of Agincourt",
+        distractor_1="World War",
+        distractor_2="World War",  # identical word set
+        distractor_3="Battle of Waterloo",
+    )
+    assert _malformed_answers(q) is not None
+
+
+def test_malformed_answers_rejects_distractor_subset_of_distractor():
+    """One distractor's words are a subset of another distractor's words."""
+    from phases.validate import _malformed_answers
+    q = _make_question(
+        correct_answer="Paris",
+        distractor_1="New York",
+        distractor_2="New York City",  # superset of distractor_1
+        distractor_3="Berlin",
+    )
+    assert _malformed_answers(q) is not None
+
+
+def test_malformed_answers_rejects_distractor_matches_answer():
+    """A distractor that exactly matches the correct answer is rejected."""
+    from phases.validate import _malformed_answers
+    q = _make_question(
+        correct_answer="Paris",
+        distractor_1="Paris",  # exact match
+        distractor_2="Berlin",
+        distractor_3="Madrid",
+    )
+    assert _malformed_answers(q) is not None
+
+
+def test_malformed_answers_rejects_duplicate_distractors():
+    """Two distractors that are identical are rejected."""
+    from phases.validate import _malformed_answers
+    q = _make_question(
+        correct_answer="Paris",
+        distractor_1="London",
+        distractor_2="London",  # duplicate
+        distractor_3="Madrid",
+    )
+    assert _malformed_answers(q) is not None
+
+
+def test_malformed_answers_rejects_case_insensitive_duplicate():
+    """Duplicates are caught case-insensitively."""
+    from phases.validate import _malformed_answers
+    q = _make_question(
+        correct_answer="paris",
+        distractor_1="Paris",  # same after normalisation
+        distractor_2="Berlin",
+        distractor_3="Madrid",
+    )
+    assert _malformed_answers(q) is not None
+
+
+def test_malformed_answers_passes_single_word_options():
+    """Single-word options don't trigger the word-subset check (min 2 words)."""
+    from phases.validate import _malformed_answers
+    q = _make_question(
+        correct_answer="Paris",
+        distractor_1="London",
+        distractor_2="Berlin",
+        distractor_3="Madrid",
+    )
+    assert _malformed_answers(q) is None
+
+
+def test_malformed_answers_passes_overlapping_but_not_subset():
+    """Sharing some words is fine — only full subset triggers rejection."""
+    from phases.validate import _malformed_answers
+    q = _make_question(
+        correct_answer="Battle of Hastings",
+        distractor_1="Battle of Agincourt",  # shares 'battle' but not a subset
+        distractor_2="Battle of Waterloo",
+        distractor_3="Battle of the Bulge",
+    )
+    assert _malformed_answers(q) is None
+
+
+# ── Validate: answer-in-question checks ────────────────────────────────────
+
+def test_answer_in_question_catches_verbatim():
+    from phases.validate import _answer_in_question
+    q = _make_question(
+        text="Which city named Paris is the capital of France?",
+        correct_answer="Paris",
+    )
+    assert _answer_in_question(q) is True
+
+
+def test_answer_in_question_catches_word_overlap():
+    """50% word overlap threshold: 2 of 3 significant answer words in question."""
+    from phases.validate import _answer_in_question
+    q = _make_question(
+        text="Which event marks the beginning of World War?",
+        correct_answer="World War begins",
+    )
+    assert _answer_in_question(q) is True
+
+
+def test_answer_in_question_passes_clean():
+    from phases.validate import _answer_in_question
+    q = _make_question(
+        text="What is the capital of France?",
+        correct_answer="Paris",
+    )
+    assert _answer_in_question(q) is False
+
+
+def test_answer_in_question_ignores_short_answers():
+    """Answers of 3 chars or fewer skip the check entirely."""
+    from phases.validate import _answer_in_question
+    q = _make_question(
+        text="What is the chemical symbol for gold?",
+        correct_answer="Au",
+    )
+    assert _answer_in_question(q) is False
+
+
 # ── Resumption ─────────────────────────────────────────────────────────────
 
 def test_pipeline_state_prevents_reprocessing(tmp_db):

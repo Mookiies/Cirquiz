@@ -14,7 +14,7 @@ from sqlmodel import Session, select
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from config import CONFIDENCE_THRESHOLD, DEDUP_THRESHOLD
+from config import CONFIDENCE_THRESHOLD, DEDUP_THRESHOLD, MIN_CONFIDENCE_THRESHOLD
 from models.db import DuplicateExemption, PipelineState, Question, ReviewQueue, init_db
 
 console = Console()
@@ -77,17 +77,19 @@ def _run_confidence_scoring(
     session: Session,
     questions: list[Question],
     threshold: float,
-) -> tuple[int, int]:
+) -> tuple[int, int, int]:
     """
     For generated questions:
     - Grounding check: penalise if correct_answer not in source chunk text.
+    - Auto-reject if confidence_score < MIN_CONFIDENCE_THRESHOLD.
     - Auto-approve if confidence_score >= threshold.
     - Queue remainder for human review.
 
-    Returns (auto_approved, queued_for_review).
+    Returns (auto_approved, queued_for_review, auto_rejected).
     """
     auto_approved = 0
     queued = 0
+    auto_rejected = 0
 
     for q in track(questions, description="Scoring confidence…"):
 
@@ -106,7 +108,13 @@ def _run_confidence_scoring(
                 score = max(0.0, score - 0.3)  # penalise
                 q.confidence_score = score
 
-        if score >= threshold:
+        if score < MIN_CONFIDENCE_THRESHOLD:
+            q.rejected = True
+            q.rejection_source = "validator"
+            q.flag_reason = f"confidence too low: {score:.2f}"
+            session.add(q)
+            auto_rejected += 1
+        elif score >= threshold:
             q.verified = True
             session.add(q)
             auto_approved += 1
@@ -126,7 +134,7 @@ def _run_confidence_scoring(
             queued += 1
 
     session.commit()
-    return auto_approved, queued
+    return auto_approved, queued, auto_rejected
 
 
 def run_verify(db_path: str, threshold: Optional[float] = None) -> None:
@@ -193,7 +201,7 @@ def run_verify(db_path: str, threshold: Optional[float] = None) -> None:
         ).all()
 
         console.print(f"Running confidence scoring on {len(scoreable)} questions…")
-        approved, queued = _run_confidence_scoring(session, list(scoreable), threshold)
+        approved, queued, low_conf_rejected = _run_confidence_scoring(session, list(scoreable), threshold)
 
         state.status = "complete"
         state.items_processed = len(all_questions)
@@ -202,5 +210,6 @@ def run_verify(db_path: str, threshold: Optional[float] = None) -> None:
 
     console.print(
         f"[green]Verify complete:[/green] {approved} auto-approved, "
-        f"{queued} queued for review, {dup_count} duplicates removed."
+        f"{queued} queued for review, {dup_count} duplicates removed, "
+        f"{low_conf_rejected} rejected (low confidence)."
     )

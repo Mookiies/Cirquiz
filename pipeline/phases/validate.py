@@ -78,7 +78,7 @@ def _answer_in_question(q: Question) -> bool:
     if len(ans_words) >= 2:
         q_words = _significant_words(question)
         overlap = ans_words & q_words
-        if len(overlap) / len(ans_words) >= 0.6:
+        if len(overlap) / len(ans_words) >= 0.5:
             return True
 
     return False
@@ -198,6 +198,27 @@ def _malformed_answers(q: Question) -> str | None:
         if normalised in seen:
             return f"duplicate answer option: '{text.strip()}' appears more than once"
         seen.add(normalised)
+
+    # No distractor's words may be a subset of the correct answer's words (or vice versa)
+    def _words(text: str) -> set[str]:
+        return {w.strip("'\".,!?;:()[]{}") for w in text.lower().split() if len(w) > 2}
+
+    answer_words = _words(q.correct_answer or "")
+    for field, text in options[1:]:  # distractors only
+        distractor_words = _words(text)
+        if len(answer_words) >= 2 and len(distractor_words) >= 2:
+            if answer_words <= distractor_words:
+                return f"{field} words are a superset of the correct answer's words"
+            if distractor_words <= answer_words:
+                return f"correct answer words are a superset of {field}'s words"
+
+    # No two distractors' words may be subsets of each other
+    distractors = [(f, _words(t)) for f, t in options[1:] if t.strip()]
+    for i, (f_i, d_i) in enumerate(distractors):
+        for f_j, d_j in distractors[i + 1:]:
+            if len(d_i) >= 2 and len(d_j) >= 2:
+                if d_i <= d_j or d_j <= d_i:
+                    return f"{f_i} and {f_j} words are subsets of each other"
 
     return None
 

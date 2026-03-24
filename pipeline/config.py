@@ -17,6 +17,9 @@ MODEL_NAME = os.environ.get("PIPELINE_MODEL", "mlx-community/Mistral-7B-Instruct
 # Questions at or above this score are auto-approved; below goes to review.
 CONFIDENCE_THRESHOLD: float = 0.85
 
+# Questions below this score are auto-rejected; no human review.
+MIN_CONFIDENCE_THRESHOLD: float = 0.80
+
 # Cosine similarity at or above this value marks a question as a near-duplicate.
 DEDUP_THRESHOLD: float = 0.83
 
