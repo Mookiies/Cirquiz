@@ -77,3 +77,4 @@ pipeline/export/*.db
 tmp/
 temp/
 /pipeline/seed-data/
+/pipeline/generation.db-journal

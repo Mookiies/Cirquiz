@@ -9,7 +9,7 @@ from typing import Optional
 
 from rich.console import Console
 from rich.progress import track
-from sqlmodel import Session, select
+from sqlmodel import Session, func, select
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -430,6 +430,19 @@ def run_validate(
         ).first()
         state_row.status = "complete"
         state_row.items_processed = len(questions)
+
+        # Advance last_processed_id past any duplicate questions that were skipped
+        # by the query filter, so re-runs don't keep seeing them indefinitely.
+        max_skipped_id = session.exec(
+            select(func.max(Question.id)).where(
+                Question.source_type != "seed",
+                Question.is_duplicate == True,  # noqa: E712
+                Question.id > (last_id or 0),
+            )
+        ).first()
+        if max_skipped_id and (state_row.last_processed_id or 0) < max_skipped_id:
+            state_row.last_processed_id = max_skipped_id
+
         session.add(state_row)
         session.commit()
 

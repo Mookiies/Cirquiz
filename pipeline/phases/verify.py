@@ -145,6 +145,7 @@ def run_verify(db_path: str, threshold: Optional[float] = None) -> None:
         unvalidated_query = select(Question).where(
             Question.source_type != "seed",
             Question.rejected == False,  # noqa: E712
+            Question.is_duplicate == False,  # noqa: E712
         )
         if last_validated_id is not None:
             unvalidated_query = unvalidated_query.where(Question.id > last_validated_id)

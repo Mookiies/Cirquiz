@@ -114,6 +114,11 @@ def run_review(db_path: str) -> None:
             question = session.get(Question, entry.question_id)
             if not question:
                 continue
+            if question.is_duplicate or question.rejected:
+                entry.status = "rejected"
+                session.add(entry)
+                session.commit()
+                continue
 
             chunk = (
                 session.get(SourceChunk, question.source_chunk_id)
