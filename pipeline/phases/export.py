@@ -224,3 +224,7 @@ def run_export(db_path: str, output_path: str | None = None) -> None:
         f"\n[bold]Set BUNDLED_DB_VERSION = {new_version} in LocalDatabaseProvider.ts "
         "after copying the export DB to app assets.[/bold]"
     )
+    console.print("\n[bold cyan]Next steps:[/bold cyan]")
+    console.print(f"  1. cp {output_path} ../apps/cirquiz/assets/trivia.db")
+    console.print(f"  2. gh release create v{new_version} {output_path} --repo Mookiies/cirquiz-questions --title \"v{new_version}\" --notes \"db_version {new_version}\"")
+    console.print(f"  3. Update BUNDLED_DB_VERSION = {new_version} in LocalDatabaseProvider.ts")
