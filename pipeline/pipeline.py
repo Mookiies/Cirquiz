@@ -38,7 +38,7 @@ def cmd_review(args: argparse.Namespace) -> None:
 def cmd_curate(args: argparse.Namespace) -> None:
     from phases.curate import run_curate
 
-    run_curate(db_path=args.db)
+    run_curate(db_path=args.db, category=args.category)
 
 
 def cmd_dupes(args: argparse.Namespace) -> None:
@@ -99,6 +99,7 @@ def main() -> None:
 
     # ── curate ──────────────────────────────────────────────────────────────
     cur_p = subparsers.add_parser("curate", help="Human review of all unreviewed valid questions")
+    cur_p.add_argument("--category", default=None, help="Only show questions from this category (e.g. geography)")
     cur_p.set_defaults(func=cmd_curate)
 
     # ── export ──────────────────────────────────────────────────────────────

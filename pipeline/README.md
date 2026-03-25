@@ -19,13 +19,12 @@ pip install -r requirements.txt
 
 ```sh
 cd pipeline && source .venv/bin/activate
-python pipeline.py generate    # generate questions from Wikipedia (hours–days; resumable)
-python pipeline.py generate --restart-every 500  # reload model every 500 chunks to prevent output degradation
+python pipeline.py generate    # generate questions from Wikipedia (hours–days; resumable); --restart-every 500 to prevent model degradation
 python pipeline.py validate    # LLM self-validation: filter bad questions, correct difficulty/category
 python pipeline.py verify      # deduplicate + score confidence
 python pipeline.py dupes       # override false-positive duplicates (optional)
 python pipeline.py review      # adjudicate low-confidence questions (optional)
-python pipeline.py curate      # human sweep of all remaining valid questions (optional)
+python pipeline.py curate      # human sweep of all remaining valid questions (optional); --category geography to filter
 python pipeline.py export      # write export DB, prints db_version
 ```
 

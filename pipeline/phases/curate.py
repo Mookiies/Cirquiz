@@ -62,27 +62,31 @@ def _display_question(
     console.print(f"\n[bold]{HELP_TEXT}[/bold]\n")
 
 
-def run_curate(db_path: str) -> None:
+def run_curate(db_path: str, category: str | None = None) -> None:
     console.rule("[bold blue]Phase: Curate")
 
     engine = init_db(db_path)
 
     with Session(engine) as session:
-        questions = session.exec(
-            select(Question).where(
-                Question.human_approved == False,  # noqa: E712
-                Question.rejected == False,  # noqa: E712
-                Question.verified == True,  # noqa: E712
-                Question.is_duplicate == False,  # noqa: E712
-            ).order_by(Question.id)
-        ).all()
+        query = select(Question).where(
+            Question.human_approved == False,  # noqa: E712
+            Question.rejected == False,  # noqa: E712
+            Question.verified == True,  # noqa: E712
+            Question.is_duplicate == False,  # noqa: E712
+        )
+        if category:
+            query = query.where(Question.category == category)
+        questions = session.exec(query.order_by(Question.id)).all()
 
     if not questions:
-        console.print("[green]No questions pending curation.")
+        msg = f"No questions pending curation"
+        msg += f" for category '{category}'." if category else "."
+        console.print(f"[green]{msg}")
         return
 
     total = len(questions)
-    console.print(f"{total} questions to curate.\n")
+    category_label = f" [{category}]" if category else ""
+    console.print(f"{total} questions to curate{category_label}.\n")
 
     approved = rejected = skipped = 0
 
