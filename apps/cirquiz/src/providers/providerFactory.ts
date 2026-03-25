@@ -1,5 +1,8 @@
+import * as SQLite from 'expo-sqlite';
+
 import type { QuestionSource } from '../state/settingsStore';
 import { TriviaQuestionProvider } from './interface';
+import { LocalDatabaseProvider } from './local/LocalDatabaseProvider';
 import { OpenTriviaDbProvider } from './opentdb/OpenTriviaDbProvider';
 import { TheTriviaApiProvider } from './thetriviaapi/TheTriviaApiProvider';
 
@@ -21,9 +24,21 @@ export function getProvider(source: QuestionSource): TriviaQuestionProvider {
     case 'the-trivia-api':
       provider = new TheTriviaApiProvider();
       break;
+    case 'local':
+      throw new Error(
+        'Local database not ready — SQLiteProvider must be initialized before fetching questions'
+      );
   }
   instances.set(source, provider);
   return provider;
+}
+
+/**
+ * Called by LocalDbBridge (inside SQLiteProvider) once the database is open.
+ * Registers the LocalDatabaseProvider singleton with the injected db instance.
+ */
+export function setLocalDb(db: SQLite.SQLiteDatabase): void {
+  instances.set('local', new LocalDatabaseProvider(db));
 }
 
 export function setProviderForTesting(

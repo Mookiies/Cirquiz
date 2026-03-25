@@ -220,11 +220,7 @@ def run_export(db_path: str, output_path: str | None = None) -> None:
     for diff in ("easy", "medium", "hard"):
         table.add_row(f"  [{diff}]", str(diff_counts.get(diff, 0)))
     console.print(table)
-    console.print(
-        f"\n[bold]Set BUNDLED_DB_VERSION = {new_version} in LocalDatabaseProvider.ts "
-        "after copying the export DB to app assets.[/bold]"
-    )
     console.print("\n[bold cyan]Next steps:[/bold cyan]")
     console.print(f"  1. cp {output_path} ../apps/cirquiz/assets/trivia.db")
     console.print(f"  2. gh release create v{new_version} {output_path} --repo Mookiies/cirquiz-questions --title \"v{new_version}\" --notes \"db_version {new_version}\"")
-    console.print(f"  3. Update BUNDLED_DB_VERSION = {new_version} in LocalDatabaseProvider.ts")
+    console.print(f"  3. Set TRIVIA_DB_NAME = 'trivia_v{new_version}.db' in apps/cirquiz/app/_layout.tsx")

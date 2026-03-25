@@ -129,14 +129,14 @@ Minimal schema. No pipeline metadata. This is what ships in the app.
 
 ### `metadata`
 
-Key-value store for database-level metadata. Used to detect version mismatches on app launch.
+Key-value store for database-level metadata.
 
 | Field | Type | Constraints | Notes |
 |-------|------|-------------|-------|
 | `key` | TEXT | PRIMARY KEY | e.g., `'db_version'` |
 | `value` | TEXT | NOT NULL | e.g., `'1'` |
 
-**Single required row**: `('db_version', '<integer>')` — auto-incremented by the `export` phase on each run.
+**Single required row**: `('db_version', '<integer>')` — auto-incremented by the `export` phase on each run. Used for pipeline-internal version tracking and to generate the `TRIVIA_DB_NAME` bump instruction printed at the end of export. The app itself does not read this value; version detection is handled by the on-disk filename (`trivia_v{N}.db`) in `apps/cirquiz/app/_layout.tsx`.
 
 ---
 

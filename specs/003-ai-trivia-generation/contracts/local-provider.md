@@ -81,33 +81,34 @@ Clears the in-memory set of used question IDs. Called by `gameStore` at the star
 
 ## Initialization
 
-The provider requires async initialization before use. This is handled on each app launch:
+`LocalDatabaseProvider` has no async init logic of its own. It receives an open `SQLiteDatabase` instance via constructor injection from the app's React tree.
 
-1. A `BUNDLED_DB_VERSION` integer constant is declared at the top of `LocalDatabaseProvider.ts`. This value is updated manually each time a new `trivia.db` is copied to the app assets directory (the `export` phase prints the version number to make this easy).
-2. Read the previously installed version from AsyncStorage (key: `@cirquiz/local_db_version`).
-3. If `BUNDLED_DB_VERSION` is greater than the stored version (or no stored version exists) → copy the bundled `trivia.db` asset to the document directory using `expo-file-system`, overwriting any existing file, then persist `BUNDLED_DB_VERSION` to AsyncStorage.
-4. Open the database connection with `expo-sqlite`.
-5. Validate that the `questions` table exists and is non-empty.
-6. On failure, throw a typed error so the factory can fall back to an online provider.
+The database is opened by `SQLiteProvider` (from `expo-sqlite`) in `apps/cirquiz/app/_layout.tsx`, which wraps the entire app. `SQLiteProvider` handles the asset copy natively:
+
+- On first launch (or after a DB name bump): copies `assets/trivia.db` to the device's SQLite directory under the versioned name (e.g. `trivia_v1.db`), then opens it.
+- On subsequent launches: the file already exists, so no copy occurs.
+
+Once the DB is open, the `LocalDbBridge` component (also in `_layout.tsx`) calls `setLocalDb(db)` to register the `LocalDatabaseProvider` singleton in the provider factory.
 
 **Update workflow for future releases**:
-1. Run `python pipeline.py export` — note the `db_version` printed in the summary.
+1. Run `python pipeline.py export`.
 2. Copy `pipeline/export/cirquiz_questions.db` to `apps/cirquiz/assets/trivia.db`.
-3. Update `BUNDLED_DB_VERSION` in `LocalDatabaseProvider.ts` to match the printed version.
-4. Ship the app update — version detection and DB replacement happen automatically on the user's next launch.
+3. Bump `TRIVIA_DB_NAME` in `apps/cirquiz/app/_layout.tsx` (e.g. `trivia_v1.db` → `trivia_v2.db`).
+4. Ship the app update — on the user's next launch, the new DB is copied automatically and the old versioned file is deleted.
 
 ---
 
 ## Provider Registration
 
-The new source is registered in `apps/cirquiz/src/providers/providerFactory.ts` as a new `QuestionSource` value (e.g., `'local'`). The settings store (`src/state/settingsStore.ts`) may need a corresponding update to expose the local source as a selectable option in the UI.
+The `'local'` source is registered in `apps/cirquiz/src/providers/providerFactory.ts` via `setLocalDb()`, called automatically at app startup from `LocalDbBridge`. No manual registration is needed.
 
 ---
 
-## Dependencies Added
+## Dependencies
 
-| Package | Version | Purpose |
-|---------|---------|---------|
-| `expo-sqlite` | `~14.x` | SQLite access (installed via `npx expo install expo-sqlite`) |
+| Package | Purpose |
+|---------|---------|
+| `expo-sqlite` | SQLite access + `SQLiteProvider` for asset copying |
+| `expo-file-system` | Stale DB cleanup (`File` class) |
 
-**Metro config change** (`apps/cirquiz/metro.config.js`): Add `'db'` to `assetExts` so the `.db` file is bundled correctly.
+**Metro config** (`apps/cirquiz/metro.config.js`): `'db'` is included in `assetExts` so the `.db` file is bundled correctly.

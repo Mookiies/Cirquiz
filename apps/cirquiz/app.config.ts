@@ -41,7 +41,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   web: {
     favicon: './assets/icon/favicon.png',
   },
-  plugins: ['expo-router', 'expo-localization'],
+  plugins: ['expo-router', 'expo-localization', 'expo-sqlite'],
   extra: {
     appEnv: env,
     eas: {

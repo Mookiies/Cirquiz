@@ -4,7 +4,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 
 const STORAGE_KEY = '@cirquiz/settings';
 
-export type QuestionSource = 'otdb' | 'the-trivia-api';
+export type QuestionSource = 'otdb' | 'the-trivia-api' | 'local';
 
 interface SettingsStoreState {
   questionSource: QuestionSource;

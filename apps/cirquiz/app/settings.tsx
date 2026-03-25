@@ -35,6 +35,11 @@ export default function SettingsScreen() {
             active={questionSource === 'the-trivia-api'}
             onPress={() => setQuestionSource('the-trivia-api')}
           />
+          <SelectableRow
+            label={t('settings.local')}
+            active={questionSource === 'local'}
+            onPress={() => setQuestionSource('local')}
+          />
         </View>
       </View>
     </GradientScreen>

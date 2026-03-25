@@ -1,5 +1,6 @@
 This file is purely for notes and tracking things I want to implement going forward. May not be up to date.
 
+FEATURES
 App store review prompt. https://docs.expo.dev/versions/latest/sdk/storereview/
 Shuffle questions per person answering so you can't see what position the person before you typed
 

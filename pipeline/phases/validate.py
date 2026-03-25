@@ -105,6 +105,11 @@ def _malformed_question(q: Question) -> str | None:
     if _MARKUP_RE.search(text):
         return "question text contains markup or encoding artifacts"
 
+    # LLM formatting artifacts — model leaked its prompt format into the output
+    for token in ("Q:", "Question", "{", "}", "[", "]"):
+        if token in text:
+            return f"question text contains LLM formatting artifact: {repr(token)}"
+
     # Math/calculation questions — answers must be recalled facts, not computed
     calc_patterns = [
         r"\bin total\b", r"\bthe sum\b", r"\bhow many .{0,30}\b(total|altogether|combined)\b",
