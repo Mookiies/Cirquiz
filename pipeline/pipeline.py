@@ -38,7 +38,7 @@ def cmd_review(args: argparse.Namespace) -> None:
 def cmd_curate(args: argparse.Namespace) -> None:
     from phases.curate import run_curate
 
-    run_curate(db_path=args.db, category=args.category)
+    run_curate(db_path=args.db, category=args.category, approved=args.approved, start_from=args.start_from)
 
 
 def cmd_dupes(args: argparse.Namespace) -> None:
@@ -100,6 +100,8 @@ def main() -> None:
     # ── curate ──────────────────────────────────────────────────────────────
     cur_p = subparsers.add_parser("curate", help="Human review of all unreviewed valid questions")
     cur_p.add_argument("--category", default=None, help="Only show questions from this category (e.g. geography)")
+    cur_p.add_argument("--approved", action="store_true", help="Re-curate already approved questions (to reject or re-categorise)")
+    cur_p.add_argument("--start-from", type=int, default=None, metavar="ID", dest="start_from", help="Start from this question ID (shown in the header of each question)")
     cur_p.set_defaults(func=cmd_curate)
 
     # ── export ──────────────────────────────────────────────────────────────

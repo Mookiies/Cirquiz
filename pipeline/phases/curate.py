@@ -62,31 +62,34 @@ def _display_question(
     console.print(f"\n[bold]{HELP_TEXT}[/bold]\n")
 
 
-def run_curate(db_path: str, category: str | None = None) -> None:
-    console.rule("[bold blue]Phase: Curate")
+def run_curate(db_path: str, category: str | None = None, approved: bool = False, start_from: int | None = None) -> None:
+    mode_label = "Re-Curate (approved)" if approved else "Curate"
+    console.rule(f"[bold blue]Phase: {mode_label}")
 
     engine = init_db(db_path)
 
     with Session(engine) as session:
         query = select(Question).where(
-            Question.human_approved == False,  # noqa: E712
+            Question.human_approved == approved,  # noqa: E712
             Question.rejected == False,  # noqa: E712
             Question.verified == True,  # noqa: E712
             Question.is_duplicate == False,  # noqa: E712
         )
         if category:
             query = query.where(Question.category == category)
+        if start_from is not None:
+            query = query.where(Question.id >= start_from)
         questions = session.exec(query.order_by(Question.id)).all()
 
     if not questions:
-        msg = f"No questions pending curation"
+        msg = "No approved questions to re-curate" if approved else "No questions pending curation"
         msg += f" for category '{category}'." if category else "."
         console.print(f"[green]{msg}")
         return
 
     total = len(questions)
     category_label = f" [{category}]" if category else ""
-    console.print(f"{total} questions to curate{category_label}.\n")
+    console.print(f"{total} questions to {'re-curate' if approved else 'curate'}{category_label}.\n")
 
     approved = rejected = skipped = 0
 
