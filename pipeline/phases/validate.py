@@ -452,6 +452,11 @@ def run_validate(
         state_row.status = "complete"
         state_row.items_processed = len(questions)
 
+        # Ensure last_processed_id covers the full batch — checkpoint interval may
+        # not have fired if the batch was smaller than checkpoint_interval (e.g. 6 questions).
+        if questions and (state_row.last_processed_id or 0) < questions[-1].id:
+            state_row.last_processed_id = questions[-1].id
+
         # Advance last_processed_id past any duplicate questions that were skipped
         # by the query filter, so re-runs don't keep seeing them indefinitely.
         max_skipped_id = session.exec(

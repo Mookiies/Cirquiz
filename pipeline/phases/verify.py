@@ -54,8 +54,14 @@ def _run_dedup(session: Session, questions: list[Question]) -> int:
                 continue
             sim = _cosine_similarity(embeddings[i], embeddings[j])
             if sim >= DEDUP_THRESHOLD and frozenset({q_i.id, q_j.id}) not in exemptions:
-                # Keep the one with higher confidence; mark the other as duplicate
-                if (q_i.confidence_score or 0.0) >= (q_j.confidence_score or 0.0):
+                # Human-approved always wins; otherwise keep higher confidence
+                if q_i.human_approved and not q_j.human_approved:
+                    canonical_id = q_i.id
+                    dup_id = q_j.id
+                elif q_j.human_approved and not q_i.human_approved:
+                    canonical_id = q_j.id
+                    dup_id = q_i.id
+                elif (q_i.confidence_score or 0.0) >= (q_j.confidence_score or 0.0):
                     canonical_id = q_i.id
                     dup_id = q_j.id
                 else:
