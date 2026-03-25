@@ -120,6 +120,23 @@ def _malformed_question(q: Question) -> str | None:
     if re.search(r"\b[A-Da-d]\)", text) or re.search(r"\b[1-4]\.", text):
         return "question text contains embedded answer options"
 
+    # Birth/death date questions — trivial memorisation, not knowledge
+    birth_death_patterns = [
+        r"\bin what year (was|were) .{1,40} born\b",
+        r"\bwhen (was|were) .{1,40} born\b",
+        r"\bwhat year (was|were) .{1,40} born\b",
+        r"\bin what year did .{1,40} die\b",
+        r"\bwhen did .{1,40} die\b",
+        r"\bwhat year did .{1,40} die\b",
+        r"\byear of (his|her|their) birth\b",
+        r"\byear of (his|her|their) death\b",
+        r"\bdate of (his|her|their) birth\b",
+        r"\bdate of (his|her|their) death\b",
+    ]
+    for pattern in birth_death_patterns:
+        if re.search(pattern, lower):
+            return f"birth/death date question: matched '{pattern}'"
+
     # Subjective superlative framing — no objectively correct answer
     subjective_patterns = [
         r"\breached?\s+(its|the)\s+(best|peak|height|zenith|apex|pinnacle)\b",

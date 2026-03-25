@@ -196,8 +196,11 @@ immediately, and not something only a specialist would ever encounter.
 - Prefer asking WHAT someone did, discovered, or created over WHEN they did it. \
 "Which scientist first described natural selection?" is better than "In what year did Darwin \
 publish On the Origin of Species?" — the what teaches you something, the date rarely does.
-- Date questions are only acceptable when the date itself is famous (moon landing, D-Day, etc.). \
-For any niche or obscure topic, never ask a date question — it rewards nothing.
+- NEVER ask when someone was born or died. Birth and death years are arbitrary facts that reward \
+memorisation, not knowledge. Ask what someone did, discovered, or created instead.
+- Date questions are only acceptable when the date itself is iconic and universally recognised \
+(moon landing, D-Day, fall of the Berlin Wall). For any niche or obscure topic, never ask a \
+date question — it rewards nothing.
 - The fact being tested should be notable or surprising in its own right. If knowing the answer \
 feels arbitrary — if it's just a detail that happens to appear in the passage — skip it.
 - Distractors must feel like real guesses to someone who doesn't know the answer. Wrong options \
