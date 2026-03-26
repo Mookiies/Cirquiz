@@ -137,6 +137,10 @@ def _malformed_question(q: Question) -> str | None:
         r"\byear of (his|her|their) death\b",
         r"\bdate of (his|her|their) birth\b",
         r"\bdate of (his|her|their) death\b",
+        # "died on November 30", "born on January 1"
+        r"\b(born|died) on\b",
+        # "born in November", "died in December"
+        r"\b(born|died) in (january|february|march|april|may|june|july|august|september|october|november|december)\b",
     ]
     for pattern in birth_death_patterns:
         if re.search(pattern, lower):

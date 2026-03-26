@@ -196,8 +196,10 @@ immediately, and not something only a specialist would ever encounter.
 - Prefer asking WHAT someone did, discovered, or created over WHEN they did it. \
 "Which scientist first described natural selection?" is better than "In what year did Darwin \
 publish On the Origin of Species?" — the what teaches you something, the date rarely does.
-- NEVER ask when someone was born or died. Birth and death years are arbitrary facts that reward \
-memorisation, not knowledge. Ask what someone did, discovered, or created instead.
+- NEVER ask about anyone's birth or death — not the year, not the date, not the age, not where \
+they were born or died. These are arbitrary biographical footnotes that reward memorisation, not \
+knowledge. If the passage mentions a birth or death, ignore it. Ask what the person did, \
+discovered, invented, wrote, or created instead.
 - Date questions are only acceptable when the date itself is iconic and universally recognised \
 (moon landing, D-Day, fall of the Berlin Wall). For any niche or obscure topic, never ask a \
 date question — it rewards nothing.
