@@ -54,7 +54,7 @@ def edit_question(
     with tempfile.NamedTemporaryFile(
         mode="w", suffix=".json", delete=False, encoding="utf-8"
     ) as f:
-        json.dump(data, f, indent=2)
+        json.dump(data, f, indent=2, ensure_ascii=False)
         tmp_path = f.name
 
     editor = os.environ.get("EDITOR", "nano")
