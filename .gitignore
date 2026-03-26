@@ -73,6 +73,7 @@ pipeline/generation.db
 pipeline/logs/*.log
 pipeline/export/*.db
 /pipeline/simplewiki-latest-pages-articles.xml.bz2
+pipeline/backup/
 
 # ─── Misc ────────────────────────────────────────────────────────────────────
 *.log
