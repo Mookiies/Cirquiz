@@ -218,7 +218,7 @@ def run_export(db_path: str, output_path: str | None = None) -> None:
     for cat, count in sorted(cat_counts.items()):
         table.add_row(f"  {cat}", str(count))
     for diff in ("easy", "medium", "hard"):
-        table.add_row(f"  [{diff}]", str(diff_counts.get(diff, 0)))
+        table.add_row(f"  {diff}", str(diff_counts.get(diff, 0)))
     console.print(table)
     console.print("\n[bold cyan]Next steps:[/bold cyan]")
     console.print(f"  1. cp {output_path} ../apps/cirquiz/assets/trivia.db")
