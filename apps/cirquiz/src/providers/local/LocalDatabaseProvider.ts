@@ -55,7 +55,7 @@ export class LocalDatabaseProvider implements TriviaQuestionProvider {
         text: row.text,
         options,
         correctAnswer: row.correct_answer,
-        category: row.category,
+        category: i18n.t(`categories.${row.category}`, { defaultValue: row.category }),
         difficulty: row.difficulty as Difficulty,
       };
     });
