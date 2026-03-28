@@ -187,7 +187,7 @@ tmux attach -t trivia-gen
 - **Seed data** (`source_type='seed'`) bypasses generate, validate, and verify — it is pre-approved ground truth
 - **Deduplication** runs on every verify pass, so lowering `DEDUP_THRESHOLD` in `config.py` retroactively catches more near-duplicates on the next run
 - **Feedback is zero-maintenance** — every human approval/correction/rejection automatically becomes a calibration example on the next pipeline run
-- **Export** only includes `verified=true, rejected=false, is_duplicate=false` — the feedback DB and export DB are separate files
+- **Export** only includes `verified=true, rejected=false, is_duplicate=false, human_approved=true` — the feedback DB and export DB are separate files
 
 ## Linting
 
