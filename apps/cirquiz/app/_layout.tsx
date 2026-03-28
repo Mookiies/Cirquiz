@@ -17,7 +17,7 @@ import { colors, spacing, fontSize, fontWeight } from '../src/theme';
 // Bump this name (e.g. trivia_v2.db) whenever a new trivia.db is exported and
 // copied to assets/. The old on-disk file is cleaned up automatically on the
 // user's next launch. The asset filename in assets/ stays trivia.db always.
-const TRIVIA_DB_NAME = 'trivia_v9.db';
+const TRIVIA_DB_NAME = 'trivia_v11.db';
 
 export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
   const { t } = useTranslation();
