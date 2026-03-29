@@ -386,14 +386,17 @@ def run_generate(
                     )
                     continue
 
+                def _cap(s: str) -> str:
+                    return s[:1].upper() + s[1:] if s else s
+
                 question = Question(
                     source_chunk_id=chunk.id,
                     source_type="generated",
                     text=q.text,
-                    correct_answer=q.correct_answer,
-                    distractor_1=q.distractor_1,
-                    distractor_2=q.distractor_2,
-                    distractor_3=q.distractor_3,
+                    correct_answer=_cap(q.correct_answer),
+                    distractor_1=_cap(q.distractor_1),
+                    distractor_2=_cap(q.distractor_2),
+                    distractor_3=_cap(q.distractor_3),
                     category=q.category,
                     difficulty=q.difficulty,
                     confidence_score=q.confidence_score,
