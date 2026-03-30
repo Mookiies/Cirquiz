@@ -1,0 +1,71 @@
+# ─── JetBrains IDE ───────────────────────────────────────────────────────────
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+.idea_modules/
+
+# ─── macOS ───────────────────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# ─── Node / npm workspaces ───────────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp
+.pnp.js
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# ─── Expo ────────────────────────────────────────────────────────────────────
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# ─── EAS ─────────────────────────────────────────────────────────────────────
+.eas/build
+
+# ─── React Native ────────────────────────────────────────────────────────────
+# Android
+apps/cirquiz/android/
+*.keystore
+!debug.keystore
+
+# iOS
+apps/cirquiz/ios/
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Metro bundler
+.metro-health-check*
+
+# ─── TypeScript ──────────────────────────────────────────────────────────────
+*.tsbuildinfo
+
+# ─── Testing ─────────────────────────────────────────────────────────────────
+coverage/
+
+# ─── Environment / secrets ───────────────────────────────────────────────────
+.env.local
+.env.*.local
+*.pem
+
+# ─── Questions database ───────────────────────────────────────────────────────
+# Note: apps/cirquiz/assets/trivia.db is intentionally included in EAS builds.
+# Keep this file in sync with .gitignore (minus this entry).
+
+# ─── Python pipeline ─────────────────────────────────────────────────────────
+pipeline/.venv/
+pipeline/venv/
+pipeline/generation.db
