@@ -2,9 +2,15 @@ This file is purely for notes and tracking things I want to implement going forw
 
 FEATURES
 App store review prompt. https://docs.expo.dev/versions/latest/sdk/storereview/
-Shuffle questions per person answering so you can't see what position the person before you typed
+
+IMPROVEMENTS
+Make sure winner is round not question based?
+Persist the num players and their names?
+Change it so it's more obvious who won the round?
+Shuffle questions per person answering so you can't see what position the person before you typed?
 
 BUGS
+- Need to handle network failure more gracefully so you can cancel (right now it just stalls out)
 - Instead of refresshing the session for otdb when we run out of questions we should show some sort of UI to reset the session or allow changing the category selection
 - On taking a long time to load for continue, if someone quits the game it should cancel the pending network request and navigaiton
 
@@ -22,13 +28,6 @@ Questions:
     - Image questions
     - Slider questions
     - Audio questions (spotify integration like hitster)
-- Generate our own questions
-    - Web scraping NLP to generate a large bank that could be used offline
-    - Generating a backend that is able to handle it
-    - embedding for offline
-- AI generated question (maybe embedding models and working with it that way)?
-    - https://github.com/a-ghorbani/pocketpal-ai?tab=readme-ov-file#downloading-a-model
-    - Monitization opportunity: make people watch an add before downloading a model as a "one-time fee", make it optional?
 
 - MUSIC INTEGRATION
 
