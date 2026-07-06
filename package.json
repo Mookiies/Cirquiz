@@ -1,6 +1,7 @@
 {
   "name": "cirquiz-root",
   "private": true,
+  "packageManager": "yarn@4.10.2",
   "workspaces": [
     "apps/*"
   ]
