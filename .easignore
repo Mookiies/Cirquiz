@@ -66,6 +66,4 @@ coverage/
 # Keep this file in sync with .gitignore (minus this entry).
 
 # ─── Python pipeline ─────────────────────────────────────────────────────────
-pipeline/.venv/
-pipeline/venv/
-pipeline/generation.db
+pipeline/
