@@ -61,24 +61,11 @@ coverage/
 .env.*.local
 *.pem
 
-# ─── Questions database (private — download via scripts/download-db.sh) ──────
-apps/cirquiz/assets/trivia.db
+# ─── Questions database ───────────────────────────────────────────────────────
+# Note: apps/cirquiz/assets/trivia.db is intentionally included in EAS builds.
+# Keep this file in sync with .gitignore (minus this entry).
 
 # ─── Python pipeline ─────────────────────────────────────────────────────────
 pipeline/.venv/
 pipeline/venv/
-pipeline/**/__pycache__/
-pipeline/**/*.pyc
 pipeline/generation.db
-pipeline/logs/*.log
-pipeline/export/*.db
-/pipeline/simplewiki-latest-pages-articles.xml.bz2
-pipeline/backup/
-
-# ─── Misc ────────────────────────────────────────────────────────────────────
-*.log
-.cache/
-tmp/
-temp/
-/pipeline/seed-data/
-/pipeline/generation.db-journal

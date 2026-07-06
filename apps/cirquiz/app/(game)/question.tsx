@@ -8,6 +8,7 @@ import { useQuitGame } from '../../src/hooks/useQuitGame';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, spacing } from '../../src/theme';
 import { GradientScreen } from '../../src/components/GradientScreen';
+import { shuffle } from '../../src/utils/shuffle';
 
 export default function QuestionScreen() {
   const insets = useSafeAreaInsets();
@@ -24,6 +25,16 @@ export default function QuestionScreen() {
     return g.players[r.currentPlayerIndex];
   });
   const [accentColor] = useState(() => frozenPlayer?.color ?? colors.primary);
+  // Shuffle the answer order per player (frozen at mount, which happens once per turn). This way a
+  // later player can't infer the correct answer from which screen region the previous player tapped.
+  // Only multiple-choice is reshuffled; true/false keeps its natural True/False order.
+  const [displayedOptions] = useState(() => {
+    const g = useGameStore.getState().game;
+    if (!g) return [];
+    const r = g.rounds[g.currentRoundIndex];
+    const q = r.questions[r.currentQuestionIndex];
+    return q.type === 'multiple-choice' ? shuffle(q.options) : q.options;
+  });
 
   if (!game) return null;
 
@@ -51,7 +62,7 @@ export default function QuestionScreen() {
           questionCount={round.questions.length}
         />
         <View style={styles.optionsContainer}>
-          {question.options.map((option) => (
+          {displayedOptions.map((option) => (
             <AnswerButton
               key={option}
               label={option}

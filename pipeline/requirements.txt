@@ -1,0 +1,11 @@
+mlx-lm~=0.22
+outlines[mlxlm]~=0.2
+sentence-transformers~=3.0
+datasets~=2.18
+mwxml~=0.3
+sqlmodel
+rich
+tqdm
+readchar
+pytest
+ruff

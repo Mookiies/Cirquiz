@@ -15,6 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, spacing, fontSize, fontWeight, radius } from '../../src/theme';
 import { GradientScreen } from '../../src/components/GradientScreen';
 import { ShineButton } from '../../src/components/ShineButton';
+import { getStanding } from '../../src/utils/standings';
 
 export default function StandingsScreen() {
   const { t } = useTranslation();
@@ -116,7 +117,7 @@ export default function StandingsScreen() {
         <Text style={styles.title}>{t('game.standings.title')}</Text>
 
         {sorted.map((player, index) => {
-          const place = index + 1;
+          let place = getStanding(sorted, index);
           const roundScores = game.rounds.map(
             (round) => round.turns.filter((t) => t.playerId === player.id && t.isCorrect).length
           );

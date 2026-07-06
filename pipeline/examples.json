@@ -1,0 +1,102 @@
+[
+  {
+    "category": "arts_and_literature",
+    "difficulty": "medium",
+    "question": "Which novel by Gabriel García Márquez follows the Buendía family across seven generations in the fictional town of Macondo?",
+    "correct_answer": "One Hundred Years of Solitude",
+    "distractor_1": "Love in the Time of Cholera",
+    "distractor_2": "The Autumn of the Patriarch",
+    "distractor_3": "Chronicle of a Death Foretold",
+    "note": "Good because it rewards literary knowledge without being obvious — many people have heard of the book but couldn't name it from the description alone."
+  },
+  {
+    "category": "film_and_tv",
+    "difficulty": "medium",
+    "question": "Which actor played James Bond in the 1969 film 'On Her Majesty's Secret Service'?",
+    "correct_answer": "George Lazenby",
+    "distractor_1": "Roger Moore",
+    "distractor_2": "Timothy Dalton",
+    "distractor_3": "Pierce Brosnan",
+    "note": "Good because the lesser-known Bond actors are fair trivia — the answer surprises people who only know the famous ones, but it's still a knowable fact."
+  },
+  {
+    "category": "general_knowledge",
+    "difficulty": "easy",
+    "question": "What is the only mammal capable of sustained flight?",
+    "correct_answer": "Bat",
+    "distractor_1": "Flying squirrel",
+    "distractor_2": "Sugar glider",
+    "distractor_3": "Colugo",
+    "note": "Good because many people instinctively think of flying squirrels but those only glide — the distinction is the 'aha' moment."
+  },
+  {
+    "category": "geography",
+    "difficulty": "medium",
+    "question": "In which South American country is Angel Falls, the world's highest uninterrupted waterfall, located?",
+    "correct_answer": "Venezuela",
+    "distractor_1": "Brazil",
+    "distractor_2": "Colombia",
+    "distractor_3": "Ecuador",
+    "note": "Good because Angel Falls is famous enough to be fair game but many people guess Brazil — the connection to Venezuela is the surprising part."
+  },
+  {
+    "category": "history",
+    "difficulty": "medium",
+    "question": "Which Roman emperor issued the Edict of Milan in 313 AD, granting religious tolerance throughout the empire?",
+    "correct_answer": "Constantine I",
+    "distractor_1": "Augustus",
+    "distractor_2": "Hadrian",
+    "distractor_3": "Nero",
+    "note": "Good because it tests understanding of a historically significant event — not just a date, but what the edict was and who issued it."
+  },
+  {
+    "category": "music",
+    "difficulty": "medium",
+    "question": "Which jazz musician recorded the 1959 album 'Kind of Blue', widely considered the best-selling jazz album of all time?",
+    "correct_answer": "Miles Davis",
+    "distractor_1": "John Coltrane",
+    "distractor_2": "Dave Brubeck",
+    "distractor_3": "Thelonious Monk",
+    "note": "Good because the distractors are all plausible jazz legends — it tests specific knowledge rather than process of elimination."
+  },
+  {
+    "category": "science",
+    "difficulty": "medium",
+    "question": "Which chemical element has the symbol 'W', derived from 'Wolfram', the German name for the ore it was originally extracted from?",
+    "correct_answer": "Tungsten",
+    "distractor_1": "Tin",
+    "distractor_2": "Nickel",
+    "distractor_3": "Cobalt",
+    "note": "Good because there's a genuine 'aha' moment — most people know tungsten but not why its symbol is W, and learning the etymology is satisfying."
+  },
+  {
+    "category": "sport_and_leisure",
+    "difficulty": "medium",
+    "question": "Which country has won the most Rugby Union World Cup titles?",
+    "correct_answer": "New Zealand",
+    "distractor_1": "South Africa",
+    "distractor_2": "Australia",
+    "distractor_3": "England",
+    "note": "Good because it's a clean factual question with plausible distractors — all four nations have won the tournament, which makes the wrong answers genuinely tempting."
+  },
+  {
+    "category": "society_and_culture",
+    "difficulty": "medium",
+    "question": "Which ancient Greek philosopher founded the Academy in Athens, one of the earliest institutions of higher learning in the Western world?",
+    "correct_answer": "Plato",
+    "distractor_1": "Aristotle",
+    "distractor_2": "Socrates",
+    "distractor_3": "Epicurus",
+    "note": "Good because people often confuse Plato and Aristotle — the Academy connection is a memorable fact that resolves the confusion."
+  },
+  {
+    "category": "food_and_drink",
+    "difficulty": "medium",
+    "question": "Which spice, derived from the stigma of the Crocus sativus flower, is the most expensive spice in the world by weight?",
+    "correct_answer": "Saffron",
+    "distractor_1": "Turmeric",
+    "distractor_2": "Cardamom",
+    "distractor_3": "Vanilla",
+    "note": "Good because 'most expensive' is a notable superlative that makes the answer memorable, and the botanical detail makes it satisfying to learn."
+  }
+]

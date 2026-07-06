@@ -6,6 +6,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { getAvatar } from '../avatars';
 import { getProvider } from '../providers/providerFactory';
 import { TriviaProviderError } from '../providers/types';
+import i18n from '../i18n';
 import { useSettingsStore } from './settingsStore';
 import { Game, GameConfig, Player, Round, Turn } from './types';
 
@@ -65,6 +66,15 @@ export const useGameStore = create<GameStore>()(
             category: config.category,
             difficulty: config.difficulty,
           });
+
+          if (questions.length === 0) {
+            set({ isLoading: false, pendingConfig: null });
+            Alert.alert(
+              i18n.t('game.noQuestionsAvailable.title'),
+              i18n.t('game.noQuestionsAvailable.message')
+            );
+            return;
+          }
 
           const players: Player[] = config.players.map((p) => ({
             id: generateId(),
@@ -263,6 +273,15 @@ export const useGameStore = create<GameStore>()(
             difficulty: game.difficulty ?? undefined,
             excludeIds: previousQuestionIds,
           });
+
+          if (questions.length === 0) {
+            set({ isLoading: false });
+            Alert.alert(
+              i18n.t('game.noMoreQuestions.title'),
+              i18n.t('game.noMoreQuestions.message')
+            );
+            return;
+          }
 
           const resetPlayers = game.players.map((p) => ({
             ...p,
